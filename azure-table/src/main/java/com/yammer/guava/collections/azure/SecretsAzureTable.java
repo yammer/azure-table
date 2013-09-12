@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-// TODO move to own artifact
 public class SecretsAzureTable implements Table<String, Key, Secret> {
     public static final Timer GET_TIMER = createTimerFor("get");
     public static final Timer COLUMN_SET_TIMER = createTimerFor("column-set-query");

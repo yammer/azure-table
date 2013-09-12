@@ -5,8 +5,8 @@ import com.microsoft.windowsazure.services.table.client.TableServiceEntity;
 import com.yammer.secretie.api.model.Key;
 import com.yammer.secretie.api.model.Secret;
 
+// THIS should be turned into JSON operable class
 public class SecretieEntity extends TableServiceEntity {
-    /*package*/ static final String PARTITION_KEY = "secretie_single_partition"; // TODO move
     private byte[] secret;
 
     public SecretieEntity() { // needed by azure java api
