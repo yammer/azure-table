@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.yammer.secretie</groupId>
+        <artifactId>secretie-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>azure-table</artifactId>
+
+    <!-- this is a start for a Azure implementation of Guava Table interface, but for now it is tailored towards
+         Secretie, hence the dependency on API -->
+    <dependencies>
+        <dependency>
+            <groupId>com.yammer.secretie</groupId>
+            <artifactId>secretie-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.windowsazure</groupId>
+            <artifactId>microsoft-windowsazure-api</artifactId>
+            <version>${windows.azure.api.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>
+
