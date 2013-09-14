@@ -1,5 +1,7 @@
 package com.yammer.guava.collections.azure;
 
+import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
@@ -47,7 +49,7 @@ public class SecretsAzureTableTest {
     public void when_columnKeySet_requested_then_all_keys_returned() {
         // setup
         TableQuery<SecretieEntity> tableQuery = mock(TableQuery.class);
-        when(secretieTableOperationFactoryMock.keySet(TABLE_NAME)).thenReturn(tableQuery);
+        when(secretieTableOperationFactoryMock.selectAll(TABLE_NAME)).thenReturn(tableQuery);
         when(cloudTableClientMock.execute(tableQuery)).thenReturn(Arrays.asList(new SecretieEntity(ROW_NAME, EXISTING_KEY, SECRET), new SecretieEntity(ROW_NAME, EXISTING_KEY_2, SECRET)));
 
         // call under test
@@ -166,5 +168,21 @@ public class SecretsAzureTableTest {
         when(cloudTableClientMock.execute(TABLE_NAME, deleteTableOperationMock)).thenThrow(storageExceptionMock);
 
         secretsAzureTable.remove(ROW_NAME, EXISTING_KEY);
+    }
+
+    @Test
+    public void cellSet_returns_all_table_cells() {
+        // setup
+        TableQuery<SecretieEntity> tableQuery = mock(TableQuery.class);
+        when(secretieTableOperationFactoryMock.selectAll(TABLE_NAME)).thenReturn(tableQuery);
+        when(cloudTableClientMock.execute(tableQuery)).thenReturn(Arrays.asList(new SecretieEntity(ROW_NAME, EXISTING_KEY, SECRET), new SecretieEntity(ROW_NAME, EXISTING_KEY_2, SECRET)));
+
+        // call under test
+        Set<Table.Cell<String, Key, Secret>> cellSet = secretsAzureTable.cellSet();
+
+        // assertions
+        final Table.Cell<String, Key, Secret> expectedCell1 = Tables.immutableCell(ROW_NAME, EXISTING_KEY, SECRET);
+        final Table.Cell<String, Key, Secret> expectedCell2 = Tables.immutableCell(ROW_NAME, EXISTING_KEY_2, SECRET);
+        assertThat(cellSet, containsInAnyOrder(expectedCell1, expectedCell2));
     }
 }

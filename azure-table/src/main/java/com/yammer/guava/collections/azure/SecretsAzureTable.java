@@ -5,6 +5,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageErrorCode;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
@@ -24,7 +25,7 @@ import java.util.Set;
 
 public class SecretsAzureTable implements Table<String, Key, Secret> {
     public static final Timer GET_TIMER = createTimerFor("get");
-    public static final Timer COLUMN_SET_TIMER = createTimerFor("column-set-query");
+    public static final Timer SELECT_ALL_TIMER = createTimerFor("select-all-rows-and-columns");
     public static final Timer PUT_TIMER = createTimerFor("put");
     public static final Timer REMOVE_TIMER = createTimerFor("remove");
     private static final Function<SecretieEntity, Key> COLUMN_KEY_EXTRACTOR = new Function<SecretieEntity, Key>() {
@@ -33,6 +34,13 @@ public class SecretsAzureTable implements Table<String, Key, Secret> {
             return input.getKey();
         }
     };
+    private static final Function<SecretieEntity, Cell<String, Key, Secret>> TABLE_CELL_CREATOR =
+            new Function<SecretieEntity, Cell<String, Key, Secret>>() {
+                @Override
+                public Cell<String, Key, Secret> apply(SecretieEntity input) {
+                    return Tables.immutableCell(input.getPartitionKey(), input.getKey(), input.getSecret());
+                }
+            };
     private final String tableName;
     private final SecretieCloudTableClient cloudTableClient;
     private final SecretieTableRequestFactory secretieTableOperationFactory;
@@ -141,7 +149,7 @@ public class SecretsAzureTable implements Table<String, Key, Secret> {
     public Secret remove(Object rowKey, Object columnKey) {
         SecretieEntity entityToBeDeleted = rawGet(rowKey, columnKey);
 
-        if(entityToBeDeleted == null) {
+        if (entityToBeDeleted == null) {
             return null;
         }
 
@@ -174,7 +182,8 @@ public class SecretsAzureTable implements Table<String, Key, Secret> {
 
     @Override
     public Set<Cell<String, Key, Secret>> cellSet() {
-        throw new UnsupportedOperationException();
+        Iterable<Cell<String, Key, Secret>> cellSetIterable = Iterables.transform(selectAll(), TABLE_CELL_CREATOR);
+        return Collections.unmodifiableSet(Sets.newHashSet(cellSetIterable));
     }
 
     @Override
@@ -184,13 +193,16 @@ public class SecretsAzureTable implements Table<String, Key, Secret> {
 
     @Override
     public Set<Key> columnKeySet() {
-        TableQuery<SecretieEntity> keySetQuery = secretieTableOperationFactory.keySet(tableName);
-        Iterable<SecretieEntity> entities = timedExecuteQuery(COLUMN_SET_TIMER, keySetQuery);
-        Iterable<Key> columnKeyIterable = Iterables.transform(entities, COLUMN_KEY_EXTRACTOR);
+        Iterable<Key> columnKeyIterable = Iterables.transform(selectAll(), COLUMN_KEY_EXTRACTOR);
         return Collections.unmodifiableSet(Sets.newHashSet(columnKeyIterable));
     }
 
-    private  Iterable<SecretieEntity> timedExecuteQuery(Timer contextTimer, TableQuery<SecretieEntity> query) {
+    private Iterable<SecretieEntity> selectAll() {
+        TableQuery<SecretieEntity> keySetQuery = secretieTableOperationFactory.selectAll(tableName);
+        return timedExecuteQuery(SELECT_ALL_TIMER, keySetQuery);
+    }
+
+    private Iterable<SecretieEntity> timedExecuteQuery(Timer contextTimer, TableQuery<SecretieEntity> query) {
         TimerContext context = contextTimer.time();
         try {
             return cloudTableClient.execute(query);

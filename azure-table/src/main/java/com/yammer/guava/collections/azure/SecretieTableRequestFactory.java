@@ -21,7 +21,7 @@ import com.yammer.secretie.api.model.Secret;
         return TableOperation.delete(secretieEntity);
     }
 
-    TableQuery<SecretieEntity> keySet(String secretieTableName) {
+    TableQuery<SecretieEntity> selectAll(String secretieTableName) {
         return TableQuery.from(secretieTableName, SecretieEntity.class);
     }
 
