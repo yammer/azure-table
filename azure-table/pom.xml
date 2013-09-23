@@ -10,14 +10,7 @@
 
     <artifactId>azure-table</artifactId>
 
-    <!-- this is a start for a Azure implementation of Guava Table interface, but for now it is tailored towards
-         Secretie, hence the dependency on API -->
     <dependencies>
-        <dependency>
-            <groupId>com.yammer.secretie</groupId>
-            <artifactId>secretie-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.microsoft.windowsazure</groupId>
             <artifactId>microsoft-windowsazure-api</artifactId>
