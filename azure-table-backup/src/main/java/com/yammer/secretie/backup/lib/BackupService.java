@@ -6,15 +6,14 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.yammer.secretie.api.model.Key;
-import com.yammer.secretie.api.model.Secret;
 
 import java.util.Collection;
 import java.util.Date;
 
 /**
  * This is a backup service which operates on the Guava Table abstraction. There are two caveats:
- * - it reads all data, so it is applicable to small data sets
+ * - it reads all the data into memmory, so it is applicable to small data sets
+ * - it is oblivious of the backed up data type, it treats everything as strings
  * - it is not transactional, but updates progress to enable external retries
  */
 public class BackupService {
@@ -26,12 +25,12 @@ public class BackupService {
         }
     };
     private final String tableName;
-    private final TableCopy<String, Key, Secret> tableCopy;
+    private final TableCopy<String, String, String> tableCopy;
     private final SourceTableFactory sourceTableFactory;
     private final BackupTableFactory backupTableFactory;
     private final Table<String, Date, Backup.BackupStatus> backupListTable;
 
-    public BackupService(TableCopy<String, Key, Secret> tableCopy, SourceTableFactory sourceTableFactoryMock, BackupTableFactory backupTableFactoryMock) {
+    public BackupService(TableCopy<String, String, String> tableCopy, SourceTableFactory sourceTableFactoryMock, BackupTableFactory backupTableFactoryMock) {
         this.tableName = sourceTableFactoryMock.getTableName();
         this.tableCopy = tableCopy;
         this.sourceTableFactory = sourceTableFactoryMock;
@@ -66,7 +65,6 @@ public class BackupService {
         backupListTable.put(tableName, date, Backup.BackupStatus.COMPLETED);
     }
 
-
     private void setBeingDeleted(Backup backup) {
         backupListTable.put(backup.getName(), backup.getDate(), Backup.BackupStatus.BEING_DELETED);
     }
@@ -91,7 +89,7 @@ public class BackupService {
 
     public Optional<Backup> findBackup(String backupName, Date backupDate) {
         Backup.BackupStatus status = backupListTable.get(backupName, backupDate);
-        if(status == null) {
+        if (status == null) {
             return Optional.absent();
         }
 
@@ -110,7 +108,7 @@ public class BackupService {
         Collection<Table.Cell<String, Date, Backup.BackupStatus>> notLaterThanThresholdDate = Collections2.filter(backupListTable.cellSet(), thresholdDatePredicate);
         Collection<Backup> backupsToBeDeleted = Lists.newArrayList(Collections2.transform(notLaterThanThresholdDate, CREATE_BACKUP_ENTRY));
 
-        for(Backup backup : backupsToBeDeleted) {
+        for (Backup backup : backupsToBeDeleted) {
             removeBackup(backup);
         }
     }
@@ -120,7 +118,6 @@ public class BackupService {
                 backupTableFactory.getBackupTable(backupToBeRestored.getDate(), backupToBeRestored.getName()),
                 sourceTableFactory.getSourceTable());
     }
-
 
     public static final class BackupResult {
         private final Optional<Exception> failureCause;

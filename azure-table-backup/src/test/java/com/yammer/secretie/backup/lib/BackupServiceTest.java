@@ -3,8 +3,6 @@ package com.yammer.secretie.backup.lib;
 import com.google.common.base.Optional;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import com.yammer.secretie.api.model.Key;
-import com.yammer.secretie.api.model.Secret;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,16 +27,16 @@ public class BackupServiceTest {
     @Mock
     private BackupTableFactory backupTableFactoryMock;
     @Mock
-    private TableCopy<String, Key, Secret> tableCopyMock;
+    private TableCopy<String, String, String> tableCopyMock;
     private BackupService secretieBackup;
     // name of backup, date created, status
     private Table<String, Date, Backup.BackupStatus> backupListTable = HashBasedTable.create();
     @Mock
-    private Table<String, Key, Secret> sourceTableMock;
+    private Table<String, String, String> sourceTableMock;
     @Mock
-    private Table<String, Key, Secret> backupTableMock;
+    private Table<String, String, String> backupTableMock;
     @Mock
-    private Table<String, Key, Secret> tableWithBackupMock;
+    private Table<String, String, String> tableWithBackupMock;
 
     private static Table.Cell<String, Date, Backup.BackupStatus> getBackupEntry(Table<String, Date, Backup.BackupStatus> backupListTable) {
         return backupListTable.cellSet().iterator().next();

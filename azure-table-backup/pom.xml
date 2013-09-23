@@ -6,10 +6,10 @@
     <parent>
         <groupId>com.yammer.secretie</groupId>
         <artifactId>secretie-parent</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>table-backup</artifactId>
+    <artifactId>azure-table-backup</artifactId>
 
     <!-- todo add build plugin configuration to create a jar for backing up with designated main method and shading -->
 

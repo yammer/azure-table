@@ -4,9 +4,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
-import com.yammer.guava.collections.azure.SecretsAzureTable;
-import com.yammer.secretie.api.model.Key;
-import com.yammer.secretie.api.model.Secret;
+import com.yammer.guava.collections.azure.StringAzureTable;
 import com.yammer.secretie.backup.lib.SourceTableFactory;
 
 public class AzureSourceTableFactory implements SourceTableFactory {
@@ -20,11 +18,11 @@ public class AzureSourceTableFactory implements SourceTableFactory {
     }
 
     @Override
-    public Table<String, Key, Secret> getSourceTable() {
+    public Table<String, String, String> getSourceTable() {
         try {
             CloudTable table = cloudTableClient.getTableReference(tableName);
             table.createIfNotExist();
-            return new SecretsAzureTable(tableName, cloudTableClient);
+            return new StringAzureTable(tableName, cloudTableClient);
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
