@@ -3,11 +3,10 @@ package com.yammer.guava.collections.azure;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
+import com.microsoft.windowsazure.services.core.storage.utils.Base64;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
 import com.yammer.dropwizard.config.ConfigurationException;
-import com.yammer.secretie.api.model.Key;
-import com.yammer.secretie.api.model.Secret;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -23,9 +23,9 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+
+// TODO tidy up this test, its really difficult to read
 
 @RunWith(MockitoJUnitRunner.class)
 public class StringAzureTableTest {
@@ -36,11 +36,25 @@ public class StringAzureTableTest {
     private static final String VALUE = "value1";
     private static final String NEW_VALUE = "value2";
     private static final String TABLE_NAME = "secretie_table";
+    private static final String ENCODING = "UTF-8";
     @Mock
     private StringTableCloudClient stringTableCloudClientMock;
     @Mock
     private StringTableRequestFactory stringTableRequestFactoryMock;
     private StringAzureTable stringAzureTable;
+
+    private String encode(String stringToBeEncoded) throws UnsupportedEncodingException {
+        return Base64.encode(stringToBeEncoded.getBytes(ENCODING));
+
+    }
+
+    private String decode(String stringToBeDecoded) throws UnsupportedEncodingException {
+        return new String(Base64.decode(stringToBeDecoded), ENCODING);
+    }
+
+    private StringEntity encodedStringEntity(String unEncodedRowName, String unEncodedColumnName, String unEncodedValue) throws UnsupportedEncodingException {
+        return new StringEntity(encode(unEncodedRowName), encode(unEncodedColumnName), encode(unEncodedValue));
+    }
 
     @Before
     public void setUp() throws IOException, ConfigurationException {
@@ -48,11 +62,12 @@ public class StringAzureTableTest {
     }
 
     @Test
-    public void when_columnKeySet_requested_then_all_keys_returned() {
+    public void when_columnKeySet_requested_then_all_keys_returned() throws UnsupportedEncodingException {
         // setup
         TableQuery<StringEntity> tableQuery = mock(TableQuery.class);
         when(stringTableRequestFactoryMock.selectAll(TABLE_NAME)).thenReturn(tableQuery);
-        when(stringTableCloudClientMock.execute(tableQuery)).thenReturn(Arrays.asList(new StringEntity(ROW_NAME, EXISTING_COLUMN_KEY, VALUE), new StringEntity(ROW_NAME, EXISTING_KEY_2, VALUE)));
+        when(stringTableCloudClientMock.execute(tableQuery)).thenReturn(Arrays.asList(encodedStringEntity(ROW_NAME, EXISTING_COLUMN_KEY, VALUE),
+                encodedStringEntity(ROW_NAME, EXISTING_KEY_2, VALUE)));
 
         // call under test
         Set<String> columnKeySet = stringAzureTable.columnKeySet();
@@ -62,11 +77,11 @@ public class StringAzureTableTest {
     }
 
     @Test
-    public void get_of_an_existing_value_returns_result_from_azure_table_returned() throws StorageException {
+    public void get_of_an_existing_value_returns_result_from_azure_table_returned() throws StorageException, UnsupportedEncodingException {
         // setup
         TableOperation retriveTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(ROW_NAME, EXISTING_COLUMN_KEY)).thenReturn(retriveTableOperationMock);
-        when(stringTableCloudClientMock.execute(TABLE_NAME, retriveTableOperationMock)).thenReturn(new StringEntity(ROW_NAME, EXISTING_COLUMN_KEY, VALUE));
+        when(stringTableRequestFactoryMock.retrieve(encode(ROW_NAME), encode(EXISTING_COLUMN_KEY))).thenReturn(retriveTableOperationMock);
+        when(stringTableCloudClientMock.execute(TABLE_NAME, retriveTableOperationMock)).thenReturn(encodedStringEntity(ROW_NAME, EXISTING_COLUMN_KEY, VALUE));
 
         // call under test
         String value = stringAzureTable.get(ROW_NAME, EXISTING_COLUMN_KEY);
@@ -89,11 +104,11 @@ public class StringAzureTableTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void when_table_client_throws_storage_exception_during_get_then_exception_rethrown() throws StorageException {
+    public void when_table_client_throws_storage_exception_during_get_then_exception_rethrown() throws StorageException, UnsupportedEncodingException {
         // setup
         StorageException storageExceptionMock = mock(StorageException.class);
         TableOperation retriveTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(ROW_NAME, EXISTING_COLUMN_KEY)).thenReturn(retriveTableOperationMock);
+        when(stringTableRequestFactoryMock.retrieve(encode(ROW_NAME), encode(EXISTING_COLUMN_KEY))).thenReturn(retriveTableOperationMock);
         when(stringTableCloudClientMock.execute(TABLE_NAME, retriveTableOperationMock)).thenThrow(storageExceptionMock);
 
         // call under test
@@ -101,10 +116,10 @@ public class StringAzureTableTest {
     }
 
     @Test
-    public void when_put_then_value_added_or_replaced_in_azure() throws StorageException {
+    public void when_put_then_value_added_or_replaced_in_azure() throws StorageException, UnsupportedEncodingException {
         // setup
         TableOperation putTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.put(ROW_NAME, NON_EXISTENT_COLUMN_KEY, NEW_VALUE)).thenReturn(putTableOperationMock);
+        when(stringTableRequestFactoryMock.put(encode(ROW_NAME), encode(NON_EXISTENT_COLUMN_KEY), encode(NEW_VALUE))).thenReturn(putTableOperationMock);
 
         // call under test
         stringAzureTable.put(ROW_NAME, NON_EXISTENT_COLUMN_KEY, NEW_VALUE);
@@ -114,11 +129,11 @@ public class StringAzureTableTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void when_table_client_throws_storage_exception_during_put_then_exception_rethrown() throws StorageException {
+    public void when_table_client_throws_storage_exception_during_put_then_exception_rethrown() throws StorageException, UnsupportedEncodingException {
         // setup
         StorageException storageExceptionMock = mock(StorageException.class);
         TableOperation putTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.put(ROW_NAME, EXISTING_COLUMN_KEY, VALUE)).thenReturn(putTableOperationMock);
+        when(stringTableRequestFactoryMock.put(encode(ROW_NAME), encode(EXISTING_COLUMN_KEY), encode(VALUE))).thenReturn(putTableOperationMock);
         when(stringTableCloudClientMock.execute(TABLE_NAME, putTableOperationMock)).thenThrow(storageExceptionMock);
 
         // call under test
@@ -126,11 +141,11 @@ public class StringAzureTableTest {
     }
 
     @Test
-    public void when_delete_then_deleted_in_azure() throws StorageException {
+    public void when_delete_then_deleted_in_azure() throws StorageException, UnsupportedEncodingException {
         // setup
-        StringEntity result = new StringEntity(ROW_NAME, EXISTING_COLUMN_KEY, VALUE);
+        StringEntity result = encodedStringEntity(ROW_NAME, EXISTING_COLUMN_KEY, VALUE);
         TableOperation retriveTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(ROW_NAME, EXISTING_COLUMN_KEY)).thenReturn(retriveTableOperationMock);
+        when(stringTableRequestFactoryMock.retrieve(encode(ROW_NAME), encode(EXISTING_COLUMN_KEY))).thenReturn(retriveTableOperationMock);
         when(stringTableCloudClientMock.execute(TABLE_NAME, retriveTableOperationMock)).thenReturn(result);
 
         TableOperation deleteTableOperationMock = mock(TableOperation.class);
@@ -156,11 +171,11 @@ public class StringAzureTableTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void when_table_client_throws_storage_exception_during_delete_then_exception_rethrown() throws StorageException {
+    public void when_table_client_throws_storage_exception_during_delete_then_exception_rethrown() throws StorageException, UnsupportedEncodingException {
         // internal get
-        StringEntity result = new StringEntity(ROW_NAME, EXISTING_COLUMN_KEY, VALUE);
+        StringEntity result = encodedStringEntity(ROW_NAME, EXISTING_COLUMN_KEY, VALUE);
         TableOperation retriveTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(ROW_NAME, EXISTING_COLUMN_KEY)).thenReturn(retriveTableOperationMock);
+        when(stringTableRequestFactoryMock.retrieve(encode(ROW_NAME), encode(EXISTING_COLUMN_KEY))).thenReturn(retriveTableOperationMock);
         when(stringTableCloudClientMock.execute(TABLE_NAME, retriveTableOperationMock)).thenReturn(result);
         // delete
         TableOperation deleteTableOperationMock = mock(TableOperation.class);
@@ -173,11 +188,12 @@ public class StringAzureTableTest {
     }
 
     @Test
-    public void cellSet_returns_all_table_cells() {
+    public void cellSet_returns_all_table_cells() throws UnsupportedEncodingException {
         // setup
         TableQuery<StringEntity> tableQuery = mock(TableQuery.class);
         when(stringTableRequestFactoryMock.selectAll(TABLE_NAME)).thenReturn(tableQuery);
-        when(stringTableCloudClientMock.execute(tableQuery)).thenReturn(Arrays.asList(new StringEntity(ROW_NAME, EXISTING_COLUMN_KEY, VALUE), new StringEntity(ROW_NAME, EXISTING_KEY_2, VALUE)));
+        when(stringTableCloudClientMock.execute(tableQuery)).thenReturn(Arrays.asList(encodedStringEntity(ROW_NAME, EXISTING_COLUMN_KEY, VALUE), encodedStringEntity(ROW_NAME,
+                EXISTING_KEY_2, VALUE)));
 
         // call under test
         Set<Table.Cell<String, String, String>> cellSet = stringAzureTable.cellSet();

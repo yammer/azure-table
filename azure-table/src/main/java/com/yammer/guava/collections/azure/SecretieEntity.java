@@ -4,6 +4,7 @@ import com.microsoft.windowsazure.services.table.client.Ignore;
 import com.microsoft.windowsazure.services.table.client.TableServiceEntity;
 import com.yammer.secretie.api.model.Key;
 import com.yammer.secretie.api.model.Secret;
+// TODO to be removed
 
 // THIS should be turned into JSON operable class
 public class SecretieEntity extends TableServiceEntity {

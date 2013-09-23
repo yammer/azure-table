@@ -8,6 +8,7 @@ import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageErrorCode;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
+import com.microsoft.windowsazure.services.core.storage.utils.Base64;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
@@ -16,12 +17,13 @@ import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
 
 import javax.annotation.Nullable;
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-public class StringAzureTable  implements Table<String, String, String> {
+public class StringAzureTable implements Table<String, String, String> {
     public static final Timer GET_TIMER = createTimerFor("get");
     public static final Timer SELECT_ALL_TIMER = createTimerFor("select-all-rows-and-columns");
     public static final Timer PUT_TIMER = createTimerFor("put");
@@ -29,16 +31,20 @@ public class StringAzureTable  implements Table<String, String, String> {
     private static final Function<StringEntity, String> COLUMN_KEY_EXTRACTOR = new Function<StringEntity, String>() {
         @Override
         public String apply(StringEntity input) {
-            return input.getRowKey();
+            return decode(input.getRowKey());
         }
     };
     private static final Function<StringEntity, Cell<String, String, String>> TABLE_CELL_CREATOR =
             new Function<StringEntity, Cell<String, String, String>>() {
                 @Override
                 public Cell<String, String, String> apply(StringEntity input) {
-                    return Tables.immutableCell(input.getPartitionKey(), input.getRowKey(), input.getValue());
+                    return Tables.immutableCell(
+                            decode(input.getPartitionKey()),
+                            decode(input.getRowKey()),
+                            decode(input.getValue()));
                 }
             };
+    private static final String ENCODING = "UTF-8";
     private final String tableName;
     private final StringTableCloudClient cloudTableClient;
     private final StringTableRequestFactory secretieTableOperationFactory;
@@ -82,8 +88,26 @@ public class StringAzureTable  implements Table<String, String, String> {
         return entityToValue(rawGet(rowString, columnString));
     }
 
+    private static String encode(String stringToBeEncoded) {
+        try {
+            return new String(Base64.encode(stringToBeEncoded.getBytes(ENCODING)));
+        } catch (UnsupportedEncodingException e) {
+            // shouldn't happen but
+            throw Throwables.propagate(e);
+        }
+    }
+
+    private static String decode(String stringToBeDecoded) {
+        try {
+            return new String(Base64.decode(stringToBeDecoded), ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            // shouldn't happen but
+            throw Throwables.propagate(e);
+        }
+    }
+
     private String entityToValue(StringEntity stringEntity) {
-        return stringEntity == null ? null : stringEntity.getValue();
+        return stringEntity == null ? null : decode(stringEntity.getValue());
     }
 
     private StringEntity rawGet(Object rowString, Object columnString) {
@@ -91,13 +115,13 @@ public class StringAzureTable  implements Table<String, String, String> {
             return null;
         }
 
-        String row = (String) rowString;
-        String column = (String) columnString;
+        String row = encode((String) rowString);
+        String column = encode((String) columnString);
 
-        TableOperation getStringOperation = secretieTableOperationFactory.retrieve(row, column);
+        TableOperation retrieveEntityOperation = secretieTableOperationFactory.retrieve(row, column);
 
         try {
-            return timedTableOperation(GET_TIMER, getStringOperation);
+            return timedTableOperation(GET_TIMER, retrieveEntityOperation);
         } catch (StorageException e) {
             throw Throwables.propagate(e);
         }
@@ -129,7 +153,7 @@ public class StringAzureTable  implements Table<String, String, String> {
 
     @Override
     public String put(String rowString, String columnString, String value) {
-        TableOperation putStringieOperation = secretieTableOperationFactory.put(rowString, columnString, value);
+        TableOperation putStringieOperation = secretieTableOperationFactory.put(encode(rowString), encode(columnString), encode(value));
 
         try {
             return entityToValue(timedTableOperation(PUT_TIMER, putStringieOperation));

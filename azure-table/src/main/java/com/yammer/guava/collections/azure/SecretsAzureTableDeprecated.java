@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+// TODO to be removed
 
 public class SecretsAzureTableDeprecated implements Table<String, Key, Secret> {
     public static final Timer GET_TIMER = createTimerFor("get");

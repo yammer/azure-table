@@ -5,6 +5,7 @@ import org.apache.commons.codec.binary.Base64;
 
 import java.io.UnsupportedEncodingException;
 
+// TODO to be removed
 public class AzureKeyCodec {
     private static final String ENCODING = "UTF-8";
 
