@@ -1,11 +1,11 @@
-package com.yammer.secretie.backup.azure;
+package com.yammer.guava.collections.backup.azure;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.yammer.guava.collections.azure.StringAzureTable;
-import com.yammer.secretie.backup.lib.SourceTableFactory;
+import com.yammer.guava.collections.backup.lib.SourceTableFactory;
 
 public class AzureSourceTableFactory implements SourceTableFactory {
     private final CloudTableClient cloudTableClient;

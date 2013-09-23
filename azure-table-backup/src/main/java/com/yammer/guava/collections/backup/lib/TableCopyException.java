@@ -1,4 +1,4 @@
-package com.yammer.secretie.backup.lib;
+package com.yammer.guava.collections.backup.lib;
 
 public class TableCopyException extends Exception {
     public TableCopyException(Exception e) {

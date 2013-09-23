@@ -1,10 +1,8 @@
-package com.yammer.secretie.backup.lib;
+package com.yammer.guava.collections.backup.lib;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
-import com.yammer.secretie.backup.lib.TableCopy;
-import com.yammer.secretie.backup.lib.TableCopyException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

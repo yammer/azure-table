@@ -1,4 +1,4 @@
-package com.yammer.secretie.backup.azure;
+package com.yammer.guava.collections.backup.azure;
 
 // TODO implement
 public class AzureBackupTableFactory {

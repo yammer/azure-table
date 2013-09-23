@@ -1,4 +1,4 @@
-package com.yammer.secretie.backup.lib;
+package com.yammer.guava.collections.backup.lib;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.HashBasedTable;
