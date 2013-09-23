@@ -30,7 +30,9 @@ public class BackupService {
     private final BackupTableFactory backupTableFactory;
     private final Table<String, Date, Backup.BackupStatus> backupListTable;
 
-    public BackupService(TableCopy<String, String, String> tableCopy, SourceTableFactory sourceTableFactoryMock, BackupTableFactory backupTableFactoryMock) {
+    public BackupService(TableCopy<String, String, String> tableCopy,
+                         SourceTableFactory sourceTableFactoryMock,
+                         BackupTableFactory backupTableFactoryMock) {
         this.tableName = sourceTableFactoryMock.getTableName();
         this.tableCopy = tableCopy;
         this.sourceTableFactory = sourceTableFactoryMock;
@@ -52,8 +54,10 @@ public class BackupService {
     private void performBackup(Backup backup) throws Exception {
         final Date backupDate = backup.getDate();
         setBackupStarted(backupDate);
-        tableCopy.perform(sourceTableFactory.getSourceTable(),
-                backupTableFactory.createBackupTable(backupDate, tableName));
+        tableCopy.perform(
+                sourceTableFactory.getSourceTable(),
+                backupTableFactory.createBackupTable(backupDate, tableName)
+        );
         setBackupCompleted(backupDate);
     }
 
@@ -77,7 +81,8 @@ public class BackupService {
             }
         };
 
-        Collection<Table.Cell<String, Date, Backup.BackupStatus>> notEarlierThanThresholdDate = Collections2.filter(backupListTable.cellSet(), thresholdDatePredicate);
+        Collection<Table.Cell<String, Date, Backup.BackupStatus>>
+                notEarlierThanThresholdDate = Collections2.filter(backupListTable.cellSet(), thresholdDatePredicate);
         return Collections2.transform(notEarlierThanThresholdDate, CREATE_BACKUP_ENTRY);
     }
 
@@ -105,8 +110,10 @@ public class BackupService {
         };
 
 
-        Collection<Table.Cell<String, Date, Backup.BackupStatus>> notLaterThanThresholdDate = Collections2.filter(backupListTable.cellSet(), thresholdDatePredicate);
-        Collection<Backup> backupsToBeDeleted = Lists.newArrayList(Collections2.transform(notLaterThanThresholdDate, CREATE_BACKUP_ENTRY));
+        Collection<Table.Cell<String, Date, Backup.BackupStatus>>
+                notLaterThanThresholdDate = Collections2.filter(backupListTable.cellSet(), thresholdDatePredicate);
+        Collection<Backup>
+                backupsToBeDeleted = Lists.newArrayList(Collections2.transform(notLaterThanThresholdDate, CREATE_BACKUP_ENTRY));
 
         for (Backup backup : backupsToBeDeleted) {
             removeBackup(backup);
