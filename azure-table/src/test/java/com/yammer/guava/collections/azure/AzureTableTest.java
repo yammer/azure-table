@@ -1,5 +1,6 @@
 package com.yammer.guava.collections.azure;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import org.junit.Before;
@@ -8,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Set;
 
@@ -23,10 +25,12 @@ import static org.mockito.Mockito.when;
 public class AzureTableTest {
     private static final Float ROW_KEY = 0.5f;
     private static final Long COLUMN_KEY = 23l;
+    private static final Long COLUMN_KEY_2 = 2343l;
     private static final Integer VALUE = 1;
     private static final String STRING_ROW_KEY = ROW_KEY.toString();
     private static final String STRING_COLUMN_KEY = COLUMN_KEY.toString();
     private static final String STRING_VALUE = VALUE.toString();
+    private static final String STRING_COLUMN_KEY_2 = COLUMN_KEY_2.toString();
     private AzureTable<Float, Long, Integer> azureTable;
     @Mock
     private Table<String, String, String> stringTableMock;
@@ -237,6 +241,15 @@ public class AzureTableTest {
         Table.Cell<Float, Long, Integer> expectedCell = Tables.immutableCell(ROW_KEY, COLUMN_KEY, VALUE);
 
         assertThat(azureTable.cellSet(), containsInAnyOrder(expectedCell));
+    }
+
+    // column key set
+
+    @Test
+    public void columnKeySet_delegates_to_backing_table() throws UnsupportedEncodingException {
+        when(stringTableMock.columnKeySet()).thenReturn(ImmutableSet.of(STRING_COLUMN_KEY, STRING_COLUMN_KEY_2));
+
+        assertThat(azureTable.columnKeySet(), containsInAnyOrder(COLUMN_KEY, COLUMN_KEY_2));
     }
 
 

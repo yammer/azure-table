@@ -12,7 +12,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 
 public class AzureTable<R, C, V> implements Table<R, C, V> {
-    private final Function<Cell<String, String, String>, Cell<R, C, V>> unmarshallingTransformation =
+    private final Function<Cell<String, String, String>, Cell<R, C, V>> cellUnmarshallingTransformation =
             new Function<Cell<String, String, String>, Cell<R, C, V>>() {
                 @Override
                 public Cell<R, C, V> apply(Cell<String, String, String> input) {
@@ -23,6 +23,13 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
                     );
                 }
             };
+    private final Function<String, C> columnUnmarshallingTransformation = new Function<String, C>() {
+        @Override
+        public C apply(String input) {
+            return columnKeyMarshaller.unmarshal(input);
+        }
+    };
+
     private final Marshaller<R, String> rowKeyMarshaller;
     private final Marshaller<C, String> columnKeyMarshaller;
     private final Marshaller<V, String> valueMarshaller;
@@ -157,7 +164,7 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
 
     @Override
     public Set<Cell<R, C, V>> cellSet() { // TODO very simple implementatin: not live, not mutable
-        return ImmutableSet.copyOf(Iterables.transform(backingTable.cellSet(), unmarshallingTransformation));
+        return ImmutableSet.copyOf(Iterables.transform(backingTable.cellSet(), cellUnmarshallingTransformation));
     }
 
     @Override
@@ -167,7 +174,7 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
 
     @Override
     public Set<C> columnKeySet() {
-        throw new UnsupportedOperationException();
+        return ImmutableSet.copyOf(Iterables.transform(backingTable.columnKeySet(), columnUnmarshallingTransformation));
     }
 
     @Override
