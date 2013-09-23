@@ -14,8 +14,6 @@ import com.microsoft.windowsazure.services.table.client.TableQuery;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
-import com.yammer.secretie.api.model.Key;
-import com.yammer.secretie.api.model.Secret;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -23,54 +21,54 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-public class SecretsAzureTable implements Table<String, Key, Secret> {
+public class StringAzureTable  implements Table<String, String, String> {
     public static final Timer GET_TIMER = createTimerFor("get");
     public static final Timer SELECT_ALL_TIMER = createTimerFor("select-all-rows-and-columns");
     public static final Timer PUT_TIMER = createTimerFor("put");
     public static final Timer REMOVE_TIMER = createTimerFor("remove");
-    private static final Function<SecretieEntity, Key> COLUMN_KEY_EXTRACTOR = new Function<SecretieEntity, Key>() {
+    private static final Function<StringEntity, String> COLUMN_KEY_EXTRACTOR = new Function<StringEntity, String>() {
         @Override
-        public Key apply(SecretieEntity input) {
-            return input.getKey();
+        public String apply(StringEntity input) {
+            return input.getRowKey();
         }
     };
-    private static final Function<SecretieEntity, Cell<String, Key, Secret>> TABLE_CELL_CREATOR =
-            new Function<SecretieEntity, Cell<String, Key, Secret>>() {
+    private static final Function<StringEntity, Cell<String, String, String>> TABLE_CELL_CREATOR =
+            new Function<StringEntity, Cell<String, String, String>>() {
                 @Override
-                public Cell<String, Key, Secret> apply(SecretieEntity input) {
-                    return Tables.immutableCell(input.getPartitionKey(), input.getKey(), input.getSecret());
+                public Cell<String, String, String> apply(StringEntity input) {
+                    return Tables.immutableCell(input.getPartitionKey(), input.getRowKey(), input.getValue());
                 }
             };
     private final String tableName;
-    private final SecretieCloudTableClient cloudTableClient;
-    private final SecretieTableRequestFactory secretieTableOperationFactory;
+    private final StringTableCloudClient cloudTableClient;
+    private final StringTableRequestFactory secretieTableOperationFactory;
 
-    /* package */ SecretsAzureTable(String tableName, SecretieCloudTableClient cloudTableClient, SecretieTableRequestFactory secretieTableOperationFactory) {
+    /* package */ StringAzureTable(String tableName, StringTableCloudClient cloudTableClient, StringTableRequestFactory secretieTableOperationFactory) {
         this.tableName = tableName;
         this.cloudTableClient = cloudTableClient;
         this.secretieTableOperationFactory = secretieTableOperationFactory;
     }
 
-    public SecretsAzureTable(String secretieTableName, CloudTableClient tableClient) {
-        this(secretieTableName, new SecretieCloudTableClient(tableClient), new SecretieTableRequestFactory());
+    public StringAzureTable(String secretieTableName, CloudTableClient tableClient) {
+        this(secretieTableName, new StringTableCloudClient(tableClient), new StringTableRequestFactory());
     }
 
     private static Timer createTimerFor(String name) {
-        return Metrics.newTimer(SecretsAzureTable.class, name);
+        return Metrics.newTimer(StringAzureTable.class, name);
     }
 
     @Override
-    public boolean contains(@Nullable Object rowKey, @Nullable Object columnKey) {
+    public boolean contains(@Nullable Object rowString, @Nullable Object columnString) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean containsRow(@Nullable Object rowKey) {
+    public boolean containsRow(@Nullable Object rowString) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean containsColumn(@Nullable Object columnKey) {
+    public boolean containsColumn(@Nullable Object columnString) {
         throw new UnsupportedOperationException();
     }
 
@@ -80,32 +78,32 @@ public class SecretsAzureTable implements Table<String, Key, Secret> {
     }
 
     @Override
-    public Secret get(Object rowKey, Object columnKey) {
-        return entityToSecret(rawGet(rowKey, columnKey));
+    public String get(Object rowString, Object columnString) {
+        return entityToValue(rawGet(rowString, columnString));
     }
 
-    private Secret entityToSecret(SecretieEntity secretieEntity) {
-        return secretieEntity == null ? null : secretieEntity.getSecret();
+    private String entityToValue(StringEntity stringEntity) {
+        return stringEntity == null ? null : stringEntity.getValue();
     }
 
-    private SecretieEntity rawGet(Object rowKey, Object columnKey) {
-        if (!(rowKey instanceof String && columnKey instanceof Key)) {
+    private StringEntity rawGet(Object rowString, Object columnString) {
+        if (!(rowString instanceof String && columnString instanceof String)) {
             return null;
         }
 
-        String row = (String) rowKey;
-        Key column = (Key) columnKey;
+        String row = (String) rowString;
+        String column = (String) columnString;
 
-        TableOperation getSecretOperation = secretieTableOperationFactory.retrieve(row, column);
+        TableOperation getStringOperation = secretieTableOperationFactory.retrieve(row, column);
 
         try {
-            return timedTableOperation(GET_TIMER, getSecretOperation);
+            return timedTableOperation(GET_TIMER, getStringOperation);
         } catch (StorageException e) {
             throw Throwables.propagate(e);
         }
     }
 
-    private SecretieEntity timedTableOperation(Timer contextSpecificTimer, TableOperation tableOperation) throws StorageException {
+    private StringEntity timedTableOperation(Timer contextSpecificTimer, TableOperation tableOperation) throws StorageException {
         TimerContext context = contextSpecificTimer.time();
         try {
             return cloudTableClient.execute(tableName, tableOperation);
@@ -130,33 +128,33 @@ public class SecretsAzureTable implements Table<String, Key, Secret> {
     }
 
     @Override
-    public Secret put(String rowKey, Key columnKey, Secret value) {
-        TableOperation putSecretieOperation = secretieTableOperationFactory.put(rowKey, columnKey, value);
+    public String put(String rowString, String columnString, String value) {
+        TableOperation putStringieOperation = secretieTableOperationFactory.put(rowString, columnString, value);
 
         try {
-            return entityToSecret(timedTableOperation(PUT_TIMER, putSecretieOperation));
+            return entityToValue(timedTableOperation(PUT_TIMER, putStringieOperation));
         } catch (StorageException e) {
             throw Throwables.propagate(e);
         }
     }
 
     @Override
-    public void putAll(Table<? extends String, ? extends Key, ? extends Secret> table) {
+    public void putAll(Table<? extends String, ? extends String, ? extends String> table) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Secret remove(Object rowKey, Object columnKey) {
-        SecretieEntity entityToBeDeleted = rawGet(rowKey, columnKey);
+    public String remove(Object rowString, Object columnString) {
+        StringEntity entityToBeDeleted = rawGet(rowString, columnString);
 
         if (entityToBeDeleted == null) {
             return null;
         }
 
-        TableOperation deleteSecretieOperation = secretieTableOperationFactory.delete(entityToBeDeleted);
+        TableOperation deleteStringieOperation = secretieTableOperationFactory.delete(entityToBeDeleted);
 
         try {
-            return entityToSecret(timedTableOperation(REMOVE_TIMER, deleteSecretieOperation));
+            return entityToValue(timedTableOperation(REMOVE_TIMER, deleteStringieOperation));
         } catch (StorageException e) {
             if (notFound(e)) {
                 return null;
@@ -171,18 +169,18 @@ public class SecretsAzureTable implements Table<String, Key, Secret> {
     }
 
     @Override
-    public Map<Key, Secret> row(String rowKey) {
+    public Map<String, String> row(String rowString) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Map<String, Secret> column(Key columnKey) {
+    public Map<String, String> column(String columnString) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Set<Cell<String, Key, Secret>> cellSet() {
-        Iterable<Cell<String, Key, Secret>> cellSetIterable = Iterables.transform(selectAll(), TABLE_CELL_CREATOR);
+    public Set<Cell<String, String, String>> cellSet() {
+        Iterable<Cell<String, String, String>> cellSetIterable = Iterables.transform(selectAll(), TABLE_CELL_CREATOR);
         return Collections.unmodifiableSet(Sets.newHashSet(cellSetIterable));
     }
 
@@ -192,17 +190,17 @@ public class SecretsAzureTable implements Table<String, Key, Secret> {
     }
 
     @Override
-    public Set<Key> columnKeySet() {
-        Iterable<Key> columnKeyIterable = Iterables.transform(selectAll(), COLUMN_KEY_EXTRACTOR);
-        return Collections.unmodifiableSet(Sets.newHashSet(columnKeyIterable));
+    public Set<String> columnKeySet() {
+        Iterable<String> columnStringIterable = Iterables.transform(selectAll(), COLUMN_KEY_EXTRACTOR);
+        return Collections.unmodifiableSet(Sets.newHashSet(columnStringIterable));
     }
 
-    private Iterable<SecretieEntity> selectAll() {
-        TableQuery<SecretieEntity> keySetQuery = secretieTableOperationFactory.selectAll(tableName);
+    private Iterable<StringEntity> selectAll() {
+        TableQuery<StringEntity> keySetQuery = secretieTableOperationFactory.selectAll(tableName);
         return timedExecuteQuery(SELECT_ALL_TIMER, keySetQuery);
     }
 
-    private Iterable<SecretieEntity> timedExecuteQuery(Timer contextTimer, TableQuery<SecretieEntity> query) {
+    private Iterable<StringEntity> timedExecuteQuery(Timer contextTimer, TableQuery<StringEntity> query) {
         TimerContext context = contextTimer.time();
         try {
             return cloudTableClient.execute(query);
@@ -212,17 +210,17 @@ public class SecretsAzureTable implements Table<String, Key, Secret> {
     }
 
     @Override
-    public Collection<Secret> values() {
+    public Collection<String> values() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Map<String, Map<Key, Secret>> rowMap() {
+    public Map<String, Map<String, String>> rowMap() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Map<Key, Map<String, Secret>> columnMap() {
+    public Map<String, Map<String, String>> columnMap() {
         throw new UnsupportedOperationException();
     }
 }

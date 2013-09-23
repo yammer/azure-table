@@ -38,11 +38,11 @@ public class SecretsAzureTableTest {
     private SecretieCloudTableClient cloudTableClientMock;
     @Mock
     private SecretieTableRequestFactory secretieTableOperationFactoryMock;
-    private SecretsAzureTable secretsAzureTable;
+    private SecretsAzureTableDeprecated secretsAzureTable;
 
     @Before
     public void setUp() throws IOException, ConfigurationException {
-        secretsAzureTable = new SecretsAzureTable(TABLE_NAME, cloudTableClientMock, secretieTableOperationFactoryMock);
+        secretsAzureTable = new SecretsAzureTableDeprecated(TABLE_NAME, cloudTableClientMock, secretieTableOperationFactoryMock);
     }
 
     @Test
