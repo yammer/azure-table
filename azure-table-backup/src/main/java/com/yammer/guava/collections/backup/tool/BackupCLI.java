@@ -24,14 +24,17 @@ public class BackupCLI {
             addOption(BACKUP).
             addOption(LIST);
 
-    {
+    private static Options setupOptions() {
         CONFIG_FILE.setRequired(true);
         BACKUP_OPTIONS.setRequired(true);
+
+        return new Options().
+                addOption(CONFIG_FILE).
+                addOptionGroup(BACKUP_OPTIONS);
     }
 
-    private static final Options OPTIONS = new Options().
-            addOption(CONFIG_FILE).
-            addOptionGroup(BACKUP_OPTIONS);
+    private static final Options OPTIONS = setupOptions();
+
 
     private static void printHelpAndExit() {
         HelpFormatter formatter = new HelpFormatter();

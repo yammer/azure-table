@@ -15,8 +15,8 @@ import java.util.Date;
 import static com.yammer.guava.collections.backup.lib.Backup.BackupStatus;
 
 public class AzureBackupTableFactory implements BackupTableFactory {
-    private static final String BACKUP_LIST_TABLE_NAME = "com_yammer_guava_collections_backup_azure_backup_list_table_name";
-    private static final String BACKUP_TABLE_NAME_TEMPLATE = "com_yammer_guava_collections_backup___NAME_%s___DATE_%s";
+    private static final String BACKUP_LIST_TABLE_NAME = "comYammerGuavaCollectionsBackupAzureBackupListTableName";
+    private static final String BACKUP_TABLE_NAME_TEMPLATE = "comYammerGuavaCollectionsBackupNAME%sDATE%s";
     private static final AzureTable.Marshaller<String, String> IDENTITY_MARSHALLER = new AzureTable.Marshaller<String, String>() {
         @Override
         public String marshal(String unmarshalled) {
