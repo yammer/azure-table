@@ -15,6 +15,7 @@ import java.util.Date;
  * - it reads all the data into memmory, so it is applicable to small data sets
  * - it is oblivious of the backed up data type, it treats everything as strings
  * - it is not transactional, but updates progress to enable external retries
+ * - this class is not concurrency safe.
  */
 public class BackupService {
     private final Function<Table.Cell<String, Date, Backup.BackupStatus>, Backup> CREATE_BACKUP_ENTRY = new Function<Table.Cell<String, Date, Backup.BackupStatus>, Backup>() {
@@ -121,9 +122,21 @@ public class BackupService {
     }
 
     public void restore(Backup backupToBeRestored) throws TableCopyException {
+        final Backup freshBackupToBeRestored = findBackup(backupToBeRestored.getName(), backupToBeRestored.getDate()).get();
+        assertBackupCompleted(freshBackupToBeRestored);
         tableCopy.perform(
-                backupTableFactory.getBackupTable(backupToBeRestored.getDate(), backupToBeRestored.getName()),
+                backupTableFactory.getBackupTable(freshBackupToBeRestored.getDate(), freshBackupToBeRestored.getName()),
                 sourceTableFactory.getSourceTable());
+    }
+
+    private void assertBackupCompleted(Backup backupToBeRestored) {
+        if(!backupToBeRestored.getStatus().equals(Backup.BackupStatus.COMPLETED)) {
+            throw new IllegalArgumentException(
+                    "Expected backup in status: "+
+                            Backup.BackupStatus.COMPLETED+
+                            " but got status: "
+                            +backupToBeRestored.getStatus());
+        }
     }
 
     public static final class BackupResult {

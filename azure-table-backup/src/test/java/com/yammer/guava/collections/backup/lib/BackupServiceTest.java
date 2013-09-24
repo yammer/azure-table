@@ -11,6 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Date;
 
+import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -228,6 +229,20 @@ public class BackupServiceTest {
         assertThat(secretieBackup.listAllBackups(afterThresholdDate), containsInAnyOrder(backupAfterThresholdDate1, backupAfterThresholdDate2));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void given_backup_in_in_progress_state_restore_fails() throws TableCopyException {
+        Backup incompleteBackup = createIncompleteBackup();
+
+        secretieBackup.restore(incompleteBackup);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void given_backup_in_being_deleted_state_restore_fails() throws TableCopyException {
+        Backup notFullyDeletedBackup = createNotFullyDeletedBackup();
+
+        secretieBackup.restore(notFullyDeletedBackup);
+    }
+
     @Test
     public void given_backup_when_restore_backup_moved_to_the_main_table() throws TableCopyException {
         Backup backupToBeRestored = secretieBackup.backup().getBackup();
@@ -239,6 +254,26 @@ public class BackupServiceTest {
     }
 
     // fluent assertions utilities
+
+    private Backup createIncompleteBackup() throws TableCopyException {
+        doThrow(new TableCopyException(new RuntimeException())).when(tableCopyMock).perform(sourceTableMock, backupTableMock);
+        return secretieBackup.backup().getBackup();
+    }
+
+    private Backup createNotFullyDeletedBackup() {
+        Backup notFullyDeletedBackup = secretieBackup.backup().getBackup();
+
+        doThrow(new RuntimeException()).when(backupTableFactoryMock).removeTable(notFullyDeletedBackup.getDate(), notFullyDeletedBackup.getName());
+
+        try {
+            secretieBackup.removeBackup(notFullyDeletedBackup);
+        } catch (Exception e) {
+            return notFullyDeletedBackup;
+        }
+        fail();
+        return null;
+    }
+
 
     private BackupListTableFailureBuilder updatingBackupListTable() {
         return new BackupListTableFailureBuilder();

@@ -4,9 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.core.storage.CloudStorageAccount;
-import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
-import com.yammer.guava.collections.azure.AzureTable;
 import com.yammer.guava.collections.azure.StringAzureTable;
 import com.yammer.guava.collections.backup.azure.AzureBackupTableFactory;
 import com.yammer.guava.collections.backup.azure.AzureSourceTableFactory;
@@ -114,7 +112,7 @@ public class BackupCLI {
             System.out.println("\n\n === SOURCE ===\n");
             //CloudTable table = client.getTableReference(configuration.getSourceTableName());
             Table<String, String, String> azureTable = new StringAzureTable(configuration.getSourceTableName(), client);
-            for(Table.Cell<String, String, String> tableCell : azureTable.cellSet()) {
+            for (Table.Cell<String, String, String> tableCell : azureTable.cellSet()) {
                 System.out.println(String.format("partKey=%s key=%s val=%s", tableCell.getRowKey(), tableCell.getColumnKey(), tableCell.getValue()));
             }
 
@@ -134,7 +132,7 @@ public class BackupCLI {
             BackupService.BackupResult result = getBackupService().backup();
             format(result.getBackup());
             Optional<Exception> failureCause = result.getFailureCause();
-            if(failureCause.isPresent()) {
+            if (failureCause.isPresent()) {
                 throw failureCause.get();
             }
 
