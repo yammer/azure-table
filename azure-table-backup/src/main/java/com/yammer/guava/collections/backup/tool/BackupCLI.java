@@ -110,7 +110,7 @@ public class BackupCLI {
         }
 
         private String format(Backup backup) {
-            return String.format("Backup: NAME=%s DATE=&s STATUS=%s", backup.getName(), dateFormat.format(backup.getDate()), backup.getStatus());
+            return String.format("Backup: NAME=%s DATE=%s STATUS=%s", backup.getName(), dateFormat.format(backup.getDate()), backup.getStatus());
         }
     }
 
