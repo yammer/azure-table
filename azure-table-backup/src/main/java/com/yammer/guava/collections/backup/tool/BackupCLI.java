@@ -1,35 +1,25 @@
 package com.yammer.guava.collections.backup.tool;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.core.storage.CloudStorageAccount;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.yammer.guava.collections.azure.StringAzureTable;
-import com.yammer.guava.collections.backup.azure.AzureBackupTableFactory;
-import com.yammer.guava.collections.backup.azure.AzureSourceTableFactory;
-import com.yammer.guava.collections.backup.lib.*;
 import org.apache.commons.cli.*;
 
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-
-// TODO clean all bad backups (not COMPLTED)
 public class BackupCLI {
     private static final Option CONFIG_FILE = new Option("cf", true, "azure account configuration");
     private static final Option BACKUP = new Option("b", "perform a backup");
     private static final Option LIST = new Option("l", "list existing backups"); // TODO list time, listall
     private static final Option DELETE = new Option("d", "delete old backups");
     private static final Option RESTORE = new Option("r", "restore"); // TODO backup name/time
+    private static final Option DELETE_BAD_BACKUPS = new Option("db", "delete backups in bad state, i.e., not in COMPLETED");
     private static final OptionGroup BACKUP_OPTIONS = new OptionGroup().
             addOption(BACKUP).
             addOption(LIST).
             addOption(DELETE).
-            addOption(RESTORE);
+            addOption(RESTORE).
+            addOption(DELETE_BAD_BACKUPS);
     private static final Options OPTIONS = setupOptions();
 
     private static Options setupOptions() {
@@ -73,6 +63,8 @@ public class BackupCLI {
             backupCommand = new ListBackups(configPath, 0); // TODO parse time
         } else if (commandLine.hasOption(DELETE.getOpt())) {
             backupCommand = new DeleteBackups(configPath, Long.MAX_VALUE); // TODO parse time
+        } else if (commandLine.hasOption(DELETE_BAD_BACKUPS.getOpt())) {
+            backupCommand = new DeleteBadBackups(configPath);
         } else {
             printHelpAndExit();
         }
@@ -117,112 +109,6 @@ public class BackupCLI {
         } catch (Exception e) {
             Throwables.propagate(e);
         }
-    }
-
-    private static class DoBackupCommand extends BackupToolCommand {
-
-        private DoBackupCommand(String configPath) throws Exception {
-            super(configPath);
-        }
-
-        @Override
-        public void run() throws Exception {
-            BackupService.BackupResult result = getBackupService().backup();
-            format(result.getBackup());
-            Optional<Exception> failureCause = result.getFailureCause();
-            if (failureCause.isPresent()) {
-                throw failureCause.get();
-            }
-
-        }
-    }
-
-    private static class ListBackups extends BackupToolCommand {
-        private final Date thresholdDate;
-
-
-        private ListBackups(String configPath, long time) throws Exception {
-            super(configPath);
-            this.thresholdDate = new Date(time);
-        }
-
-        @Override
-        public void run() throws Exception {
-            Collection<Backup> backups = getBackupService().listAllBackups(thresholdDate);
-            for (Backup backup : backups) {
-                System.out.println(format(backup));
-            }
-        }
-    }
-
-    private static class DeleteBackups extends BackupToolCommand {
-        private final Date thresholdDate;
-
-
-        private DeleteBackups(String configPath, long time) throws Exception {
-            super(configPath);
-            this.thresholdDate = new Date(time);
-        }
-
-        @Override
-        public void run() throws Exception {
-            getBackupService().removeBackupsNotOlderThan(thresholdDate);
-        }
-
-    }
-
-    private static abstract class BackupToolCommand {
-        private final DateFormat dateFormat = new SimpleDateFormat();
-        private final BackupService backupService;
-
-        protected BackupToolCommand(String configPath) throws Exception {
-            BackupConfiguration configuration = parseConfiguration(configPath);
-            backupService = createBackupService(configuration);
-        }
-
-        private static BackupConfiguration parseConfiguration(String configPath) {
-            // TODO add parsing
-            BackupConfiguration configuration = new BackupConfiguration();
-            configuration.setSourceTableName("backupToolValues");
-            configuration.setSourceAccountName("secretietest");
-            configuration.setSourceAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
-            configuration.setBackupAccountName("secretietest");
-            configuration.setBackupAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
-            return configuration;
-        }
-
-        private static CloudTableClient createCloudTableClient(String connectionString) throws URISyntaxException, InvalidKeyException {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(connectionString);
-            return storageAccount.createCloudTableClient();
-        }
-
-        private static BackupTableFactory getBackupTableFactory(BackupConfiguration configuration) throws URISyntaxException, InvalidKeyException {
-            CloudTableClient tableClient = createCloudTableClient(configuration.getBackupConnectionString());
-            return new AzureBackupTableFactory(tableClient);
-        }
-
-        private static SourceTableFactory getSourceTableFactory(BackupConfiguration configuration) throws URISyntaxException, InvalidKeyException {
-            CloudTableClient tableClient = createCloudTableClient(configuration.getSourceConnectionString());
-            return new AzureSourceTableFactory(tableClient, configuration.getSourceTableName());
-        }
-
-        private static BackupService createBackupService(BackupConfiguration configuration) throws URISyntaxException, InvalidKeyException {
-            BackupTableFactory backupTableFactory = getBackupTableFactory(configuration);
-            SourceTableFactory sourceTableFactory = getSourceTableFactory(configuration);
-            TableCopy<String, String, String> tableCopy = new TableCopy<>();
-            return new BackupService(tableCopy, sourceTableFactory, backupTableFactory);
-        }
-
-        protected final BackupService getBackupService() {
-            return backupService;
-        }
-
-        protected String format(Backup backup) {
-            return String.format("Backup: NAME=%s DATE=%s STATUS=%s", backup.getName(), dateFormat.format(backup.getDate()), backup.getStatus());
-        }
-
-        public abstract void run() throws Exception;
-
     }
 
 }
