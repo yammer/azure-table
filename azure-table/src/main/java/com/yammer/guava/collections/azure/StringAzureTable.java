@@ -147,7 +147,7 @@ public class StringAzureTable implements Table<String, String, String> {
     }
 
     @Override
-    public void clear() {
+    public void clear() { // cannot be done meaningfully at the moment
         throw new UnsupportedOperationException();
     }
 
