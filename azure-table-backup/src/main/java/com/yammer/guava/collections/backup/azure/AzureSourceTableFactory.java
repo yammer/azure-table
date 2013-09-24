@@ -11,6 +11,8 @@ import com.yammer.guava.collections.backup.lib.SourceTableFactory;
 import org.apache.http.HttpStatus;
 
 public class AzureSourceTableFactory implements SourceTableFactory {
+    // http://msdn.microsoft.com/en-us/library/windowsazure/dd179387.aspx
+    // table deletion takes at least 40s. We are quite pesymistic here
     private static final int RECREATE_RETRY = 1000; // 1s
     private static final int MAX_NUMBER_OF_RETRIES = 120; // 2 minutes
     private final CloudTableClient cloudTableClient;
