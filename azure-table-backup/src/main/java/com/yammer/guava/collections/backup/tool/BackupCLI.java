@@ -7,20 +7,42 @@ import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.yammer.guava.collections.azure.StringAzureTable;
 import org.apache.commons.cli.*;
 
+// TODO proper azure table confiugration parsing is required for this tool, currently only test setup is being used
+// TODO change to hash values for backup table names
 public class BackupCLI {
-    private static final Option CONFIG_FILE = new Option("cf", true, "azure account configuration");
+    private static final Option CONFIG_FILE = OptionBuilder.
+            withArgName("file").
+            hasArg().
+            withDescription("azure src and backup accounts configuration file").
+            isRequired().
+            create("cf");
+    private static final Option LIST = OptionBuilder.
+            withArgName("timestamp").
+            hasArg().
+            withDescription("lists existing backups since timestamp").
+            create("l");
+    private static final Option DELETE = OptionBuilder.
+            withArgName("timestamp").
+            hasArg().
+            withDescription("deletes all backups until timestamp").
+            create("d");
+    private static final Option RESTORE = OptionBuilder.
+            withArgName("timestamp").
+            hasArg().
+            withDescription("restores the backup performed at the given timestamp").
+            create("r");
+    private static final Option LIST_ALL = new Option("la", "list all backups");
     private static final Option BACKUP = new Option("b", "perform a backup");
-    private static final Option LIST = new Option("l", "list existing backups"); // TODO list time, listall
-    private static final Option DELETE = new Option("d", "delete old backups");
-    private static final Option RESTORE = new Option("r", "restore"); // TODO backup name/time
     private static final Option DELETE_BAD_BACKUPS = new Option("db", "delete backups in bad state, i.e., not in COMPLETED");
     private static final OptionGroup BACKUP_OPTIONS = new OptionGroup().
             addOption(BACKUP).
             addOption(LIST).
+            addOption(LIST_ALL).
             addOption(DELETE).
             addOption(RESTORE).
             addOption(DELETE_BAD_BACKUPS);
     private static final Options OPTIONS = setupOptions();
+
 
     private static Options setupOptions() {
         CONFIG_FILE.setRequired(true);
@@ -60,11 +82,18 @@ public class BackupCLI {
         if (commandLine.hasOption(BACKUP.getOpt())) {
             backupCommand = new DoBackupCommand(configPath);
         } else if (commandLine.hasOption(LIST.getOpt())) {
-            backupCommand = new ListBackups(configPath, 0); // TODO parse time
+            long timeSince = parseTimestamp(commandLine.getOptionValue(LIST.getOpt()));
+            backupCommand = new ListBackups(configPath, timeSince);
+        } else if (commandLine.hasOption(LIST_ALL.getOpt())) {
+            backupCommand = new ListBackups(configPath, 0);
         } else if (commandLine.hasOption(DELETE.getOpt())) {
-            backupCommand = new DeleteBackups(configPath, Long.MAX_VALUE); // TODO parse time
+            long timeTill = parseTimestamp(commandLine.getOptionValue(DELETE.getOpt()));
+            backupCommand = new DeleteBackups(configPath, timeTill);
         } else if (commandLine.hasOption(DELETE_BAD_BACKUPS.getOpt())) {
             backupCommand = new DeleteBadBackups(configPath);
+        } else if (commandLine.hasOption(RESTORE.getOpt())) {
+            long backupTime = parseTimestamp(commandLine.getOptionValue(RESTORE.getOpt()));
+            backupCommand = new RestoreCommand(configPath, backupTime);
         } else {
             printHelpAndExit();
         }
@@ -76,7 +105,17 @@ public class BackupCLI {
             System.exit(-1);
         }
 
-        DEBUG_INFO();
+        //DEBUG_INFO();
+    }
+
+    private static Long parseTimestamp(String data) {
+        try {
+            return Long.parseLong(data);
+        } catch(NumberFormatException e) {
+            System.err.println("Timestamp must be provided as a numeric value. Failed to read timestamp. "+e.getMessage());
+            printHelpAndExit();
+            return null;
+        }
     }
 
     private static void DEBUG_INFO() {

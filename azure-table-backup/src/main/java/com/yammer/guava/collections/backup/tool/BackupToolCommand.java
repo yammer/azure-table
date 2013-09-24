@@ -14,9 +14,11 @@ import java.text.SimpleDateFormat;
 abstract class BackupToolCommand {
     private final DateFormat dateFormat = new SimpleDateFormat();
     private final BackupService backupService;
+    private final String backupName;
 
     BackupToolCommand(String configPath) throws Exception {
         BackupConfiguration configuration = parseConfiguration(configPath);
+        backupName = configuration.getSourceTableName();
         backupService = createBackupService(configuration);
     }
 
@@ -57,8 +59,13 @@ abstract class BackupToolCommand {
         return backupService;
     }
 
+    protected String getBackupName() {
+        return backupName;
+    }
+
     protected String format(Backup backup) {
-        return String.format("Backup: NAME=%s DATE=%s STATUS=%s", backup.getName(), dateFormat.format(backup.getDate()), backup.getStatus());
+        return String.format("Backup: NAME=%s DATE=%s TIMESTAMP=%s STATUS=%s", backup.getName(), dateFormat.format(backup.getDate()),
+                backup.getDate().getTime(), backup.getStatus());
     }
 
     public abstract void run() throws Exception;
