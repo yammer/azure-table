@@ -33,4 +33,15 @@ public class AzureSourceTableFactory implements SourceTableFactory {
         return tableName;
     }
 
+    @Override
+    public void clearSourceTable() {
+        try { // there is no single clear operation on azure table, so we implement this using drop and create :(
+            CloudTable table = cloudTableClient.getTableReference(tableName);
+            table.deleteIfExists();
+            table.create();
+        } catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
 }

@@ -124,6 +124,7 @@ public class BackupService {
     public void restore(Backup backupToBeRestored) throws TableCopyException {
         final Backup freshBackupToBeRestored = findBackup(backupToBeRestored.getName(), backupToBeRestored.getDate()).get();
         assertBackupCompleted(freshBackupToBeRestored);
+        sourceTableFactory.clearSourceTable();
         tableCopy.perform(
                 backupTableFactory.getBackupTable(freshBackupToBeRestored.getDate(), freshBackupToBeRestored.getName()),
                 sourceTableFactory.getSourceTable());

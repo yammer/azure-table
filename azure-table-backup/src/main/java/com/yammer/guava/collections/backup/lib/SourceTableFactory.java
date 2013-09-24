@@ -9,4 +9,6 @@ public interface SourceTableFactory {
     Table<String, String, String> getSourceTable();
 
     String getTableName();
+
+    void clearSourceTable();
 }

@@ -18,8 +18,6 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
-// TODO restore should clear the table prior to restoring
-// TODO before restoring, verify backup is in COMPLETED state
 // TODO clean all bad backups (not COMPLTED)
 public class BackupCLI {
     private static final Option CONFIG_FILE = new Option("cf", true, "azure account configuration");

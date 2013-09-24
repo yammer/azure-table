@@ -6,6 +6,7 @@ import com.google.common.collect.Table;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -244,13 +245,16 @@ public class BackupServiceTest {
     }
 
     @Test
-    public void given_backup_when_restore_backup_moved_to_the_main_table() throws TableCopyException {
+    public void given_backup_when_restore_main_table_cleared_and_backup_moved_to_the_main_table() throws TableCopyException {
         Backup backupToBeRestored = secretieBackup.backup().getBackup();
         when(backupTableFactoryMock.getBackupTable(backupToBeRestored.getDate(), backupToBeRestored.getName())).thenReturn(tableWithBackupMock);
 
         secretieBackup.restore(backupToBeRestored);
 
-        verify(tableCopyMock).perform(tableWithBackupMock, sourceTableMock);
+        InOrder inOrder = inOrder(sourceTableFactoryMock, tableCopyMock);
+
+        inOrder.verify(sourceTableFactoryMock).clearSourceTable();
+        inOrder.verify(tableCopyMock).perform(tableWithBackupMock, sourceTableMock);
     }
 
     // fluent assertions utilities
