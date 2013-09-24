@@ -2,12 +2,17 @@ package com.yammer.guava.collections.backup.azure;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Table;
+import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
+import com.microsoft.windowsazure.services.table.client.TableServiceException;
 import com.yammer.guava.collections.azure.StringAzureTable;
 import com.yammer.guava.collections.backup.lib.SourceTableFactory;
+import org.apache.http.HttpStatus;
 
 public class AzureSourceTableFactory implements SourceTableFactory {
+    private static final int RECREATE_RETRY = 1000; // 1s
+    private static final int MAX_NUMBER_OF_RETRIES = 120; // 2 minutes
     private final CloudTableClient cloudTableClient;
     private final String tableName;
 
@@ -36,10 +41,38 @@ public class AzureSourceTableFactory implements SourceTableFactory {
     @Override
     public void clearSourceTable() {
         try { // there is no single clear operation on azure table, so we implement this using drop and create :(
-            CloudTable table = cloudTableClient.getTableReference(tableName);
-            table.deleteIfExists();
-            table.create();
+            final CloudTable tableToBeCleared = cloudTableClient.getTableReference(tableName);
+            tableToBeCleared.deleteIfExists();
+            tryCreateAfterDelete(tableToBeCleared);
         } catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    private void tryCreateAfterDelete(CloudTable tableToBeRecreated) throws StorageException {
+        boolean success = false;
+        int count = 0;
+        while (!success && count++ < MAX_NUMBER_OF_RETRIES) {
+            try {
+                tableToBeRecreated.create();
+                success = true;
+            } catch (TableServiceException e) {
+                if (e.getHttpStatusCode() != HttpStatus.SC_CONFLICT) {
+                    throw e;
+                }
+                sleep();
+            }
+        }
+
+        if (count > MAX_NUMBER_OF_RETRIES) {
+            throw new RuntimeException("RESTORE FAILED. Failed to recreate source table after: " + MAX_NUMBER_OF_RETRIES + " attempts. Try again.");
+        }
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(RECREATE_RETRY);
+        } catch (InterruptedException e) {
             throw Throwables.propagate(e);
         }
     }
