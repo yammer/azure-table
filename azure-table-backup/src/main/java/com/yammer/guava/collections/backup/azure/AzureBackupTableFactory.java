@@ -15,8 +15,8 @@ import java.util.Date;
 import static com.yammer.guava.collections.backup.lib.Backup.BackupStatus;
 
 public class AzureBackupTableFactory implements BackupTableFactory {
-    private static final String BACKUP_LIST_TABLE_NAME = "comYammerGuavaCollectionsBackupAzureBackupListTableName";
-    private static final String BACKUP_TABLE_NAME_TEMPLATE = "comYammerGuavaCollectionsBackupNAME%sDATE%s";
+    private static final String BACKUP_LIST_TABLE_NAME = "comYammerAzureTableBackupListTable";
+    private static final String BACKUP_TABLE_NAME_TEMPLATE = "BackupNAME%sDATE%s"; // TODO lets change it to md5/sha2
     private static final AzureTable.Marshaller<String, String> IDENTITY_MARSHALLER = new AzureTable.Marshaller<String, String>() {
         @Override
         public String marshal(String unmarshalled) {
@@ -90,6 +90,7 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     public Table<String, String, String> createBackupTable(Date backupDate, String backupName) {
         try {
             final String backupTableName = createBackupTableName(backupDate, backupName);
+            final int length = backupName.length();
             return getOrCreateTable(backupTableName);
         } catch (Exception e) {
             throw Throwables.propagate(e);
