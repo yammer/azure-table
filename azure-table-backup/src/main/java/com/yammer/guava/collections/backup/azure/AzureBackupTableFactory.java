@@ -90,7 +90,6 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     public Table<String, String, String> createBackupTable(Date backupDate, String backupName) {
         try {
             final String backupTableName = createBackupTableName(backupDate, backupName);
-            final int length = backupName.length();
             return getOrCreateTable(backupTableName);
         } catch (Exception e) {
             throw Throwables.propagate(e);
@@ -112,7 +111,11 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     public Table<String, String, String> getBackupTable(Date backupDate, String backupName) {
         try {
             final String backupTableName = createBackupTableName(backupDate, backupName);
-            return new StringAzureTable(backupTableName, cloudTableClient);
+            CloudTable cloudTable = cloudTableClient.getTableReference(backupTableName);
+            if(cloudTable.exists()) {
+                return new StringAzureTable(backupTableName, cloudTableClient);
+            }
+            return null;
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
