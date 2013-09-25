@@ -9,8 +9,8 @@ class ListBackups extends BackupToolCommand {
     private final Date thresholdDate;
 
 
-    ListBackups(BackupConfiguration configuration, long time) throws Exception {
-        super(configuration);
+    ListBackups(BackupConfiguration configuration, Printer printer, long time) throws Exception {
+        super(configuration, printer);
         this.thresholdDate = new Date(time);
     }
 
@@ -18,7 +18,7 @@ class ListBackups extends BackupToolCommand {
     public void run() throws Exception {
         Collection<Backup> backups = getBackupService().listAllBackups(thresholdDate);
         for (Backup backup : backups) {
-            System.out.println(format(backup));
+            println(format(backup));
         }
     }
 }

@@ -6,8 +6,8 @@ class DeleteBackups extends BackupToolCommand {
     private final Date thresholdDate;
 
 
-    DeleteBackups(BackupConfiguration configuration, long time) throws Exception {
-        super(configuration);
+    DeleteBackups(BackupConfiguration configuration, Printer printer, long time) throws Exception {
+        super(configuration, printer);
         this.thresholdDate = new Date(time);
     }
 

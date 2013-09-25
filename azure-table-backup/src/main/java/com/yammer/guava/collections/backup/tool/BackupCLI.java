@@ -78,22 +78,23 @@ public class BackupCLI {
         CommandLine commandLine = parse(args);
 
         BackupToolCommand backupCommand = null;
+        final Printer stdPrinter = new StdOutputsPrinter();
         final BackupConfiguration backupConfiguration = getBackupConfiguration(commandLine);
         if (commandLine.hasOption(BACKUP.getOpt())) {
-            backupCommand = new DoBackupCommand(backupConfiguration);
+            backupCommand = new DoBackupCommand(backupConfiguration, stdPrinter);
         } else if (commandLine.hasOption(LIST.getOpt())) {
             long timeSince = parseTimestamp(commandLine.getOptionValue(LIST.getOpt()));
-            backupCommand = new ListBackups(backupConfiguration, timeSince);
+            backupCommand = new ListBackups(backupConfiguration, stdPrinter, timeSince);
         } else if (commandLine.hasOption(LIST_ALL.getOpt())) {
-            backupCommand = new ListBackups(backupConfiguration, 0);
+            backupCommand = new ListBackups(backupConfiguration, stdPrinter, 0);
         } else if (commandLine.hasOption(DELETE.getOpt())) {
             long timeTill = parseTimestamp(commandLine.getOptionValue(DELETE.getOpt()));
-            backupCommand = new DeleteBackups(backupConfiguration, timeTill);
+            backupCommand = new DeleteBackups(backupConfiguration, stdPrinter, timeTill);
         } else if (commandLine.hasOption(DELETE_BAD_BACKUPS.getOpt())) {
-            backupCommand = new DeleteBadBackups(backupConfiguration);
+            backupCommand = new DeleteBadBackups(backupConfiguration, stdPrinter);
         } else if (commandLine.hasOption(RESTORE.getOpt())) {
             long backupTime = parseTimestamp(commandLine.getOptionValue(RESTORE.getOpt()));
-            backupCommand = new RestoreCommand(backupConfiguration, backupTime);
+            backupCommand = new RestoreCommand(backupConfiguration, stdPrinter, backupTime);
         } else {
             printHelpAndExit();
         }
@@ -159,6 +160,19 @@ public class BackupCLI {
 
         } catch (Exception e) {
             Throwables.propagate(e);
+        }
+    }
+
+    private static final class StdOutputsPrinter implements Printer {
+
+        @Override
+        public void println(String string) {
+            System.out.println(string);
+        }
+
+        @Override
+        public void printErrorln(String string) {
+            System.err.println(string);
         }
     }
 
