@@ -5,11 +5,11 @@ import com.yammer.guava.collections.backup.lib.Backup;
 import java.util.Collection;
 import java.util.Date;
 
-class ListBackups extends BackupToolCommand {
+class ListBackupsCommand extends BackupToolCommand {
     private final Date thresholdDate;
 
 
-    ListBackups(BackupConfiguration configuration, Printer printer, long time) throws Exception {
+    ListBackupsCommand(BackupConfiguration configuration, Printer printer, long time) throws Exception {
         super(configuration, printer);
         this.thresholdDate = new Date(time);
     }

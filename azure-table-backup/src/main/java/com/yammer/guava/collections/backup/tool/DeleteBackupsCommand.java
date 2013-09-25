@@ -2,11 +2,11 @@ package com.yammer.guava.collections.backup.tool;
 
 import java.util.Date;
 
-class DeleteBackups extends BackupToolCommand {
+class DeleteBackupsCommand extends BackupToolCommand {
     private final Date thresholdDate;
 
 
-    DeleteBackups(BackupConfiguration configuration, Printer printer, long time) throws Exception {
+    DeleteBackupsCommand(BackupConfiguration configuration, Printer printer, long time) throws Exception {
         super(configuration, printer);
         this.thresholdDate = new Date(time);
     }

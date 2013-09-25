@@ -12,11 +12,10 @@ class DoBackupCommand extends BackupToolCommand {
     @Override
     public void run() throws Exception {
         BackupService.BackupResult result = getBackupService().backup();
-        format(result.getBackup());
         Optional<Exception> failureCause = result.getFailureCause();
         if (failureCause.isPresent()) {
             throw failureCause.get();
         }
-
+        println("Created. "+format(result.getBackup()));
     }
 }

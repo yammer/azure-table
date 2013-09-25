@@ -84,14 +84,14 @@ public class BackupCLI {
             backupCommand = new DoBackupCommand(backupConfiguration, stdPrinter);
         } else if (commandLine.hasOption(LIST.getOpt())) {
             long timeSince = parseTimestamp(commandLine.getOptionValue(LIST.getOpt()));
-            backupCommand = new ListBackups(backupConfiguration, stdPrinter, timeSince);
+            backupCommand = new ListBackupsCommand(backupConfiguration, stdPrinter, timeSince);
         } else if (commandLine.hasOption(LIST_ALL.getOpt())) {
-            backupCommand = new ListBackups(backupConfiguration, stdPrinter, 0);
+            backupCommand = new ListBackupsCommand(backupConfiguration, stdPrinter, 0);
         } else if (commandLine.hasOption(DELETE.getOpt())) {
             long timeTill = parseTimestamp(commandLine.getOptionValue(DELETE.getOpt()));
-            backupCommand = new DeleteBackups(backupConfiguration, stdPrinter, timeTill);
+            backupCommand = new DeleteBackupsCommand(backupConfiguration, stdPrinter, timeTill);
         } else if (commandLine.hasOption(DELETE_BAD_BACKUPS.getOpt())) {
-            backupCommand = new DeleteBadBackups(backupConfiguration, stdPrinter);
+            backupCommand = new DeleteBadBackupsCommand(backupConfiguration, stdPrinter);
         } else if (commandLine.hasOption(RESTORE.getOpt())) {
             long backupTime = parseTimestamp(commandLine.getOptionValue(RESTORE.getOpt()));
             backupCommand = new RestoreCommand(backupConfiguration, stdPrinter, backupTime);

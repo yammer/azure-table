@@ -6,8 +6,8 @@ import com.yammer.guava.collections.backup.lib.Backup;
 
 import java.util.Date;
 
-class DeleteBadBackups extends BackupToolCommand {
-    public DeleteBadBackups(BackupConfiguration configuration, Printer printer) throws Exception {
+class DeleteBadBackupsCommand extends BackupToolCommand {
+    public DeleteBadBackupsCommand(BackupConfiguration configuration, Printer printer) throws Exception {
         super(configuration, printer);
     }
 

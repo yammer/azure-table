@@ -19,6 +19,7 @@ public class RestoreCommand extends BackupToolCommand {
         Optional<Backup> backup = getBackupService().findBackup(getBackupName(), backupTime);
         if(backup.isPresent()) {
             getBackupService().restore(backup.get());
+            println("Restored backup: "+format(backup.get()));
         } else {
             printErrorln("No backup found for table="+getBackupName()+" at timestamp="+backupTime.getTime());
         }
