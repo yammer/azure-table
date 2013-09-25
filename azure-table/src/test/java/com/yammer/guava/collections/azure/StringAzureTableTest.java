@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class StringAzureTableTest {
     private static final String ROW_KEY_1 = "rown_name_1";
-    private static final String ROW_NAME_2 = "row_name_2";
+    private static final String ROW_KEY_2 = "row_name_2";
     private static final String COLUMN_KEY_1 = "column_key_1";
     private static final String COLUMN_KEY_2 = "column_key_2";
     private static final String NON_EXISTENT_COLUMN_KEY = "non_existent_column_key";
@@ -42,7 +42,7 @@ public class StringAzureTableTest {
     private static final String TABLE_NAME = "secretie_table";
     private static final String ENCODING = "UTF-8";
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
-    private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_2, VALUE_2);
+    private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
 
     @Mock
     private StringTableCloudClient stringTableCloudClientMock;
@@ -98,10 +98,20 @@ public class StringAzureTableTest {
     }
 
     private void setToThrowStorageExceptionOnRetrievalOf(Table.Cell<String, String, String> cell) throws UnsupportedEncodingException, StorageException {
-        StorageException storageExceptionMock = mock(StorageException.class);
         TableOperation retriveTableOperationMock = mock(TableOperation.class);
         when(stringTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()))).thenReturn(retriveTableOperationMock);
-        when(stringTableCloudClientMock.execute(TABLE_NAME, retriveTableOperationMock)).thenThrow(storageExceptionMock);
+        setupThrowStorageExceptionOnTableOperation(retriveTableOperationMock);
+    }
+
+    private TableOperation mockPutTableOperation(Table.Cell<String, String, String> cell) throws UnsupportedEncodingException {
+        TableOperation putTableOperationMock = mock(TableOperation.class);
+        when(stringTableRequestFactoryMock.put(encode(cell.getRowKey()), encode(cell.getColumnKey()), encode(cell.getValue()))).thenReturn(putTableOperationMock);
+        return putTableOperationMock;
+    }
+
+    private void setupThrowStorageExceptionOnTableOperation(TableOperation tableOperationMock) throws StorageException {
+        StorageException storageExceptionMock = mock(StorageException.class);
+        when(stringTableCloudClientMock.execute(TABLE_NAME, tableOperationMock)).thenThrow(storageExceptionMock);
     }
 
     @Test
@@ -126,7 +136,7 @@ public class StringAzureTableTest {
     public void get_of_non_existing_entry_returns_null() throws UnsupportedEncodingException, StorageException {
         setAzureTableToContain(CELL_1);
 
-        String value = stringAzureTable.get(ROW_NAME_2, COLUMN_KEY_2);
+        String value = stringAzureTable.get(ROW_KEY_2, COLUMN_KEY_2);
 
         assertThat(value, is(nullValue()));
     }
@@ -142,26 +152,18 @@ public class StringAzureTableTest {
 
     @Test
     public void when_put_then_value_added_or_replaced_in_azure() throws StorageException, UnsupportedEncodingException {
-        // setup
-        TableOperation putTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.put(encode(ROW_KEY_1), encode(NON_EXISTENT_COLUMN_KEY), encode(NEW_VALUE))).thenReturn(putTableOperationMock);
+        TableOperation putTableOperationMock = mockPutTableOperation(CELL_2);
 
-        // call under test
-        stringAzureTable.put(ROW_KEY_1, NON_EXISTENT_COLUMN_KEY, NEW_VALUE);
+        stringAzureTable.put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
 
-        // assert
         verify(stringTableCloudClientMock).execute(TABLE_NAME, putTableOperationMock);
     }
 
     @Test(expected = RuntimeException.class)
     public void when_table_client_throws_storage_exception_during_put_then_exception_rethrown() throws StorageException, UnsupportedEncodingException {
-        // setup
-        StorageException storageExceptionMock = mock(StorageException.class);
-        TableOperation putTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.put(encode(ROW_KEY_1), encode(COLUMN_KEY_1), encode(VALUE_1))).thenReturn(putTableOperationMock);
-        when(stringTableCloudClientMock.execute(TABLE_NAME, putTableOperationMock)).thenThrow(storageExceptionMock);
+        TableOperation putTableOperationMock = mockPutTableOperation(CELL_1);
+        setupThrowStorageExceptionOnTableOperation(putTableOperationMock);
 
-        // call under test
         stringAzureTable.put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
     }
 
