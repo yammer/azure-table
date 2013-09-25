@@ -7,8 +7,8 @@ import com.yammer.guava.collections.backup.lib.Backup;
 import java.util.Date;
 
 class DeleteBadBackups extends BackupToolCommand {
-    public DeleteBadBackups(String configPath) throws Exception {
-        super(configPath);
+    public DeleteBadBackups(BackupConfiguration configuration) throws Exception {
+        super(configuration);
     }
 
     @Override

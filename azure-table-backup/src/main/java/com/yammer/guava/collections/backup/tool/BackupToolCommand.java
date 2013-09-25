@@ -16,21 +16,9 @@ abstract class BackupToolCommand {
     private final BackupService backupService;
     private final String backupName;
 
-    BackupToolCommand(String configPath) throws Exception {
-        BackupConfiguration configuration = parseConfiguration(configPath);
-        backupName = configuration.getSourceTableName();
-        backupService = createBackupService(configuration);
-    }
-
-    private static BackupConfiguration parseConfiguration(String configPath) {
-        // TODO add parsing
-        BackupConfiguration configuration = new BackupConfiguration();
-        configuration.setSourceTableName("backupToolValues");
-        configuration.setSourceAccountName("secretietest");
-        configuration.setSourceAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
-        configuration.setBackupAccountName("secretietest");
-        configuration.setBackupAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
-        return configuration;
+    BackupToolCommand(BackupConfiguration backupConfiguration) throws Exception {
+        backupName = backupConfiguration.getSourceTableName();
+        backupService = createBackupService(backupConfiguration);
     }
 
     private static CloudTableClient createCloudTableClient(String connectionString) throws URISyntaxException, InvalidKeyException {

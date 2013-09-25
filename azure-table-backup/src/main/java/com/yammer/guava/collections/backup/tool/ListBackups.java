@@ -9,8 +9,8 @@ class ListBackups extends BackupToolCommand {
     private final Date thresholdDate;
 
 
-    ListBackups(String configPath, long time) throws Exception {
-        super(configPath);
+    ListBackups(BackupConfiguration configuration, long time) throws Exception {
+        super(configuration);
         this.thresholdDate = new Date(time);
     }
 

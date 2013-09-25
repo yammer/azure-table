@@ -5,8 +5,8 @@ import com.yammer.guava.collections.backup.lib.BackupService;
 
 class DoBackupCommand extends BackupToolCommand {
 
-    DoBackupCommand(String configPath) throws Exception {
-        super(configPath);
+    DoBackupCommand(BackupConfiguration configuration) throws Exception {
+        super(configuration);
     }
 
     @Override

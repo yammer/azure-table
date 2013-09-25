@@ -8,8 +8,8 @@ import java.util.Date;
 public class RestoreCommand extends BackupToolCommand {
     private final Date backupTime;
 
-    public RestoreCommand(String configPath, long backupTime) throws Exception {
-        super(configPath);
+    public RestoreCommand(BackupConfiguration configuration, long backupTime) throws Exception {
+        super(configuration);
         this.backupTime = new Date(backupTime);
     }
 

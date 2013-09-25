@@ -78,22 +78,22 @@ public class BackupCLI {
         CommandLine commandLine = parse(args);
 
         BackupToolCommand backupCommand = null;
-        final String configPath = commandLine.getOptionValue(CONFIG_FILE.getOpt());
+        final BackupConfiguration backupConfiguration = getBackupConfiguration(commandLine);
         if (commandLine.hasOption(BACKUP.getOpt())) {
-            backupCommand = new DoBackupCommand(configPath);
+            backupCommand = new DoBackupCommand(backupConfiguration);
         } else if (commandLine.hasOption(LIST.getOpt())) {
             long timeSince = parseTimestamp(commandLine.getOptionValue(LIST.getOpt()));
-            backupCommand = new ListBackups(configPath, timeSince);
+            backupCommand = new ListBackups(backupConfiguration, timeSince);
         } else if (commandLine.hasOption(LIST_ALL.getOpt())) {
-            backupCommand = new ListBackups(configPath, 0);
+            backupCommand = new ListBackups(backupConfiguration, 0);
         } else if (commandLine.hasOption(DELETE.getOpt())) {
             long timeTill = parseTimestamp(commandLine.getOptionValue(DELETE.getOpt()));
-            backupCommand = new DeleteBackups(configPath, timeTill);
+            backupCommand = new DeleteBackups(backupConfiguration, timeTill);
         } else if (commandLine.hasOption(DELETE_BAD_BACKUPS.getOpt())) {
-            backupCommand = new DeleteBadBackups(configPath);
+            backupCommand = new DeleteBadBackups(backupConfiguration);
         } else if (commandLine.hasOption(RESTORE.getOpt())) {
             long backupTime = parseTimestamp(commandLine.getOptionValue(RESTORE.getOpt()));
-            backupCommand = new RestoreCommand(configPath, backupTime);
+            backupCommand = new RestoreCommand(backupConfiguration, backupTime);
         } else {
             printHelpAndExit();
         }
@@ -106,6 +106,18 @@ public class BackupCLI {
         }
 
         //DEBUG_INFO();
+    }
+
+    private static BackupConfiguration getBackupConfiguration(CommandLine commandLine) {
+        final String configPath = commandLine.getOptionValue(CONFIG_FILE.getOpt());
+        // TODO parse
+        BackupConfiguration configuration = new BackupConfiguration();
+        configuration.setSourceTableName("backupToolValues");
+        configuration.setSourceAccountName("secretietest");
+        configuration.setSourceAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
+        configuration.setBackupAccountName("secretietest");
+        configuration.setBackupAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
+        return configuration;
     }
 
     private static Long parseTimestamp(String data) {

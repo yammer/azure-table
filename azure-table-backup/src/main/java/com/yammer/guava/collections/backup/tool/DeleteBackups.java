@@ -6,8 +6,8 @@ class DeleteBackups extends BackupToolCommand {
     private final Date thresholdDate;
 
 
-    DeleteBackups(String configPath, long time) throws Exception {
-        super(configPath);
+    DeleteBackups(BackupConfiguration configuration, long time) throws Exception {
+        super(configuration);
         this.thresholdDate = new Date(time);
     }
 
