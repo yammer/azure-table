@@ -120,28 +120,14 @@ public class StringAzureTableTest {
 
     @Test
     public void when_key_does_not_exist_then_delete_return_null() throws StorageException {
-        // setup
-        TableOperation retriveTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(ROW_KEY_1, NON_EXISTENT_COLUMN_KEY)).thenReturn(retriveTableOperationMock);
-        when(stringTableCloudClientMock.execute(TABLE_NAME, retriveTableOperationMock)).thenReturn(null);
-
-        // call under test
-        stringAzureTable.remove(ROW_KEY_1, NON_EXISTENT_COLUMN_KEY);
+            stringAzureTable.remove(ROW_KEY_1, NON_EXISTENT_COLUMN_KEY);
     }
 
     @Test(expected = RuntimeException.class)
     public void when_table_client_throws_storage_exception_during_delete_then_exception_rethrown() throws StorageException, UnsupportedEncodingException {
-        // internal get
-        StringEntity result = encodedStringEntity(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
-        TableOperation retriveTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(encode(ROW_KEY_1), encode(COLUMN_KEY_1))).thenReturn(retriveTableOperationMock);
-        when(stringTableCloudClientMock.execute(TABLE_NAME, retriveTableOperationMock)).thenReturn(result);
-        // delete
-        TableOperation deleteTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.delete(result)).thenReturn(deleteTableOperationMock);
-        // delete error
-        StorageException storageExceptionMock = mock(StorageException.class);
-        when(stringTableCloudClientMock.execute(TABLE_NAME, deleteTableOperationMock)).thenThrow(storageExceptionMock);
+        setAzureTableToContain(CELL_1);
+        TableOperation deleteTableOperationMock = mockDeleteTableOperation(CELL_1);
+        setupThrowStorageExceptionOnTableOperation(deleteTableOperationMock);
 
         stringAzureTable.remove(ROW_KEY_1, COLUMN_KEY_1);
     }
