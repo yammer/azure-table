@@ -50,68 +50,9 @@ public class StringAzureTableTest {
     private StringTableRequestFactory stringTableRequestFactoryMock;
     private StringAzureTable stringAzureTable;
 
-    private String encode(String stringToBeEncoded) throws UnsupportedEncodingException {
-        return Base64.encode(stringToBeEncoded.getBytes(ENCODING));
-
-    }
-
-    // TODO remove
-    private StringEntity encodedStringEntity(String unEncodedRowName, String unEncodedColumnName, String unEncodedValue) throws UnsupportedEncodingException {
-        return new StringEntity(encode(unEncodedRowName), encode(unEncodedColumnName), encode(unEncodedValue));
-    }
-
-    private StringEntity encodedStringEntity(Table.Cell<String, String, String> unEncodedcell) throws UnsupportedEncodingException {
-        return new StringEntity(encode(unEncodedcell.getRowKey()), encode(unEncodedcell.getColumnKey()), encode(unEncodedcell.getValue()));
-    }
-
     @Before
     public void setUp() throws IOException, ConfigurationException {
         stringAzureTable = new StringAzureTable(TABLE_NAME, stringTableCloudClientMock, stringTableRequestFactoryMock);
-    }
-
-    private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
-        // retrieve setup in general
-        TableOperation blanketRetrieveOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(any(String.class), any(String.class))).thenReturn(blanketRetrieveOperationMock);
-
-
-        // per entity setup
-        Collection<StringEntity> encodedStringEntities = Lists.newArrayList();
-        for(Table.Cell<String, String, String> cell : cells) {
-            encodedStringEntities.add(encodedStringEntity(cell));
-            setAzureTableToRetrieve(cell);
-        }
-
-        // select query
-        TableQuery<StringEntity> tableQuery = mock(TableQuery.class);
-        when(stringTableRequestFactoryMock.selectAll(TABLE_NAME)).thenReturn(tableQuery);
-        when(stringTableCloudClientMock.execute(tableQuery)).thenReturn(encodedStringEntities);
-
-
-
-    }
-
-    private void setAzureTableToRetrieve(Table.Cell<String, String, String> cell) throws UnsupportedEncodingException, StorageException {
-        TableOperation retriveTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()))).thenReturn(retriveTableOperationMock);
-        when(stringTableCloudClientMock.execute(TABLE_NAME, retriveTableOperationMock)).thenReturn(encodedStringEntity(cell));
-    }
-
-    private void setToThrowStorageExceptionOnRetrievalOf(Table.Cell<String, String, String> cell) throws UnsupportedEncodingException, StorageException {
-        TableOperation retriveTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()))).thenReturn(retriveTableOperationMock);
-        setupThrowStorageExceptionOnTableOperation(retriveTableOperationMock);
-    }
-
-    private TableOperation mockPutTableOperation(Table.Cell<String, String, String> cell) throws UnsupportedEncodingException {
-        TableOperation putTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.put(encode(cell.getRowKey()), encode(cell.getColumnKey()), encode(cell.getValue()))).thenReturn(putTableOperationMock);
-        return putTableOperationMock;
-    }
-
-    private void setupThrowStorageExceptionOnTableOperation(TableOperation tableOperationMock) throws StorageException {
-        StorageException storageExceptionMock = mock(StorageException.class);
-        when(stringTableCloudClientMock.execute(TABLE_NAME, tableOperationMock)).thenThrow(storageExceptionMock);
     }
 
     @Test
@@ -169,20 +110,11 @@ public class StringAzureTableTest {
 
     @Test
     public void when_delete_then_deleted_in_azure() throws StorageException, UnsupportedEncodingException {
-        // setup
-        StringEntity result = encodedStringEntity(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
-        TableOperation retriveTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.retrieve(encode(ROW_KEY_1), encode(COLUMN_KEY_1))).thenReturn(retriveTableOperationMock);
-        when(stringTableCloudClientMock.execute(TABLE_NAME, retriveTableOperationMock)).thenReturn(result);
+        setAzureTableToContain(CELL_1);
+        TableOperation deleteTableOperationMock = mockDeleteTableOperation(CELL_1);
 
-        TableOperation deleteTableOperationMock = mock(TableOperation.class);
-        when(stringTableRequestFactoryMock.delete(result)).thenReturn(deleteTableOperationMock);
-
-
-        // call under test
         stringAzureTable.remove(ROW_KEY_1, COLUMN_KEY_1);
 
-        // assertions
         verify(stringTableCloudClientMock).execute(TABLE_NAME, deleteTableOperationMock);
     }
 
@@ -230,4 +162,76 @@ public class StringAzureTableTest {
         final Table.Cell<String, String, String> expectedCell2 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_2, VALUE_1);
         assertThat(cellSet, containsInAnyOrder(expectedCell1, expectedCell2));
     }
+
+    //
+    // Utility methods
+    //
+
+    private String encode(String stringToBeEncoded) throws UnsupportedEncodingException {
+        return Base64.encode(stringToBeEncoded.getBytes(ENCODING));
+
+    }
+
+    // TODO remove
+    private StringEntity encodedStringEntity(String unEncodedRowName, String unEncodedColumnName, String unEncodedValue) throws UnsupportedEncodingException {
+        return new StringEntity(encode(unEncodedRowName), encode(unEncodedColumnName), encode(unEncodedValue));
+    }
+
+    private StringEntity encodedStringEntity(Table.Cell<String, String, String> unEncodedcell) throws UnsupportedEncodingException {
+        return new StringEntity(encode(unEncodedcell.getRowKey()), encode(unEncodedcell.getColumnKey()), encode(unEncodedcell.getValue()));
+    }
+
+
+    private void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws UnsupportedEncodingException, StorageException {
+        // retrieve setup in general
+        TableOperation blanketRetrieveOperationMock = mock(TableOperation.class);
+        when(stringTableRequestFactoryMock.retrieve(any(String.class), any(String.class))).thenReturn(blanketRetrieveOperationMock);
+
+
+        // per entity setup
+        Collection<StringEntity> encodedStringEntities = Lists.newArrayList();
+        for(Table.Cell<String, String, String> cell : cells) {
+            encodedStringEntities.add(encodedStringEntity(cell));
+            setAzureTableToRetrieve(cell);
+        }
+
+        // select query
+        TableQuery<StringEntity> tableQuery = mock(TableQuery.class);
+        when(stringTableRequestFactoryMock.selectAll(TABLE_NAME)).thenReturn(tableQuery);
+        when(stringTableCloudClientMock.execute(tableQuery)).thenReturn(encodedStringEntities);
+    }
+
+    private void setAzureTableToRetrieve(Table.Cell<String, String, String> cell) throws UnsupportedEncodingException, StorageException {
+        TableOperation retriveTableOperationMock = mock(TableOperation.class);
+        when(stringTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()))).thenReturn(retriveTableOperationMock);
+        when(stringTableCloudClientMock.execute(TABLE_NAME, retriveTableOperationMock)).thenReturn(encodedStringEntity(cell));
+    }
+
+    private void setToThrowStorageExceptionOnRetrievalOf(Table.Cell<String, String, String> cell) throws UnsupportedEncodingException, StorageException {
+        TableOperation retriveTableOperationMock = mock(TableOperation.class);
+        when(stringTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()))).thenReturn(retriveTableOperationMock);
+        setupThrowStorageExceptionOnTableOperation(retriveTableOperationMock);
+    }
+
+    private TableOperation mockPutTableOperation(Table.Cell<String, String, String> cell) throws UnsupportedEncodingException {
+        TableOperation putTableOperationMock = mock(TableOperation.class);
+        when(stringTableRequestFactoryMock.put(encode(cell.getRowKey()), encode(cell.getColumnKey()), encode(cell.getValue()))).thenReturn(putTableOperationMock);
+        return putTableOperationMock;
+    }
+
+    private void setupThrowStorageExceptionOnTableOperation(TableOperation tableOperationMock) throws StorageException {
+        StorageException storageExceptionMock = mock(StorageException.class);
+        when(stringTableCloudClientMock.execute(TABLE_NAME, tableOperationMock)).thenThrow(storageExceptionMock);
+    }
+
+
+    private TableOperation mockDeleteTableOperation(Table.Cell<String, String, String> cell) throws UnsupportedEncodingException, StorageException {
+        TableOperation retrieveOperation = stringTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()));
+        StringEntity result = stringTableCloudClientMock.execute(TABLE_NAME, retrieveOperation);
+        TableOperation deleteTableOperationMock = mock(TableOperation.class);
+        when(stringTableRequestFactoryMock.delete(result)).thenReturn(deleteTableOperationMock);
+        return deleteTableOperationMock;
+    }
+
+
 }
