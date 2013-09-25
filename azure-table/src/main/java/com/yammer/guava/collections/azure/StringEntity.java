@@ -2,7 +2,6 @@ package com.yammer.guava.collections.azure;
 
 import com.microsoft.windowsazure.services.table.client.TableServiceEntity;
 
-// TODO consider adding B64 encoding for the strings here, or somewhere
 public class StringEntity extends TableServiceEntity {
     private String value;
 
