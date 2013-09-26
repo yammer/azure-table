@@ -5,7 +5,7 @@ import com.yammer.guava.collections.backup.lib.Backup;
 import java.util.Collection;
 import java.util.Date;
 
-class ListBackupsCommand extends BackupToolCommand {
+class ListBackupsCommand extends AbstractBackupToolCommand {
     private final Date thresholdDate;
 
 

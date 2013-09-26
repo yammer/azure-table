@@ -2,7 +2,7 @@ package com.yammer.guava.collections.backup.tool;
 
 import java.util.Date;
 
-class DeleteBackupsCommand extends BackupToolCommand {
+class DeleteBackupsCommand extends AbstractBackupToolCommand {
     private final Date thresholdDate;
 
 

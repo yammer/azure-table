@@ -77,7 +77,7 @@ public class BackupCLI {
     public static void main(String args[]) throws Exception {
         CommandLine commandLine = parse(args);
 
-        BackupToolCommand backupCommand = null;
+        AbstractBackupToolCommand backupCommand = null;
         final Printer stdPrinter = new StdOutputsPrinter();
         final BackupConfiguration backupConfiguration = getBackupConfiguration(commandLine);
         if (commandLine.hasOption(BACKUP.getOpt())) {
@@ -99,11 +99,17 @@ public class BackupCLI {
             printHelpAndExit();
         }
 
+        final long startTime = System.currentTimeMillis();
+        long duration = 0;
         try {
             backupCommand.run();
+            duration = System.currentTimeMillis()-startTime;
         } catch (Exception e) {
+            duration = System.currentTimeMillis()-startTime;
             e.printStackTrace();
             System.exit(-1);
+        } finally {
+            System.out.println("Running time was: "+duration+"[ms]");
         }
 
         //DEBUG_INFO();
@@ -111,13 +117,17 @@ public class BackupCLI {
 
     private static BackupConfiguration getBackupConfiguration(CommandLine commandLine) {
         final String configPath = commandLine.getOptionValue(CONFIG_FILE.getOpt());
-        // TODO parse
+        // TODO parse finish this, remove
         BackupConfiguration configuration = new BackupConfiguration();
-        configuration.setSourceTableName("backupToolValues");
+        configuration.setSourceTableName("loadTestSecretsTable");
         configuration.setSourceAccountName("secretietest");
         configuration.setSourceAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
         configuration.setBackupAccountName("secretietest");
         configuration.setBackupAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
+
+        System.out.println("USING TABLE: "+configuration.getSourceTableName());
+
+
         return configuration;
     }
 

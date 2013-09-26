@@ -11,13 +11,13 @@ import java.security.InvalidKeyException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-abstract class BackupToolCommand implements Printer {
+abstract class AbstractBackupToolCommand implements Printer {
     private final DateFormat dateFormat = new SimpleDateFormat();
     private final BackupService backupService;
     private final String backupName;
     private final Printer printer;
 
-    BackupToolCommand(BackupConfiguration backupConfiguration, Printer printer) throws Exception {
+    AbstractBackupToolCommand(BackupConfiguration backupConfiguration, Printer printer) throws Exception {
         this.printer = printer;
         backupName = backupConfiguration.getSourceTableName();
         backupService = createBackupService(backupConfiguration);

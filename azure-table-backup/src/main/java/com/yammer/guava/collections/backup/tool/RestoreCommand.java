@@ -5,7 +5,7 @@ import com.yammer.guava.collections.backup.lib.Backup;
 
 import java.util.Date;
 
-public class RestoreCommand extends BackupToolCommand {
+public class RestoreCommand extends AbstractBackupToolCommand {
     private final Date backupTime;
 
     public RestoreCommand(BackupConfiguration configuration, Printer printer, long backupTime) throws Exception {

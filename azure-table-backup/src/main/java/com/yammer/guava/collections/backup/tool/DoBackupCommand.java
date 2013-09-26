@@ -3,7 +3,7 @@ package com.yammer.guava.collections.backup.tool;
 import com.google.common.base.Optional;
 import com.yammer.guava.collections.backup.lib.BackupService;
 
-class DoBackupCommand extends BackupToolCommand {
+class DoBackupCommand extends AbstractBackupToolCommand {
 
     DoBackupCommand(BackupConfiguration configuration, Printer printer) throws Exception {
         super(configuration, printer);
