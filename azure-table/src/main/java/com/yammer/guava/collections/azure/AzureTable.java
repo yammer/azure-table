@@ -10,7 +10,10 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-
+/**
+ * In early stages of implementation. Built for the Secretie project, which deals with small data sets that can be trivially sent
+ * over they wire and stored in memory. In the future it is intended to be generalised to a larger scale.
+ */
 public class AzureTable<R, C, V> implements Table<R, C, V> {
     private final Function<Cell<String, String, String>, Cell<R, C, V>> cellUnmarshallingTransformation =
             new Function<Cell<String, String, String>, Cell<R, C, V>>() {
