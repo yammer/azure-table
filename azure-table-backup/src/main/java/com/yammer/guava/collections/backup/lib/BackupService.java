@@ -78,7 +78,6 @@ public class BackupService {
         Predicate<Table.Cell<String, Date, Backup.BackupStatus>> thresholdDatePredicate = new Predicate<Table.Cell<String, Date, Backup.BackupStatus>>() {
             @Override
             public boolean apply(Table.Cell<String, Date, Backup.BackupStatus> input) {
-                final boolean test =input.getColumnKey().compareTo(afterThresholdDate) >= 0; // TODO remove this is for debug purpose only
                 return input.getColumnKey().compareTo(afterThresholdDate) >= 0;
             }
         };

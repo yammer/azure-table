@@ -1,14 +1,15 @@
 package com.yammer.guava.collections.backup.tool;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TreeTraversingParser;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Table;
-import com.microsoft.windowsazure.services.core.storage.CloudStorageAccount;
-import com.microsoft.windowsazure.services.table.client.CloudTableClient;
-import com.yammer.guava.collections.azure.StringAzureTable;
 import org.apache.commons.cli.*;
 
-// TODO proper azure table confiugration parsing is required for this tool, currently only test setup is being used
-// TODO change to hash values for backup table names
+import java.io.File;
+import java.io.IOException;
+
 public class BackupCLI {
     private static final Option CONFIG_FILE = OptionBuilder.
             withArgName("file").
@@ -42,7 +43,6 @@ public class BackupCLI {
             addOption(RESTORE).
             addOption(DELETE_BAD_BACKUPS);
     private static final Options OPTIONS = setupOptions();
-
 
     private static Options setupOptions() {
         CONFIG_FILE.setRequired(true);
@@ -103,73 +103,32 @@ public class BackupCLI {
         long duration = 0;
         try {
             backupCommand.run();
-            duration = System.currentTimeMillis()-startTime;
+            duration = System.currentTimeMillis() - startTime;
         } catch (Exception e) {
-            duration = System.currentTimeMillis()-startTime;
+            duration = System.currentTimeMillis() - startTime;
             e.printStackTrace();
             System.exit(-1);
         } finally {
-            System.out.println("Running time was: "+duration+"[ms]");
+            System.out.println("Running time was: " + duration + "[ms]");
         }
 
-        //DEBUG_INFO();
     }
 
-    private static BackupConfiguration getBackupConfiguration(CommandLine commandLine) {
+    private static BackupConfiguration getBackupConfiguration(CommandLine commandLine) throws IOException {
         final String configPath = commandLine.getOptionValue(CONFIG_FILE.getOpt());
-        // TODO parse finish this, remove
-        BackupConfiguration configuration = new BackupConfiguration();
-        configuration.setSourceTableName("loadTestSecretsTable");
-        configuration.setSourceAccountName("secretietest");
-        configuration.setSourceAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
-        configuration.setBackupAccountName("secretietest");
-        configuration.setBackupAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
-
-        System.out.println("USING TABLE: "+configuration.getSourceTableName());
-
-
-        return configuration;
+        final File configurationFile = new File(configPath);
+        final ObjectMapper configurationObjectMapper = new ObjectMapper(new YAMLFactory());
+        final JsonNode node = configurationObjectMapper.readTree(configurationFile);
+        return configurationObjectMapper.readValue(new TreeTraversingParser(node), BackupConfiguration.class);
     }
 
     private static Long parseTimestamp(String data) {
         try {
             return Long.parseLong(data);
-        } catch(NumberFormatException e) {
-            System.err.println("Timestamp must be provided as a numeric value. Failed to read timestamp. "+e.getMessage());
+        } catch (NumberFormatException e) {
+            System.err.println("Timestamp must be provided as a numeric value. Failed to read timestamp. " + e.getMessage());
             printHelpAndExit();
             return null;
-        }
-    }
-
-    private static void DEBUG_INFO() {
-        //todo DELETE this method
-
-        System.out.println("\n\n DEBUG INFO \n");
-
-        BackupConfiguration configuration = new BackupConfiguration();
-        configuration.setSourceTableName("backupToolValues");
-        configuration.setSourceAccountName("secretietest");
-        configuration.setSourceAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
-        configuration.setBackupAccountName("secretietest");
-        configuration.setBackupAccountKey("e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==");
-
-        try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(configuration.getBackupConnectionString());
-            CloudTableClient client = storageAccount.createCloudTableClient();
-            System.out.println("\n\n === TABLES ===\n");
-            for (String tableName : client.listTables()) {
-                System.out.println(tableName);
-            }
-
-            System.out.println("\n\n === SOURCE ===\n");
-            //CloudTable table = client.getTableReference(configuration.getSourceTableName());
-            Table<String, String, String> azureTable = new StringAzureTable(configuration.getSourceTableName(), client);
-            for (Table.Cell<String, String, String> tableCell : azureTable.cellSet()) {
-                System.out.println(String.format("partKey=%s key=%s val=%s", tableCell.getRowKey(), tableCell.getColumnKey(), tableCell.getValue()));
-            }
-
-        } catch (Exception e) {
-            Throwables.propagate(e);
         }
     }
 
