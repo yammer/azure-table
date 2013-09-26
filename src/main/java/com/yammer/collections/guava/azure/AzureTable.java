@@ -1,4 +1,4 @@
-package com.yammer.guava.collections.azure;
+package com.yammer.collections.guava.azure;
 
 import com.google.common.base.Function;
 import com.google.common.collect.*;

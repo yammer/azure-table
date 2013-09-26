@@ -1,4 +1,4 @@
-package com.yammer.guava.collections.azure;
+package com.yammer.collections.guava.azure;
 
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;

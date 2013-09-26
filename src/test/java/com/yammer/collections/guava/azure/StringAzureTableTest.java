@@ -1,4 +1,4 @@
-package com.yammer.guava.collections.azure;
+package com.yammer.collections.guava.azure;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
@@ -7,6 +7,8 @@ import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.core.storage.utils.Base64;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
+import com.yammer.collections.guava.azure.StringAzureTable;
+import com.yammer.collections.guava.azure.StringEntity;
 import com.yammer.dropwizard.config.ConfigurationException;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,9 +42,9 @@ public class StringAzureTableTest {
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
     @Mock
-    private StringTableCloudClient stringTableCloudClientMock;
+    private com.yammer.collections.guava.azure.StringTableCloudClient stringTableCloudClientMock;
     @Mock
-    private StringTableRequestFactory stringTableRequestFactoryMock;
+    private com.yammer.collections.guava.azure.StringTableRequestFactory stringTableRequestFactoryMock;
     private StringAzureTable stringAzureTable;
 
     @Before
