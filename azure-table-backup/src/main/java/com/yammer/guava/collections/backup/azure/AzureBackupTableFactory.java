@@ -16,7 +16,7 @@ import static com.yammer.guava.collections.backup.lib.Backup.BackupStatus;
 
 public class AzureBackupTableFactory implements BackupTableFactory {
     private static final String BACKUP_LIST_TABLE_NAME = "comYammerAzureTableBackupListTable";
-    private static final String BACKUP_TABLE_NAME_TEMPLATE = "BackupNAME%sDATE%s"; // TODO lets change it to md5/sha2
+    private static final String BACKUP_TABLE_NAME_TEMPLATE = "BackupNAME%sDATE%s";
     private static final AzureTable.Marshaller<String, String> IDENTITY_MARSHALLER = new AzureTable.Marshaller<String, String>() {
         @Override
         public String marshal(String unmarshalled) {
