@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.yammer.secretie</groupId>
-        <artifactId>secretie-parent</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
-    </parent>
-
+    <groupId>com.yammer.collections</groupId>
     <artifactId>azure-table</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <windows.azure.api.version>0.4.4</windows.azure.api.version>
+    </properties>
+
+    <parent>
+        <groupId>com.yammer.coreservices</groupId>
+        <artifactId>coreservices-parent</artifactId>
+        <version>1.0.6</version>
+    </parent>
 
     <dependencies>
         <dependency>
@@ -17,6 +25,33 @@
             <version>${windows.azure.api.version}</version>
         </dependency>
     </dependencies>
+
+    <scm>
+        <connection>scm:git:git://github.int.yammer.com/yammer/azure-table.git</connection>
+        <developerConnection>scm:git:git@github.int.yammer.com:yammer/azure-table.git</developerConnection>
+        <url>http://github.int.yammer.com/yammer/azure-table/</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Michal Rutkowski</name>
+            <email>mrutkowski@yammer-inc.com</email>
+            <timezone>0</timezone>
+        </developer>
+    </developers>
+
+
+    <repositories>
+        <repository>
+            <id>maven.int.yammer.com</id>
+            <url>http://maven.int.yammer.com/nexus/content/groups/public/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
 
 </project>
 
