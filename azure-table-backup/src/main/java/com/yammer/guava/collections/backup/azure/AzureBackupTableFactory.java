@@ -5,8 +5,8 @@ import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
-import com.yammer.guava.collections.azure.AzureTable;
-import com.yammer.guava.collections.azure.StringAzureTable;
+import com.yammer.collections.guava.azure.AzureTable;
+import com.yammer.collections.guava.azure.StringAzureTable;
 import com.yammer.guava.collections.backup.lib.BackupTableFactory;
 
 import java.net.URISyntaxException;
@@ -112,7 +112,7 @@ public class AzureBackupTableFactory implements BackupTableFactory {
         try {
             final String backupTableName = createBackupTableName(backupDate, backupName);
             CloudTable cloudTable = cloudTableClient.getTableReference(backupTableName);
-            if(cloudTable.exists()) {
+            if (cloudTable.exists()) {
                 return new StringAzureTable(backupTableName, cloudTableClient);
             }
             return null;

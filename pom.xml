@@ -13,7 +13,7 @@
 
     <modules>
         <module>azure-table-core</module>
-        <!-- module>azure-table-backup</module -->
+        <module>azure-table-backup</module>
     </modules>
 
     <properties>
@@ -23,6 +23,8 @@
         <mockito.version>1.8.4</mockito.version>
         <hamcrest.version>1.3</hamcrest.version>
         <metrics.version>2.2.0</metrics.version>
+        <commons-cli-version>1.2</commons-cli-version>
+        <jackson.version>2.2.3</jackson.version>
     </properties>
 
     <parent>

@@ -6,15 +6,15 @@ import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableServiceException;
-import com.yammer.guava.collections.azure.StringAzureTable;
+import com.yammer.collections.guava.azure.StringAzureTable;
 import com.yammer.guava.collections.backup.lib.SourceTableFactory;
-import org.apache.http.HttpStatus;
 
 public class AzureSourceTableFactory implements SourceTableFactory {
     // http://msdn.microsoft.com/en-us/library/windowsazure/dd179387.aspx
     // table deletion takes at least 40s. We are quite pesymistic here
-    private static final int RECREATE_RETRY = 1000; // 1s
-    private static final int MAX_NUMBER_OF_RETRIES = 120; // 2 minutes
+    private static final int HTTP_CONFILICT = 409;
+    private static final int RECREATE_RETRY = 10000; // 1s
+    private static final int MAX_NUMBER_OF_RETRIES = 12; // 2 minutes
     private final CloudTableClient cloudTableClient;
     private final String tableName;
 
@@ -59,7 +59,7 @@ public class AzureSourceTableFactory implements SourceTableFactory {
                 tableToBeRecreated.create();
                 success = true;
             } catch (TableServiceException e) {
-                if (e.getHttpStatusCode() != HttpStatus.SC_CONFLICT) {
+                if (e.getHttpStatusCode() != HTTP_CONFILICT) {
                     throw e;
                 }
                 sleep();
