@@ -16,7 +16,6 @@ import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
 
-import javax.annotation.Nullable;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Collections;
@@ -63,31 +62,6 @@ public class StringAzureTable implements Table<String, String, String> {
         return Metrics.newTimer(StringAzureTable.class, name);
     }
 
-    @Override
-    public boolean contains(@Nullable Object rowString, @Nullable Object columnString) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean containsRow(@Nullable Object rowString) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean containsColumn(@Nullable Object columnString) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean containsValue(@Nullable Object value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String get(Object rowString, Object columnString) {
-        return entityToValue(rawGet(rowString, columnString));
-    }
-
     private static String encode(String stringToBeEncoded) {
         try {
             return new String(Base64.encode(stringToBeEncoded.getBytes(ENCODING)));
@@ -104,6 +78,31 @@ public class StringAzureTable implements Table<String, String, String> {
             // shouldn't happen but
             throw Throwables.propagate(e);
         }
+    }
+
+    @Override
+    public boolean contains(Object rowString, Object columnString) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean containsRow(Object rowString) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean containsColumn(Object columnString) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String get(Object rowString, Object columnString) {
+        return entityToValue(rawGet(rowString, columnString));
     }
 
     private String entityToValue(StringEntity stringEntity) {

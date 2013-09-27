@@ -3,7 +3,6 @@ package com.yammer.collections.guava.azure;
 import com.google.common.base.Function;
 import com.google.common.collect.*;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -140,7 +139,7 @@ public class AzureTable<R, C, V> implements Table<R, C, V> {
     }
 
     @Override
-    public V remove(@Nullable Object rowKey, @Nullable Object columnKey) {
+    public V remove(Object rowKey, Object columnKey) {
         checkNotNull(rowKey);
         checkNotNull(columnKey);
         final String rowKeyString = tryMarshaling(rowKey, rowKeyMarshaller);

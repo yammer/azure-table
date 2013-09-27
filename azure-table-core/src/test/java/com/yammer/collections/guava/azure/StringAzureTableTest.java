@@ -7,9 +7,6 @@ import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.core.storage.utils.Base64;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
-import com.yammer.collections.guava.azure.StringAzureTable;
-import com.yammer.collections.guava.azure.StringEntity;
-import com.yammer.dropwizard.config.ConfigurationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +45,7 @@ public class StringAzureTableTest {
     private StringAzureTable stringAzureTable;
 
     @Before
-    public void setUp() throws IOException, ConfigurationException {
+    public void setUp() throws IOException {
         stringAzureTable = new StringAzureTable(TABLE_NAME, stringTableCloudClientMock, stringTableRequestFactoryMock);
     }
 
