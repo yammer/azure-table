@@ -8,11 +8,11 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.Date;
 
-public class RestoreCommand extends AbstractBackupCommand {
+public class RestoreFromBackupCommand extends AbstractBackupCommand {
     private final Date backupTime;
 
 
-    public RestoreCommand(BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream, long backupTime) throws URISyntaxException, InvalidKeyException {
+    public RestoreFromBackupCommand(BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream, long backupTime) throws URISyntaxException, InvalidKeyException {
         super(backupConfiguration, infoStream, errorStream);
         this.backupTime = new Date(backupTime);
     }

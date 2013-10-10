@@ -19,7 +19,7 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 
-// TODO test
+
 class BackupCLIParser {
     public static final String CONFIG_FILE_OPTION = "cf";
     public static final String LIST_BACKUPS_OPTION = "l";
@@ -96,7 +96,7 @@ class BackupCLIParser {
             backupCommand = new DeleteBadBackupsCommand(backupConfiguration, infoStream, errorStream);
         } else if (commandLine.hasOption(RESTORE_BACKUP_OPTION)) {
             long backupTime = parseTimestamp(commandLine.getOptionValue(RESTORE_BACKUP_OPTION));
-            backupCommand = new RestoreCommand(backupConfiguration, infoStream, errorStream, backupTime);
+            backupCommand = new RestoreFromBackupCommand(backupConfiguration, infoStream, errorStream, backupTime);
         }
 
         return Optional.fromNullable(backupCommand);
