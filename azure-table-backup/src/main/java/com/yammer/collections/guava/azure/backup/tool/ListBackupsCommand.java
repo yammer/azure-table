@@ -6,7 +6,6 @@ import com.yammer.collections.guava.azure.backup.lib.BackupService;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Date;
-// TODO provide tests for all commands, requires decoupling from configuration and azure
 
 class ListBackupsCommand extends AbstractBackupCommand {
     private final Date thresholdDate;

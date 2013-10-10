@@ -46,7 +46,7 @@ public class DeleteBadBackupsCommandTest {
     }
 
     @Test
-    public void delete_backups_command_deletes_bad_backups() throws Exception {
+    public void delete_bad_backups_command_deletes_bad_backups() throws Exception {
         deleteBadBackupsCommand.run();
 
         verify(backupServiceMock).removeBackup(backupMock1);
@@ -54,7 +54,7 @@ public class DeleteBadBackupsCommandTest {
     }
 
     @Test
-    public void delete_backups_command_does_not_delete_completed_backups() throws Exception {
+    public void delete_bad_backups_command_does_not_delete_completed_backups() throws Exception {
         deleteBadBackupsCommand.run();
 
         verify(backupServiceMock, never()).removeBackup(backupMock2);
