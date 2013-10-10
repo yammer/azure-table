@@ -45,7 +45,7 @@ public class BackupToolIntegrationTest {
     private static final Pattern BACKUP_CREATED_PATTERN = Pattern.compile("Created. " + BACKUP_INFO_PATTERN_STRING);
     private static final Pattern BACKUP_LIST_ITEM_PATTERN = Pattern.compile(BACKUP_INFO_PATTERN_STRING);
     private static final String ACCOUNT_NAME = "secretietest";
-    private static final String ACCOUNT_KEY = "e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==";
+        private static final String ACCOUNT_KEY = "e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==";
     private static final String ROW_1 = "row1";
     private static final String ROW_2 = "row2";
     private static final String COLUMN_1 = "column1";
@@ -63,12 +63,14 @@ public class BackupToolIntegrationTest {
     private BackupTableFactory backupTableFactory;
 
     private static BackupConfiguration createBackupConfiguration() {
-        BackupConfiguration configuration = new BackupConfiguration();
-        configuration.setSourceTableName(SRC_TABLE_NAME);
-        configuration.setSourceAccountName(ACCOUNT_NAME);
-        configuration.setSourceAccountKey(ACCOUNT_KEY);
-        configuration.setBackupAccountName(ACCOUNT_NAME);
-        configuration.setBackupAccountKey(ACCOUNT_KEY);
+        BackupConfiguration configuration =
+                new BackupConfiguration(
+                        SRC_TABLE_NAME,
+                        ACCOUNT_NAME,
+                        ACCOUNT_KEY,
+                        ACCOUNT_NAME,
+                        ACCOUNT_KEY
+                );
 
         return configuration;
     }

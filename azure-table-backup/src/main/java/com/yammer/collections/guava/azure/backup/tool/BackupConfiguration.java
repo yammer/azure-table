@@ -4,38 +4,32 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BackupConfiguration {
     private static final String CONNECTION_STRING_TEMPLATE = "DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s";
-    private String sourceTableName;
-    private String sourceAccountName;
-    private String sourceAccountKey;
-    private String backupAccountName;
-    private String backupAccountKey;
+    private final String sourceTableName;
+    private final String sourceAccountName;
+    private final String sourceAccountKey;
+    private final String backupAccountName;
+
+    public BackupConfiguration(
+            @JsonProperty("sourceTableName") String sourceTableName,
+            @JsonProperty("sourceAccountName") String sourceAccountName,
+            @JsonProperty("sourceAccountKey") String sourceAccountKey,
+            @JsonProperty("backupAccountName") String backupAccountName,
+            @JsonProperty("backupAccountKey") String backupAccountKey) {
+        this.sourceTableName = sourceTableName;
+        this.sourceAccountName = sourceAccountName;
+        this.sourceAccountKey = sourceAccountKey;
+        this.backupAccountName = backupAccountName;
+        this.backupAccountKey = backupAccountKey;
+    }
+
+    private final String backupAccountKey;
 
     private static String getConnectionString(String accountName, String accountKey) {
         return String.format(CONNECTION_STRING_TEMPLATE, accountName, accountKey);
     }
 
-    @JsonProperty
-    public void setSourceAccountName(String accountName) {
-        this.sourceAccountName = accountName;
-    }
-
-    @JsonProperty
-    public void setSourceAccountKey(String accountKey) {
-        this.sourceAccountKey = accountKey;
-    }
-
     public String getSourceConnectionString() {
         return getConnectionString(sourceAccountName, sourceAccountKey);
-    }
-
-    @JsonProperty
-    public void setBackupAccountName(String accountName) {
-        this.backupAccountName = accountName;
-    }
-
-    @JsonProperty
-    public void setBackupAccountKey(String accountKey) {
-        this.backupAccountKey = accountKey;
     }
 
     public String getBackupConnectionString() {
@@ -44,11 +38,6 @@ public class BackupConfiguration {
 
     public String getSourceTableName() {
         return sourceTableName;
-    }
-
-    @JsonProperty
-    public void setSourceTableName(String tableName) {
-        this.sourceTableName = tableName;
     }
 
 }
