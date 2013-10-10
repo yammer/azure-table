@@ -17,7 +17,6 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-// TODO improve this tests resolution, to verify correct parsing
 @RunWith(MockitoJUnitRunner.class)
 public class BackupCLIParserTest {
     private static final String CONFIG_FILE_PATH = BackupToolIntegrationTest.class.getResource("testBackupAccountConfiguration.yml").getPath();
