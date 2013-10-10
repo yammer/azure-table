@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import org.apache.commons.cli.*;
 
@@ -11,40 +12,40 @@ import java.io.File;
 import java.io.IOException;
 
 public class BackupCLI {
-    private static final Option CONFIG_FILE = OptionBuilder.
+    private final Option CONFIG_FILE = OptionBuilder.
             withArgName("file").
             hasArg().
             withDescription("azure src and backup accounts configuration file").
             isRequired().
             create("cf");
-    private static final Option LIST = OptionBuilder.
+    private final Option LIST = OptionBuilder.
             withArgName("timestamp").
             hasArg().
             withDescription("lists existing backups since timestamp").
             create("l");
-    private static final Option DELETE = OptionBuilder.
+    private final Option DELETE = OptionBuilder.
             withArgName("timestamp").
             hasArg().
             withDescription("deletes all backups until timestamp").
             create("d");
-    private static final Option RESTORE = OptionBuilder.
+    private final Option RESTORE = OptionBuilder.
             withArgName("timestamp").
             hasArg().
             withDescription("restores the backup performed at the given timestamp").
             create("r");
-    private static final Option LIST_ALL = new Option("la", "list all backups");
-    private static final Option BACKUP = new Option("b", "perform a backup");
-    private static final Option DELETE_BAD_BACKUPS = new Option("db", "delete backups in bad state, i.e., not in COMPLETED");
-    private static final OptionGroup BACKUP_OPTIONS = new OptionGroup().
+    private final Option LIST_ALL = new Option("la", "list all backups");
+    private final Option BACKUP = new Option("b", "perform a backup");
+    private final Option DELETE_BAD_BACKUPS = new Option("db", "delete backups in bad state, i.e., not in COMPLETED");
+    private final OptionGroup BACKUP_OPTIONS = new OptionGroup().
             addOption(BACKUP).
             addOption(LIST).
             addOption(LIST_ALL).
             addOption(DELETE).
             addOption(RESTORE).
             addOption(DELETE_BAD_BACKUPS);
-    private static final Options OPTIONS = setupOptions();
+    private final Options OPTIONS = setupOptions();
 
-    private static Options setupOptions() {
+    private Options setupOptions() {
         CONFIG_FILE.setRequired(true);
         BACKUP_OPTIONS.setRequired(true);
 
@@ -53,18 +54,18 @@ public class BackupCLI {
                 addOptionGroup(BACKUP_OPTIONS);
     }
 
-    private static void printHelpAndExit() {
+    private void printHelpAndExit() {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp(BackupCLI.class.getName(), OPTIONS);
         System.exit(-1);
     }
 
-    private static void printHelpAndExit(Throwable e) {
+    private void printHelpAndExit(Throwable e) {
         System.err.println(e.getMessage());
         printHelpAndExit();
     }
 
-    private static CommandLine parse(String args[]) {
+    private CommandLine parse(String args[]) {
         PosixParser parser = new PosixParser();
         try {
             return parser.parse(OPTIONS, args);
@@ -74,9 +75,7 @@ public class BackupCLI {
         }
     }
 
-    public static void main(String args[]) throws Exception {
-        CommandLine commandLine = parse(args);
-
+    private Optional<AbstractBackupToolCommand> createBackupCommandFrom(CommandLine commandLine) throws Exception {
         AbstractBackupToolCommand backupCommand = null;
         final Printer stdPrinter = new StdOutputsPrinter();
         final BackupConfiguration backupConfiguration = getBackupConfiguration(commandLine);
@@ -95,10 +94,12 @@ public class BackupCLI {
         } else if (commandLine.hasOption(RESTORE.getOpt())) {
             long backupTime = parseTimestamp(commandLine.getOptionValue(RESTORE.getOpt()));
             backupCommand = new RestoreCommand(backupConfiguration, stdPrinter, backupTime);
-        } else {
-            printHelpAndExit();
         }
 
+        return Optional.fromNullable(backupCommand);
+    }
+
+    private void executeBackupCommand(AbstractBackupToolCommand backupCommand) {
         final long startTime = System.currentTimeMillis();
         long duration = 0;
         try {
@@ -111,10 +112,23 @@ public class BackupCLI {
         } finally {
             System.out.println("Running time was: " + duration + "[ms]");
         }
-
     }
 
-    private static BackupConfiguration getBackupConfiguration(CommandLine commandLine) throws IOException {
+    public void execute(String args[]) throws Exception {
+        CommandLine commandLine = parse(args);
+        Optional<AbstractBackupToolCommand> backupCommand = createBackupCommandFrom(commandLine);
+        if(backupCommand.isPresent()) {
+            executeBackupCommand(backupCommand.get());
+        } else {
+            printHelpAndExit();
+        }
+    }
+
+    public static void main(String args[]) throws Exception {
+        (new BackupCLI()).execute(args);
+    }
+
+    private BackupConfiguration getBackupConfiguration(CommandLine commandLine) throws IOException {
         final String configPath = commandLine.getOptionValue(CONFIG_FILE.getOpt());
         final File configurationFile = new File(configPath);
         final ObjectMapper configurationObjectMapper = new ObjectMapper(new YAMLFactory());
@@ -122,7 +136,7 @@ public class BackupCLI {
         return configurationObjectMapper.readValue(new TreeTraversingParser(node), BackupConfiguration.class);
     }
 
-    private static Long parseTimestamp(String data) {
+    private Long parseTimestamp(String data) {
         try {
             return Long.parseLong(data);
         } catch (NumberFormatException e) {
@@ -132,7 +146,7 @@ public class BackupCLI {
         }
     }
 
-    private static final class StdOutputsPrinter implements Printer {
+    private final class StdOutputsPrinter implements Printer {
 
         @Override
         public void println(String string) {
