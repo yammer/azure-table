@@ -2,25 +2,27 @@ package com.yammer.collections.guava.azure.backup.tool;
 
 import com.google.common.base.Optional;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
 public class BackupCLI {
+    private final BackupCLIParser parser;
     private final PrintStream infoStream;
     private final PrintStream errorStream;
 
 
-    public BackupCLI(PrintStream info, PrintStream err) {
+    public BackupCLI(BackupCLIParser parser, PrintStream info, PrintStream err) {
+        this.parser = parser;
         this.infoStream = info;
         this.errorStream = err;
     }
 
     public static void main(String args[]) throws Exception {
-        boolean success = (new BackupCLI(System.out, System.err)).execute(args);
+        final BackupCLIParser parser = new BackupCLIParser(System.out, System.err);
+        boolean success = (new BackupCLI(parser, System.out, System.err)).execute(args);
 
-        if(!success) {
+        if (!success) {
             System.exit(-1);
         }
     }
@@ -43,13 +45,9 @@ public class BackupCLI {
         }
     }
 
-    private BackupCLIParser createBackupCLIParser() {    // TODO no longer needed, make it a dep once again
-        return new BackupCLIParser(infoStream, errorStream);
-    }
-
     private Optional<BackupCommand> parse(String args[]) {
         try {
-            return createBackupCLIParser().parse(args);
+            return parser.parse(args);
         } catch (Exception e) {
             errorStream.println(e.getMessage());
             return Optional.absent();

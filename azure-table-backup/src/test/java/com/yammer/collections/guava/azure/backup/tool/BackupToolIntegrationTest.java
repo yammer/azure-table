@@ -100,7 +100,7 @@ public class BackupToolIntegrationTest {
 
     @Before
     public void setUpBackupCli() {
-        backupCLI = new BackupCLI(infoPrintStreamMock, System.err);
+        backupCLI = new BackupCLI(new BackupCLIParser(infoPrintStreamMock, System.err), infoPrintStreamMock, System.err);
     }
 
     @Test
@@ -195,12 +195,12 @@ public class BackupToolIntegrationTest {
     //
 
     private void assertNoBackups() throws Exception {
-        new BackupCLI(System.out, System.err).execute(LIST_ALL_BACKUPS_COMMAND_LINE);
+        new BackupCLI(new BackupCLIParser(System.out, System.err), System.out, System.err).execute(LIST_ALL_BACKUPS_COMMAND_LINE);
         verify(infoPrintStreamMock, never()).println(any(String.class));
     }
 
     private void clearDB() throws Exception {
-        new BackupCLI(System.out, System.err).execute(DELETE_ALL_BACKUPS_COMMAND_LINE);
+        new BackupCLI(new BackupCLIParser(System.out, System.err), System.out, System.err).execute(DELETE_ALL_BACKUPS_COMMAND_LINE);
         sourceTableFactory.clearSourceTable();
     }
 
