@@ -11,6 +11,7 @@ import java.security.InvalidKeyException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+// TODO provide tests for all commands, requires decoupling from configuration and azure
 abstract class AbstractBackupCommand implements Printer, BackupCommand {
     private final DateFormat dateFormat = new SimpleDateFormat();
     private final BackupService backupService;

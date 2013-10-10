@@ -1,0 +1,5 @@
+sourceTableName: backupToolIntegrationTestTable
+sourceAccountName: secretietest
+sourceAccountKey: e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==
+backupAccountName: secretietest
+backupAccountKey: e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==
