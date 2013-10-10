@@ -2,8 +2,10 @@ package com.yammer.collections.guava.azure.backup.tool;
 
 import com.google.common.base.Optional;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 
 public class BackupCLI {
     private final PrintStream infoStream;
@@ -23,10 +25,12 @@ public class BackupCLI {
         }
     }
 
-    private void printHelpAndExit() { // TODO solve this, need to provide input
-        // this is just a pain, help formatter has a hard
+    private void printHelpAndExit() {
+        PrintWriter pw = new PrintWriter(infoStream);
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp(BackupCLI.class.getName(), BackupCLIParser.buildCommandLineParserOptions());
+        formatter.printHelp(pw, HelpFormatter.DEFAULT_WIDTH, BackupCLI.class.getName(), null, BackupCLIParser.buildCommandLineParserOptions(),
+                HelpFormatter.DEFAULT_LEFT_PAD, HelpFormatter.DEFAULT_DESC_PAD, null, false);
+        pw.flush();
     }
 
     private boolean executeBackupCommand(BackupCommand backupCommand) {
