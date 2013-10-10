@@ -7,7 +7,6 @@ import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-// TODO provide tests for all commands, requires decoupling from configuration and azure
 abstract class AbstractBackupCommand implements BackupCommand {
     private final DateFormat dateFormat = new SimpleDateFormat();
     private final BackupService backupService;

@@ -6,6 +6,7 @@ import com.yammer.collections.guava.azure.backup.lib.BackupService;
 
 import java.io.PrintStream;
 import java.util.Date;
+// TODO provide tests for all commands, requires decoupling from configuration and azure
 
 public class RestoreFromBackupCommand extends AbstractBackupCommand {
     private final Date backupTime;

@@ -140,7 +140,7 @@ public class BackupService {
         }
     }
 
-    public static final class BackupResult {
+    public static class BackupResult {
         private final Optional<Exception> failureCause;
         private final Backup backup;
 
