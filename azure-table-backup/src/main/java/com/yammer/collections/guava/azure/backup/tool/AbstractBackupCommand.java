@@ -1,14 +1,9 @@
 package com.yammer.collections.guava.azure.backup.tool;
 
-import com.microsoft.windowsazure.services.core.storage.CloudStorageAccount;
-import com.microsoft.windowsazure.services.table.client.CloudTableClient;
-import com.yammer.collections.guava.azure.backup.adapter.AzureBackupTableFactory;
-import com.yammer.collections.guava.azure.backup.adapter.AzureSourceTableFactory;
-import com.yammer.collections.guava.azure.backup.lib.*;
+import com.yammer.collections.guava.azure.backup.lib.Backup;
+import com.yammer.collections.guava.azure.backup.lib.BackupService;
 
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -20,34 +15,12 @@ abstract class AbstractBackupCommand implements BackupCommand {
     private final PrintStream infoStream;
     private final PrintStream errorStrem;
 
-    AbstractBackupCommand(BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStrem) throws URISyntaxException,
-            InvalidKeyException {
+    // TODO do we need configuration here?
+    AbstractBackupCommand(BackupService backupService, BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStrem) {
         this.infoStream = infoStream;
         this.errorStrem = errorStrem;
-        backupName = backupConfiguration.getSourceTableName();
-        backupService = createBackupService(backupConfiguration);
-    }
-
-    private static CloudTableClient createCloudTableClient(String connectionString) throws URISyntaxException, InvalidKeyException {
-        CloudStorageAccount storageAccount = CloudStorageAccount.parse(connectionString);
-        return storageAccount.createCloudTableClient();
-    }
-
-    private static BackupTableFactory getBackupTableFactory(BackupConfiguration configuration) throws URISyntaxException, InvalidKeyException {
-        CloudTableClient tableClient = createCloudTableClient(configuration.getBackupConnectionString());
-        return new AzureBackupTableFactory(tableClient);
-    }
-
-    private static SourceTableFactory getSourceTableFactory(BackupConfiguration configuration) throws URISyntaxException, InvalidKeyException {
-        CloudTableClient tableClient = createCloudTableClient(configuration.getSourceConnectionString());
-        return new AzureSourceTableFactory(tableClient, configuration.getSourceTableName());
-    }
-
-    private static BackupService createBackupService(BackupConfiguration configuration) throws URISyntaxException, InvalidKeyException {
-        BackupTableFactory backupTableFactory = getBackupTableFactory(configuration);
-        SourceTableFactory sourceTableFactory = getSourceTableFactory(configuration);
-        TableCopy<String, String, String> tableCopy = new TableCopy<>();
-        return new BackupService(tableCopy, sourceTableFactory, backupTableFactory);
+        this.backupService = backupService;
+        this.backupName = backupConfiguration.getSourceTableName();
     }
 
     protected final BackupService getBackupService() {

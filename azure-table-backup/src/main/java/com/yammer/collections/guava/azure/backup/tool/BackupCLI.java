@@ -19,7 +19,7 @@ public class BackupCLI {
     }
 
     public static void main(String args[]) throws Exception {
-        final BackupCLIParser parser = new BackupCLIParser(System.out, System.err);
+        final BackupCLIParser parser = new BackupCLIParser(new BackupServiceFactory(), System.out, System.err);
         boolean success = (new BackupCLI(parser, System.out, System.err)).execute(args);
 
         if (!success) {

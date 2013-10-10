@@ -1,16 +1,16 @@
 package com.yammer.collections.guava.azure.backup.tool;
 
+import com.yammer.collections.guava.azure.backup.lib.BackupService;
+
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 import java.util.Date;
 
 class DeleteBackupsCommand extends AbstractBackupCommand {
     private final Date thresholdDate;
 
 
-    public DeleteBackupsCommand(BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream, long timeTill) throws URISyntaxException, InvalidKeyException {
-        super(backupConfiguration, infoStream, errorStream);
+    public DeleteBackupsCommand(BackupService backupService, BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream, long timeTill) {
+        super(backupService, backupConfiguration, infoStream, errorStream);
         this.thresholdDate = new Date(timeTill);
     }
 

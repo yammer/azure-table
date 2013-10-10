@@ -38,8 +38,8 @@ import static org.mockito.Mockito.verify;
 
 /**
  * This test may take some time to run - deleting of tables in azure can take a while, and it is used during the restore procedure.
- * This test uses the commands used by the command line tool, and for that reason,
- * there is a degree of awkwardness in how assertions are made about backups - they have to be retrieved from commands printed output.
+ * This test runs the commandline tool, for that reason it is fragile, as it relies on the tools output to verify assertions.
+ * I know, it isn't ideal but didn't have better idea. Suggestions welcome.
  */
 @Ignore("Ignored as it talks to azure, should be used to integration test changes to this project")
 @RunWith(MockitoJUnitRunner.class)
@@ -100,7 +100,7 @@ public class BackupToolIntegrationTest {
 
     @Before
     public void setUpBackupCli() {
-        backupCLI = new BackupCLI(new BackupCLIParser(infoPrintStreamMock, System.err), infoPrintStreamMock, System.err);
+        backupCLI = new BackupCLI(new BackupCLIParser(new BackupServiceFactory(), infoPrintStreamMock, System.err), infoPrintStreamMock, System.err);
     }
 
     @Test
@@ -195,12 +195,12 @@ public class BackupToolIntegrationTest {
     //
 
     private void assertNoBackups() throws Exception {
-        new BackupCLI(new BackupCLIParser(System.out, System.err), System.out, System.err).execute(LIST_ALL_BACKUPS_COMMAND_LINE);
+        new BackupCLI(new BackupCLIParser(new BackupServiceFactory(), System.out, System.err), System.out, System.err).execute(LIST_ALL_BACKUPS_COMMAND_LINE);
         verify(infoPrintStreamMock, never()).println(any(String.class));
     }
 
     private void clearDB() throws Exception {
-        new BackupCLI(new BackupCLIParser(System.out, System.err), System.out, System.err).execute(DELETE_ALL_BACKUPS_COMMAND_LINE);
+        new BackupCLI(new BackupCLIParser(new BackupServiceFactory(), System.out, System.err), System.out, System.err).execute(DELETE_ALL_BACKUPS_COMMAND_LINE);
         sourceTableFactory.clearSourceTable();
     }
 

@@ -3,16 +3,16 @@ package com.yammer.collections.guava.azure.backup.tool;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.yammer.collections.guava.azure.backup.lib.Backup;
+import com.yammer.collections.guava.azure.backup.lib.BackupService;
 
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 import java.util.Date;
 
 class DeleteBadBackupsCommand extends AbstractBackupCommand {
 
-    public DeleteBadBackupsCommand(BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream) throws URISyntaxException, InvalidKeyException {
-        super(backupConfiguration, infoStream, errorStream);
+    public DeleteBadBackupsCommand(BackupService backupService, BackupConfiguration backupConfiguration, PrintStream infoStream,
+                                   PrintStream errorStream) {
+        super(backupService, backupConfiguration, infoStream, errorStream);
     }
 
     @Override
@@ -24,7 +24,7 @@ class DeleteBadBackupsCommand extends AbstractBackupCommand {
                 return !input.getStatus().equals(Backup.BackupStatus.COMPLETED);
             }
         });
-        for(Backup badBackup : badBackups) {
+        for (Backup badBackup : badBackups) {
             getBackupService().removeBackup(badBackup);
         }
     }

@@ -5,6 +5,9 @@ import com.google.common.base.Optional;
 import org.apache.commons.cli.ParseException;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -14,6 +17,8 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+// TODO improve this tests resolution, to verify correct parsing
+@RunWith(MockitoJUnitRunner.class)
 public class BackupCLIParserTest {
     private static final String CONFIG_FILE_PATH = BackupToolIntegrationTest.class.getResource("testBackupAccountConfiguration.yml").getPath();
     private static final String[] DO_BACKUP_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-b"};
@@ -24,10 +29,12 @@ public class BackupCLIParserTest {
     private static final String[] RESTORE_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-r", "" + Long.MAX_VALUE};
 
     private BackupCLIParser backupCLIParser;
+    @Mock
+    private BackupServiceFactory backupServiceFactoryMock;
 
     @Before
     public void setUp() {
-        backupCLIParser = new BackupCLIParser(System.out, System.err);
+        backupCLIParser = new BackupCLIParser(backupServiceFactoryMock, System.out, System.err);
     }
 
     @Test

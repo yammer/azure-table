@@ -1,10 +1,9 @@
 package com.yammer.collections.guava.azure.backup.tool;
 
 import com.yammer.collections.guava.azure.backup.lib.Backup;
+import com.yammer.collections.guava.azure.backup.lib.BackupService;
 
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 import java.util.Collection;
 import java.util.Date;
 
@@ -12,8 +11,8 @@ class ListBackupsCommand extends AbstractBackupCommand {
     private final Date thresholdDate;
 
 
-    ListBackupsCommand(BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream, long timeSince) throws URISyntaxException, InvalidKeyException {
-        super(backupConfiguration, infoStream, errorStream);
+    ListBackupsCommand(BackupService backupService, BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream, long timeSince) {
+        super(backupService, backupConfiguration, infoStream, errorStream);
         this.thresholdDate = new Date(timeSince);
     }
 
