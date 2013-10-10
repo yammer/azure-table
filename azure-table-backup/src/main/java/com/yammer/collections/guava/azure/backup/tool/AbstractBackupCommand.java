@@ -11,24 +11,17 @@ import java.text.SimpleDateFormat;
 abstract class AbstractBackupCommand implements BackupCommand {
     private final DateFormat dateFormat = new SimpleDateFormat();
     private final BackupService backupService;
-    private final String backupName;
     private final PrintStream infoStream;
     private final PrintStream errorStrem;
 
-    // TODO do we need configuration here?
-    AbstractBackupCommand(BackupService backupService, BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStrem) {
+    AbstractBackupCommand(BackupService backupService, PrintStream infoStream, PrintStream errorStrem) {
         this.infoStream = infoStream;
         this.errorStrem = errorStrem;
         this.backupService = backupService;
-        this.backupName = backupConfiguration.getSourceTableName();
     }
 
     protected final BackupService getBackupService() {
         return backupService;
-    }
-
-    protected String getBackupName() {
-        return backupName;
     }
 
     protected String format(Backup backup) {

@@ -85,25 +85,29 @@ class BackupCLIParser {
 
         BackupCommand backupCommand = null;
         if (commandLine.hasOption(BACKUP_OPTION)) {
-            backupCommand = new DoBackupCommand(backupServiceFactory.createBackupService(backupConfiguration), backupConfiguration, infoStream, errorStream);
+            backupCommand = new DoBackupCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream, errorStream);
         } else if (commandLine.hasOption(LIST_BACKUPS_OPTION)) {
             long timeSince = parseTimestamp(commandLine.getOptionValue(LIST_BACKUPS_OPTION));
-            backupCommand = new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), backupConfiguration, infoStream,
+            backupCommand = new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
                     errorStream, timeSince);
         } else if (commandLine.hasOption(LIST_ALL_BACKUPS_OPTION)) {
-            backupCommand = new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), backupConfiguration, infoStream,
+            backupCommand = new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
                     errorStream, BEGINING_OF_TIME);
         } else if (commandLine.hasOption(DELETE_BACKUP_OPTION)) {
             long timeTill = parseTimestamp(commandLine.getOptionValue(DELETE_BACKUP_OPTION));
-            backupCommand = new DeleteBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), backupConfiguration, infoStream,
+            backupCommand = new DeleteBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
                     errorStream, timeTill);
         } else if (commandLine.hasOption(DELETE_BAD_BACKUPS_OPTION)) {
-            backupCommand = new DeleteBadBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), backupConfiguration, infoStream,
+            backupCommand = new DeleteBadBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
                     errorStream);
         } else if (commandLine.hasOption(RESTORE_BACKUP_OPTION)) {
             long backupTime = parseTimestamp(commandLine.getOptionValue(RESTORE_BACKUP_OPTION));
-            backupCommand = new RestoreFromBackupCommand(backupServiceFactory.createBackupService(backupConfiguration),backupConfiguration, infoStream,
-                    errorStream, backupTime);
+            backupCommand = new RestoreFromBackupCommand(
+                    backupServiceFactory.createBackupService(backupConfiguration),
+                    backupConfiguration.getSourceTableName(),
+                    infoStream,
+                    errorStream,
+                    backupTime);
         }
 
         return Optional.fromNullable(backupCommand);

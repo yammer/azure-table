@@ -9,22 +9,23 @@ import java.util.Date;
 
 public class RestoreFromBackupCommand extends AbstractBackupCommand {
     private final Date backupTime;
+    private final String backupName;
 
 
-    public RestoreFromBackupCommand(BackupService backupService, BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream,
-                                    long backupTime) {
-        super(backupService, backupConfiguration, infoStream, errorStream);
+    public RestoreFromBackupCommand(BackupService backupService, String backupName, PrintStream infoStream, PrintStream errorStream, long backupTime) {
+        super(backupService, infoStream, errorStream);
+        this.backupName = backupName;
         this.backupTime = new Date(backupTime);
     }
 
     @Override
     public void run() throws Exception {
-        Optional<Backup> backup = getBackupService().findBackup(getBackupName(), backupTime);
+        Optional<Backup> backup = getBackupService().findBackup(backupName, backupTime);
         if (backup.isPresent()) {
             getBackupService().restore(backup.get());
             println("Restored backup: " + format(backup.get()));
         } else {
-            printErrorln("No backup found for table=" + getBackupName() + " at timestamp=" + backupTime.getTime());
+            printErrorln("No backup found for table=" + backupName + " at timestamp=" + backupTime.getTime());
         }
     }
 }

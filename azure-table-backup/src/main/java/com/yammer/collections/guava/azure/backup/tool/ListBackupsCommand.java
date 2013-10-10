@@ -11,8 +11,8 @@ class ListBackupsCommand extends AbstractBackupCommand {
     private final Date thresholdDate;
 
 
-    ListBackupsCommand(BackupService backupService, BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream, long timeSince) {
-        super(backupService, backupConfiguration, infoStream, errorStream);
+    ListBackupsCommand(BackupService backupService, PrintStream infoStream, PrintStream errorStream, long timeSince) {
+        super(backupService, infoStream, errorStream);
         this.thresholdDate = new Date(timeSince);
     }
 

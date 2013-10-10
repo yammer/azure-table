@@ -9,8 +9,8 @@ class DeleteBackupsCommand extends AbstractBackupCommand {
     private final Date thresholdDate;
 
 
-    public DeleteBackupsCommand(BackupService backupService, BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream, long timeTill) {
-        super(backupService, backupConfiguration, infoStream, errorStream);
+    public DeleteBackupsCommand(BackupService backupService, PrintStream infoStream, PrintStream errorStream, long timeTill) {
+        super(backupService, infoStream, errorStream);
         this.thresholdDate = new Date(timeTill);
     }
 

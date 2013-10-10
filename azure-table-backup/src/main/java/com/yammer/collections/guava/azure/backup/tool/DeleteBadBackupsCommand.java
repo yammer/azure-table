@@ -10,9 +10,8 @@ import java.util.Date;
 
 class DeleteBadBackupsCommand extends AbstractBackupCommand {
 
-    public DeleteBadBackupsCommand(BackupService backupService, BackupConfiguration backupConfiguration, PrintStream infoStream,
-                                   PrintStream errorStream) {
-        super(backupService, backupConfiguration, infoStream, errorStream);
+    public DeleteBadBackupsCommand(BackupService backupService, PrintStream infoStream, PrintStream errorStream) {
+        super(backupService, infoStream, errorStream);
     }
 
     @Override

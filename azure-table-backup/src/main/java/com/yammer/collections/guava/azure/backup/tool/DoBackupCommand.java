@@ -7,8 +7,8 @@ import java.io.PrintStream;
 
 class DoBackupCommand extends AbstractBackupCommand {
 
-    DoBackupCommand(BackupService backupService, BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream) {
-        super(backupService, backupConfiguration, infoStream, errorStream);
+    DoBackupCommand(BackupService backupService, PrintStream infoStream, PrintStream errorStream) {
+        super(backupService, infoStream, errorStream);
     }
 
     @Override
