@@ -39,9 +39,8 @@ public class BackupCLI {
         }
     }
 
-    private BackupCLIParser createBackupCLIParser() {
-        PrintStreamPrinter printer = new PrintStreamPrinter(infoStream, errorStream);
-        return new BackupCLIParser(printer);
+    private BackupCLIParser createBackupCLIParser() {    // TODO no longer needed, make it a dep once again
+        return new BackupCLIParser(infoStream, errorStream);
     }
 
     private Optional<BackupCommand> parse(String args[]) {
@@ -60,27 +59,6 @@ public class BackupCLI {
         } else {
             printHelpAndExit();
             return false;
-        }
-    }
-
-    private final static class PrintStreamPrinter implements Printer {
-        private final PrintStream infoPrintStream;
-        private final PrintStream errorPrintStream;
-
-        public PrintStreamPrinter(PrintStream infoPrintStream, PrintStream errorPrintStream) {
-            this.infoPrintStream = infoPrintStream;
-            this.errorPrintStream = errorPrintStream;
-        }
-
-
-        @Override
-        public void println(String string) {
-            infoPrintStream.println(string);
-        }
-
-        @Override
-        public void printErrorln(String string) {
-            errorPrintStream.println(string);
         }
     }
 

@@ -3,6 +3,7 @@ package com.yammer.collections.guava.azure.backup.tool;
 import com.google.common.base.Optional;
 import com.yammer.collections.guava.azure.backup.lib.Backup;
 
+import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.Date;
@@ -10,8 +11,9 @@ import java.util.Date;
 public class RestoreCommand extends AbstractBackupCommand {
     private final Date backupTime;
 
-    public RestoreCommand(BackupConfiguration configuration, Printer printer, long backupTime) throws URISyntaxException, InvalidKeyException {
-        super(configuration, printer);
+
+    public RestoreCommand(BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStream, long backupTime) throws URISyntaxException, InvalidKeyException {
+        super(backupConfiguration, infoStream, errorStream);
         this.backupTime = new Date(backupTime);
     }
 

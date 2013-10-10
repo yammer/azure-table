@@ -6,20 +6,24 @@ import com.yammer.collections.guava.azure.backup.adapter.AzureBackupTableFactory
 import com.yammer.collections.guava.azure.backup.adapter.AzureSourceTableFactory;
 import com.yammer.collections.guava.azure.backup.lib.*;
 
+import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 // TODO provide tests for all commands, requires decoupling from configuration and azure
-abstract class AbstractBackupCommand implements Printer, BackupCommand {
+abstract class AbstractBackupCommand implements BackupCommand {
     private final DateFormat dateFormat = new SimpleDateFormat();
     private final BackupService backupService;
     private final String backupName;
-    private final Printer printer;
+    private final PrintStream infoStream;
+    private final PrintStream errorStrem;
 
-    AbstractBackupCommand(BackupConfiguration backupConfiguration, Printer printer) throws URISyntaxException, InvalidKeyException {
-        this.printer = printer;
+    AbstractBackupCommand(BackupConfiguration backupConfiguration, PrintStream infoStream, PrintStream errorStrem) throws URISyntaxException,
+            InvalidKeyException {
+        this.infoStream = infoStream;
+        this.errorStrem = errorStrem;
         backupName = backupConfiguration.getSourceTableName();
         backupService = createBackupService(backupConfiguration);
     }
@@ -61,14 +65,12 @@ abstract class AbstractBackupCommand implements Printer, BackupCommand {
 
     public abstract void run() throws Exception;
 
-    @Override
     public final void println(String str) {
-        printer.println(str);
+        infoStream.println(str);
     }
 
-    @Override
     public final void printErrorln(String str) {
-        printer.printErrorln(str);
+        errorStrem.println(str);
     }
 
 }

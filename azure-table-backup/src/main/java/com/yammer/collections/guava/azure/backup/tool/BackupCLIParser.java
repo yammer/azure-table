@@ -15,6 +15,7 @@ import org.apache.commons.cli.PosixParser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 
@@ -28,13 +29,13 @@ class BackupCLIParser {
     public static final String BACKUP_OPTION = "b";
     public static final String DELETE_BAD_BACKUPS_OPTION = "db";
     private static final long BEGINING_OF_TIME = 0;
+    private final PrintStream infoStream;
+    private final PrintStream errorStream;
 
-    public BackupCLIParser(Printer printer) {
-        this.printer = printer;
+    public BackupCLIParser(PrintStream infoStream, PrintStream errorStream) {
+        this.infoStream = infoStream;
+        this.errorStream = errorStream;
     }
-
-    private final Printer printer;
-
 
     public static Options buildCommandLineParserOptions() {
         final Option CONFIG_FILE = OptionBuilder.
@@ -82,20 +83,20 @@ class BackupCLIParser {
 
         BackupCommand backupCommand = null;
         if (commandLine.hasOption(BACKUP_OPTION)) {
-            backupCommand = new DoBackupCommand(backupConfiguration, printer);
+            backupCommand = new DoBackupCommand(backupConfiguration, infoStream, errorStream);
         } else if (commandLine.hasOption(LIST_BACKUPS_OPTION)) {
             long timeSince = parseTimestamp(commandLine.getOptionValue(LIST_BACKUPS_OPTION));
-            backupCommand = new ListBackupsCommand(backupConfiguration, printer, timeSince);
+            backupCommand = new ListBackupsCommand(backupConfiguration, infoStream, errorStream, timeSince);
         } else if (commandLine.hasOption(LIST_ALL_BACKUPS_OPTION)) {
-            backupCommand = new ListBackupsCommand(backupConfiguration, printer, BEGINING_OF_TIME);
+            backupCommand = new ListBackupsCommand(backupConfiguration, infoStream, errorStream, BEGINING_OF_TIME);
         } else if (commandLine.hasOption(DELETE_BACKUP_OPTION)) {
             long timeTill = parseTimestamp(commandLine.getOptionValue(DELETE_BACKUP_OPTION));
-            backupCommand = new DeleteBackupsCommand(backupConfiguration, printer, timeTill);
+            backupCommand = new DeleteBackupsCommand(backupConfiguration, infoStream, errorStream, timeTill);
         } else if (commandLine.hasOption(DELETE_BAD_BACKUPS_OPTION)) {
-            backupCommand = new DeleteBadBackupsCommand(backupConfiguration, printer);
+            backupCommand = new DeleteBadBackupsCommand(backupConfiguration, infoStream, errorStream);
         } else if (commandLine.hasOption(RESTORE_BACKUP_OPTION)) {
             long backupTime = parseTimestamp(commandLine.getOptionValue(RESTORE_BACKUP_OPTION));
-            backupCommand = new RestoreCommand(backupConfiguration, printer, backupTime);
+            backupCommand = new RestoreCommand(backupConfiguration, infoStream, errorStream, backupTime);
         }
 
         return Optional.fromNullable(backupCommand);
