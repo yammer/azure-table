@@ -131,12 +131,12 @@ public class BackupService {
     }
 
     private void assertBackupCompleted(Backup backupToBeRestored) {
-        if(!backupToBeRestored.getStatus().equals(Backup.BackupStatus.COMPLETED)) {
+        if (!(backupToBeRestored.getStatus() == Backup.BackupStatus.COMPLETED)) {
             throw new IllegalArgumentException(
-                    "Expected backup in status: "+
-                            Backup.BackupStatus.COMPLETED+
+                    "Expected backup in status: " +
+                            Backup.BackupStatus.COMPLETED +
                             " but got status: "
-                            +backupToBeRestored.getStatus());
+                            + backupToBeRestored.getStatus());
         }
     }
 

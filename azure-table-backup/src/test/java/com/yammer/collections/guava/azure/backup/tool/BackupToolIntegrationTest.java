@@ -74,16 +74,13 @@ public class BackupToolIntegrationTest {
     private BackupCLI backupCLI;
 
     private static BackupConfiguration createBackupConfiguration() {
-        BackupConfiguration configuration =
-                new BackupConfiguration(
-                        SRC_TABLE_NAME,
-                        ACCOUNT_NAME,
-                        ACCOUNT_KEY,
-                        ACCOUNT_NAME,
-                        ACCOUNT_KEY
-                );
-
-        return configuration;
+        return new BackupConfiguration(
+                SRC_TABLE_NAME,
+                ACCOUNT_NAME,
+                ACCOUNT_KEY,
+                ACCOUNT_NAME,
+                ACCOUNT_KEY
+        );
     }
 
     @Before
@@ -208,7 +205,7 @@ public class BackupToolIntegrationTest {
      * Requires DoBackupCommand to be run beforehand, it reads the backup data from the commands output
      * sent to infoPrintStreamMock.
      */
-    private Table<String, String, String> getJustCreatedBackup(PrintStream infoPrintStreamMock) throws Exception {
+    private Table<String, String, String> getJustCreatedBackup(PrintStream infoPrintStreamMock) {
         return backupTableFactory.getBackupTable(getJustCreatedBackupDate(infoPrintStreamMock), BACKUP_CONFIGURATION.getSourceTableName());
     }
 
@@ -227,7 +224,7 @@ public class BackupToolIntegrationTest {
         return new Date(backupTimeStamp);
     }
 
-    private void assertThatListedBackupsOnDates(Date... backupDates) throws Exception {
+    private void assertThatListedBackupsOnDates(Date... backupDates) {
         // Lists backups, one backup should have been created, and we get its details from the printout
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
         verify(infoPrintStreamMock, times(backupDates.length)).println(stringCaptor.capture());
@@ -244,7 +241,7 @@ public class BackupToolIntegrationTest {
         reset(infoPrintStreamMock);
     }
 
-    private void assertNoBackupsOnDates(Date... backupDates) throws Exception {
+    private void assertNoBackupsOnDates(Date... backupDates) {
         Table<String, Date, Backup.BackupStatus> backupListTable = backupTableFactory.getBackupListTable();
         for (Date backupDate : backupDates) {
             assertThat(backupListTable.get(SRC_TABLE_NAME, backupDate), is(nullValue()));

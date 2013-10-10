@@ -13,12 +13,19 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Date;
 
 import static junit.framework.Assert.fail;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,7 +39,7 @@ public class BackupServiceTest {
     private TableCopy<String, String, String> tableCopyMock;
     private BackupService secretieBackup;
     // name of backup, date created, status
-    private Table<String, Date, Backup.BackupStatus> backupListTable = HashBasedTable.create();
+    final private Table<String, Date, Backup.BackupStatus> backupListTable = HashBasedTable.create();
     @Mock
     private Table<String, String, String> sourceTableMock;
     @Mock

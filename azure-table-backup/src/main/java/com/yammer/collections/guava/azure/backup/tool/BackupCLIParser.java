@@ -21,13 +21,13 @@ import java.security.InvalidKeyException;
 
 
 class BackupCLIParser {
-    public static final String CONFIG_FILE_OPTION = "cf";
-    public static final String LIST_BACKUPS_OPTION = "l";
-    public static final String DELETE_BACKUP_OPTION = "d";
-    public static final String RESTORE_BACKUP_OPTION = "r";
-    public static final String LIST_ALL_BACKUPS_OPTION = "la";
-    public static final String BACKUP_OPTION = "b";
-    public static final String DELETE_BAD_BACKUPS_OPTION = "db";
+    private static final String CONFIG_FILE_OPTION = "cf";
+    private static final String LIST_BACKUPS_OPTION = "l";
+    private static final String DELETE_BACKUP_OPTION = "d";
+    private static final String RESTORE_BACKUP_OPTION = "r";
+    private static final String LIST_ALL_BACKUPS_OPTION = "la";
+    private static final String BACKUP_OPTION = "b";
+    private static final String DELETE_BAD_BACKUPS_OPTION = "db";
     private static final long BEGINING_OF_TIME = 0;
     private final BackupServiceFactory backupServiceFactory;
     private final PrintStream infoStream;

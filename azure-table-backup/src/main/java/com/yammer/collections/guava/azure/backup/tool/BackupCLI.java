@@ -54,7 +54,7 @@ public class BackupCLI {
         }
     }
 
-    public boolean execute(String args[]) throws Exception {
+    public boolean execute(String args[]) {
         Optional<BackupCommand> backupCommand = parse(args);
         if (backupCommand.isPresent()) {
             return executeBackupCommand(backupCommand.get());

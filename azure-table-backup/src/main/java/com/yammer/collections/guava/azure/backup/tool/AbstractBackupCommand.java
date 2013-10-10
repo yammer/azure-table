@@ -19,22 +19,23 @@ abstract class AbstractBackupCommand implements BackupCommand {
         this.backupService = backupService;
     }
 
-    protected final BackupService getBackupService() {
+    final BackupService getBackupService() {
         return backupService;
     }
 
-    protected String format(Backup backup) {
+    String format(Backup backup) {
         return String.format("Backup: NAME=%s DATE=%s TIMESTAMP=%s STATUS=%s", backup.getName(), dateFormat.format(backup.getDate()),
                 backup.getDate().getTime(), backup.getStatus());
     }
 
+    @Override
     public abstract void run() throws Exception;
 
-    public final void println(String str) {
+    final void println(String str) {
         infoStream.println(str);
     }
 
-    public final void printErrorln(String str) {
+    final void printErrorln(String str) {
         errorStrem.println(str);
     }
 

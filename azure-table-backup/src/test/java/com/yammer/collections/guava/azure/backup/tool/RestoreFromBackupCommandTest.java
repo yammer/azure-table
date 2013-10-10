@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import com.yammer.collections.guava.azure.backup.lib.Backup;
 import com.yammer.collections.guava.azure.backup.lib.BackupService;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

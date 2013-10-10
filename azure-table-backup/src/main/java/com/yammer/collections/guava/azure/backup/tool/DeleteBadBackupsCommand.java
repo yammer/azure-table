@@ -20,7 +20,7 @@ class DeleteBadBackupsCommand extends AbstractBackupCommand {
         Iterable<Backup> badBackups = Iterables.filter(allBackups, new Predicate<Backup>() {
             @Override
             public boolean apply(Backup input) {
-                return !input.getStatus().equals(Backup.BackupStatus.COMPLETED);
+                return input.getStatus() != Backup.BackupStatus.COMPLETED;
             }
         });
         for (Backup badBackup : badBackups) {

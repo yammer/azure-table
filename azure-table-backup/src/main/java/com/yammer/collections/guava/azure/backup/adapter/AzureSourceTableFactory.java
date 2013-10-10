@@ -52,12 +52,12 @@ public class AzureSourceTableFactory implements SourceTableFactory {
     }
 
     private void tryCreateAfterDelete(CloudTable tableToBeRecreated) throws StorageException {
-        boolean success = false;
+        boolean failure = true;
         int count = 0;
-        while (!success && count++ < MAX_NUMBER_OF_RETRIES) {
+        while (failure && count++ < MAX_NUMBER_OF_RETRIES) {
             try {
                 tableToBeRecreated.create();
-                success = true;
+                failure = false;
             } catch (TableServiceException e) {
                 if (e.getHttpStatusCode() != HTTP_CONFILICT) {
                     throw e;
