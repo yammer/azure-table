@@ -4,10 +4,13 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.yammer.collections.guava.azure.backup.lib.Backup;
 
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.Date;
 
-class DeleteBadBackupsCommand extends AbstractBackupToolCommand {
-    public DeleteBadBackupsCommand(BackupConfiguration configuration, Printer printer) throws Exception {
+class DeleteBadBackupsCommand extends AbstractBackupCommand {
+
+    public DeleteBadBackupsCommand(BackupConfiguration configuration, Printer printer) throws URISyntaxException, InvalidKeyException {
         super(configuration, printer);
     }
 

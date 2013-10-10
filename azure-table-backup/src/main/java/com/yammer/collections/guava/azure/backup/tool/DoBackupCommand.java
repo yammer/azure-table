@@ -3,9 +3,12 @@ package com.yammer.collections.guava.azure.backup.tool;
 import com.google.common.base.Optional;
 import com.yammer.collections.guava.azure.backup.lib.BackupService;
 
-class DoBackupCommand extends AbstractBackupToolCommand {
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 
-    DoBackupCommand(BackupConfiguration configuration, Printer printer) throws Exception {
+class DoBackupCommand extends AbstractBackupCommand {
+
+    DoBackupCommand(BackupConfiguration configuration, Printer printer) throws URISyntaxException, InvalidKeyException {
         super(configuration, printer);
     }
 
