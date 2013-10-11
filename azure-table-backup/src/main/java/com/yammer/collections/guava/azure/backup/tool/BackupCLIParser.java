@@ -40,43 +40,43 @@ class BackupCLIParser {
     }
 
     public static Options buildCommandLineParserOptions() {
-        final Option CONFIG_FILE = OptionBuilder.
+        final Option configFileOption = OptionBuilder.
                 withArgName("file").
                 hasArg().
                 withDescription("azure src and backup accounts configuration file").
                 isRequired().
                 create(CONFIG_FILE_OPTION);
-        final Option LIST = OptionBuilder.
+        final Option listOption = OptionBuilder.
                 withArgName("timestamp").
                 hasArg().
                 withDescription("lists existing backups since timestamp").
                 create(LIST_BACKUPS_OPTION);
-        final Option DELETE = OptionBuilder.
+        final Option deleteOption = OptionBuilder.
                 withArgName("timestamp").
                 hasArg().
                 withDescription("deletes all backups until timestamp").
                 create(DELETE_BACKUP_OPTION);
-        final Option RESTORE = OptionBuilder.
+        final Option restoreOption = OptionBuilder.
                 withArgName("timestamp").
                 hasArg().
                 withDescription("restores the backup performed at the given timestamp").
                 create(RESTORE_BACKUP_OPTION);
-        final Option LIST_ALL = new Option(LIST_ALL_BACKUPS_OPTION, "list all backups");
-        final Option BACKUP = new Option(BACKUP_OPTION, "perform a backup");
-        final Option DELETE_BAD_BACKUPS = new Option(DELETE_BAD_BACKUPS_OPTION, "delete backups in bad state, i.e., not in COMPLETED");
-        final OptionGroup BACKUP_OPTIONS = new OptionGroup().
-                addOption(BACKUP).
-                addOption(LIST).
-                addOption(LIST_ALL).
-                addOption(DELETE).
-                addOption(RESTORE).
-                addOption(DELETE_BAD_BACKUPS);
-        CONFIG_FILE.setRequired(true);
-        BACKUP_OPTIONS.setRequired(true);
+        final Option listaAllOption = new Option(LIST_ALL_BACKUPS_OPTION, "list all backups");
+        final Option backupOption = new Option(BACKUP_OPTION, "perform a backup");
+        final Option deleteBadBackupsOption = new Option(DELETE_BAD_BACKUPS_OPTION, "delete backups in bad state, i.e., not in COMPLETED");
+        final OptionGroup backupOptionsGroup = new OptionGroup().
+                addOption(backupOption).
+                addOption(listOption).
+                addOption(listaAllOption).
+                addOption(deleteOption).
+                addOption(restoreOption).
+                addOption(deleteBadBackupsOption);
+        configFileOption.setRequired(true);
+        backupOptionsGroup.setRequired(true);
 
         return new Options().
-                addOption(CONFIG_FILE).
-                addOptionGroup(BACKUP_OPTIONS);
+                addOption(configFileOption).
+                addOptionGroup(backupOptionsGroup);
     }
 
     public Optional<BackupCommand> parse(String args[]) throws ParseException, IOException, URISyntaxException, InvalidKeyException {

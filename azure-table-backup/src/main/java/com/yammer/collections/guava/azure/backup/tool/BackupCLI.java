@@ -12,27 +12,28 @@ public class BackupCLI {
     private final PrintStream errorStream;
 
 
-    public BackupCLI(BackupCLIParser parser, PrintStream info, PrintStream err) {
+    public BackupCLI(BackupCLIParser parser, PrintStream infoStream, PrintStream errorStream) {
         this.parser = parser;
-        this.infoStream = info;
-        this.errorStream = err;
+        this.infoStream = infoStream;
+        this.errorStream = errorStream;
     }
 
     public static void main(String args[]) throws Exception {
         final BackupCLIParser parser = new BackupCLIParser(new BackupServiceFactory(), System.out, System.err);
-        boolean success = (new BackupCLI(parser, System.out, System.err)).execute(args);
+        boolean failure = !new BackupCLI(parser, System.out, System.err).execute(args);
 
-        if (!success) {
+        if (failure) {
             System.exit(-1);
         }
     }
 
     private void printHelpAndExit() {
-        PrintWriter pw = new PrintWriter(infoStream);
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp(pw, HelpFormatter.DEFAULT_WIDTH, BackupCLI.class.getName(), null, BackupCLIParser.buildCommandLineParserOptions(),
-                HelpFormatter.DEFAULT_LEFT_PAD, HelpFormatter.DEFAULT_DESC_PAD, null, false);
-        pw.flush();
+        try (PrintWriter pw = new PrintWriter(infoStream)) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp(pw, HelpFormatter.DEFAULT_WIDTH, BackupCLI.class.getName(), null, BackupCLIParser.buildCommandLineParserOptions(),
+                    HelpFormatter.DEFAULT_LEFT_PAD, HelpFormatter.DEFAULT_DESC_PAD, null, false);
+            pw.flush();
+        }
     }
 
     private boolean executeBackupCommand(BackupCommand backupCommand) {

@@ -78,18 +78,21 @@ public class BackupToolIntegrationTest {
 
     @Test
     public void do_backup_command_backs_up_correctly() throws Exception {
+        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         backupCLI.execute(DO_BACKUP_COMMAND_LINE);
 
         Table<String, String, String> backupTable = getJustCreatedBackup(infoPrintStreamMock);
 
+        //noinspection unchecked
         assertThat(backupTable.cellSet(), containsInAnyOrder(CELL_1, CELL_2));
     }
 
     @Test
     public void restore_command_restores_backedup_state() throws Exception {
         // initial table state
+        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // backup creation
@@ -105,11 +108,13 @@ public class BackupToolIntegrationTest {
         backupCLI.execute(restoreCommandLine);
 
         // check state prior to update
+        //noinspection unchecked
         assertThat(sourceTable.cellSet(), containsInAnyOrder(CELL_1, CELL_2));
     }
 
     @Test
     public void list_command_lists_all_backups() throws Exception {
+        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // create backups
@@ -126,6 +131,7 @@ public class BackupToolIntegrationTest {
 
     @Test
     public void delete_command_deletes_backups() throws Exception {
+        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // create backups
@@ -143,6 +149,7 @@ public class BackupToolIntegrationTest {
 
     @Test
     public void delete_bad_backups_command_deletes_only_bad_backups() throws Exception {
+        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // create backups
@@ -160,6 +167,7 @@ public class BackupToolIntegrationTest {
 
         // deleted backups
         assertNoBackupsOnDates(backup1date, backup2date);
+        //noinspection unchecked
         assertBackupOnDateContainsCells(backup3date, CELL_1, CELL_2);
     }
 
@@ -240,7 +248,7 @@ public class BackupToolIntegrationTest {
         private final String tableName;
 
         private InMemmorySourceTableFactory(String tableName) {
-            this.sourceTable = HashBasedTable.create();
+            sourceTable = HashBasedTable.create();
             this.tableName = tableName;
         }
 
@@ -291,6 +299,7 @@ public class BackupToolIntegrationTest {
             return backups.get(date, name);
         }
 
+        @SuppressWarnings("InnerClassTooDeeplyNested")
         private static class AvoidConcurrentModificatinExceptionOnCellsetIterationTable<R, C, V> extends ForwardingTable<R, C, V> {
             private final Table<R, C, V> delgate;
 

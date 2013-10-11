@@ -32,13 +32,13 @@ public class BackupService {
     private final Table<String, Date, Backup.BackupStatus> backupListTable;
 
     public BackupService(TableCopy<String, String, String> tableCopy,
-                         SourceTableFactory sourceTableFactoryMock,
-                         BackupTableFactory backupTableFactoryMock) {
-        this.tableName = sourceTableFactoryMock.getTableName();
+                         SourceTableFactory sourceTableFactory,
+                         BackupTableFactory backupTableFactory) {
         this.tableCopy = tableCopy;
-        this.sourceTableFactory = sourceTableFactoryMock;
-        this.backupTableFactory = backupTableFactoryMock;
-        this.backupListTable = backupTableFactoryMock.getBackupListTable();
+        this.sourceTableFactory = sourceTableFactory;
+        this.backupTableFactory = backupTableFactory;
+        tableName = sourceTableFactory.getTableName();
+        backupListTable = backupTableFactory.getBackupListTable();
     }
 
     public BackupResult backup() {
@@ -131,7 +131,7 @@ public class BackupService {
     }
 
     private void assertBackupCompleted(Backup backupToBeRestored) {
-        if (!(backupToBeRestored.getStatus() == Backup.BackupStatus.COMPLETED)) {
+        if (backupToBeRestored.getStatus() != Backup.BackupStatus.COMPLETED) {
             throw new IllegalArgumentException(
                     "Expected backup in status: " +
                             Backup.BackupStatus.COMPLETED +

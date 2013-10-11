@@ -19,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -84,7 +86,7 @@ public class BackupToolAzureIntegrationTest {
     }
 
     @Before
-    public void setAzure() throws Exception {
+    public void setAzure() throws URISyntaxException, InvalidKeyException {
         CloudTableClient sourceTableClient = CloudStorageAccount.parse(BACKUP_CONFIGURATION.getSourceConnectionString()).createCloudTableClient();
         sourceTableFactory = new AzureSourceTableFactory(sourceTableClient, BACKUP_CONFIGURATION.getSourceTableName());
         CloudTableClient backupTableClient = CloudStorageAccount.parse(BACKUP_CONFIGURATION.getBackupConnectionString()).createCloudTableClient();
@@ -101,19 +103,22 @@ public class BackupToolAzureIntegrationTest {
     }
 
     @Test
-    public void do_backup_command_backs_up_correctly() throws Exception {
+    public void do_backup_command_backs_up_correctly() {
+        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         backupCLI.execute(DO_BACKUP_COMMAND_LINE);
 
         Table<String, String, String> backupTable = getJustCreatedBackup(infoPrintStreamMock);
 
+        //noinspection unchecked
         assertThat(backupTable.cellSet(), containsInAnyOrder(CELL_1, CELL_2));
     }
 
     @Test
-    public void restore_command_restores_backedup_state() throws Exception {
+    public void restore_command_restores_backedup_state() {
         // initial table state
+        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // backup creation
@@ -129,11 +134,13 @@ public class BackupToolAzureIntegrationTest {
         backupCLI.execute(restoreCommandLine);
 
         // check state prior to update
+        //noinspection unchecked
         assertThat(sourceTable.cellSet(), containsInAnyOrder(CELL_1, CELL_2));
     }
 
     @Test
-    public void list_command_lists_all_backups() throws Exception {
+    public void list_command_lists_all_backups()  {
+        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // create backups
@@ -149,7 +156,8 @@ public class BackupToolAzureIntegrationTest {
     }
 
     @Test
-    public void delete_command_deletes_backups() throws Exception {
+    public void delete_command_deletes_backups() {
+        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // create backups
@@ -166,7 +174,8 @@ public class BackupToolAzureIntegrationTest {
     }
 
     @Test
-    public void delete_bad_backups_command_deletes_only_bad_backups() throws Exception {
+    public void delete_bad_backups_command_deletes_only_bad_backups() {
+        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // create backups
@@ -184,6 +193,7 @@ public class BackupToolAzureIntegrationTest {
 
         // deleted backups
         assertNoBackupsOnDates(backup1date, backup2date);
+        //noinspection unchecked
         assertBackupOnDateContainsCells(backup3date, CELL_1, CELL_2);
     }
 
@@ -191,12 +201,12 @@ public class BackupToolAzureIntegrationTest {
     // helper methods
     //
 
-    private void assertNoBackups() throws Exception {
+    private void assertNoBackups() {
         new BackupCLI(new BackupCLIParser(new BackupServiceFactory(), System.out, System.err), System.out, System.err).execute(LIST_ALL_BACKUPS_COMMAND_LINE);
         verify(infoPrintStreamMock, never()).println(any(String.class));
     }
 
-    private void clearDB() throws Exception {
+    private void clearDB() {
         new BackupCLI(new BackupCLIParser(new BackupServiceFactory(), System.out, System.err), System.out, System.err).execute(DELETE_ALL_BACKUPS_COMMAND_LINE);
         sourceTableFactory.clearSourceTable();
     }

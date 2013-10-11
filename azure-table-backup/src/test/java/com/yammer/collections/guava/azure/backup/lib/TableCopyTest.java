@@ -43,7 +43,7 @@ public class TableCopyTest {
 
         doThrow(RUNTIME_EXCEPTION).when(exceptionThrowingDestTable).put(any(String.class), any(String.class), any(String.class));
 
-        tableCopy = new TableCopy();
+        tableCopy = new TableCopy<>();
     }
 
     @Test
@@ -52,6 +52,7 @@ public class TableCopyTest {
 
         tableCopy.perform(srcTable, dstTable);
 
+        //noinspection unchecked
         assertThat(dstTable.cellSet(), containsInAnyOrder(CELL_1, CELL_2));
     }
 

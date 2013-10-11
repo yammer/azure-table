@@ -13,7 +13,7 @@ class ListBackupsCommand extends AbstractBackupCommand {
 
     ListBackupsCommand(BackupService backupService, PrintStream infoStream, PrintStream errorStream, long timeSince) {
         super(backupService, infoStream, errorStream);
-        this.thresholdDate = new Date(timeSince);
+        thresholdDate = new Date(timeSince);
     }
 
     @Override

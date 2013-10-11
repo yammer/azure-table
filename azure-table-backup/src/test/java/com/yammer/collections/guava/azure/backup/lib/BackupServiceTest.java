@@ -39,7 +39,7 @@ public class BackupServiceTest {
     private TableCopy<String, String, String> tableCopyMock;
     private BackupService secretieBackup;
     // name of backup, date created, status
-    final private Table<String, Date, Backup.BackupStatus> backupListTable = HashBasedTable.create();
+    private final Table<String, Date, Backup.BackupStatus> backupListTable = HashBasedTable.create();
     @Mock
     private Table<String, String, String> sourceTableMock;
     @Mock
@@ -309,8 +309,8 @@ public class BackupServiceTest {
             return this;
         }
 
-        BackupTableAssertionBuilder on(Date date) {
-            this.backupDate = date;
+        BackupTableAssertionBuilder on(Date backupDate) {
+            this.backupDate = backupDate;
             return this;
         }
 
@@ -324,7 +324,7 @@ public class BackupServiceTest {
 
     private class BackupListTableFailureBuilder {
         void resultsIn(Exception e) {
-            Table<String, Date, Backup.BackupStatus> backupListTableMock = mock(Table.class);
+            @SuppressWarnings("unchecked") Table<String, Date, Backup.BackupStatus> backupListTableMock = mock(Table.class);
             when(backupTableFactoryMock.getBackupListTable()).thenReturn(backupListTableMock);
             secretieBackup = new BackupService(tableCopyMock, sourceTableFactoryMock, backupTableFactoryMock);
 
