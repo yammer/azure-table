@@ -1,16 +1,17 @@
 package com.yammer.collections.guava.azure.backup.tool;
 
-import com.google.common.collect.ForwardingTable;
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
+import com.microsoft.windowsazure.services.core.storage.CloudStorageAccount;
+import com.microsoft.windowsazure.services.table.client.CloudTableClient;
+import com.yammer.collections.guava.azure.backup.adapter.AzureBackupTableFactory;
+import com.yammer.collections.guava.azure.backup.adapter.AzureSourceTableFactory;
 import com.yammer.collections.guava.azure.backup.lib.Backup;
-import com.yammer.collections.guava.azure.backup.lib.BackupService;
 import com.yammer.collections.guava.azure.backup.lib.BackupTableFactory;
 import com.yammer.collections.guava.azure.backup.lib.SourceTableFactory;
-import com.yammer.collections.guava.azure.backup.lib.TableCopy;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -19,9 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,22 +31,31 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
+/**
+ * This test may take some time to run - deleting of tables in azure can take a while, and it is used during the restore procedure.
+ * This test runs the commandline tool, for that reason it is fragile, as it relies on the tools output to verify assertions.
+ * I know, it isn't ideal but didn't have better idea. Suggestions welcome.
+ */
+@Ignore("Ignored as it talks to azure, should be used to integration test changes to this project")
 @RunWith(MockitoJUnitRunner.class)
-public class BackupToolIntegrationTest {
-    private static final String CONFIG_FILE_PATH = BackupToolIntegrationTest.class.getResource("testBackupAccountConfiguration.yml").getPath();
+public class BackupToolAzureIntegrationTest {
+    private static final String CONFIG_FILE_PATH = BackupToolAzureIntegrationTest.class.getResource("testBackupAccountConfiguration.yml").getPath();
     private static final String[] DO_BACKUP_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-b"};
     private static final String[] DELETE_ALL_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-d", "" + Long.MAX_VALUE};
     private static final String[] DELETE_BAD_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-db"};
     private static final String[] LIST_ALL_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-l", "0"};
+    private static final BackupConfiguration BACKUP_CONFIGURATION = createBackupConfiguration();
     private static final String SRC_TABLE_NAME = "backupToolIntegrationTestTable";
     private static final String BACKUP_INFO_PATTERN_STRING = "Backup: NAME=" + SRC_TABLE_NAME + ".*TIMESTAMP=(\\d*) STATUS=" + Backup.BackupStatus.COMPLETED;
     private static final Pattern BACKUP_CREATED_PATTERN = Pattern.compile("Created. " + BACKUP_INFO_PATTERN_STRING);
     private static final Pattern BACKUP_LIST_ITEM_PATTERN = Pattern.compile(BACKUP_INFO_PATTERN_STRING);
+    private static final String ACCOUNT_NAME = "secretietest";
+    private static final String ACCOUNT_KEY = "e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==";
     private static final String ROW_1 = "row1";
     private static final String ROW_2 = "row2";
     private static final String COLUMN_1 = "column1";
@@ -61,19 +69,35 @@ public class BackupToolIntegrationTest {
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_2, COLUMN_2, VALUE_2);
     @Mock
     private PrintStream infoPrintStreamMock;
-    @Mock
-    private BackupServiceFactory backupServiceFactoryMock;
     private SourceTableFactory sourceTableFactory;
     private BackupTableFactory backupTableFactory;
     private BackupCLI backupCLI;
 
+    private static BackupConfiguration createBackupConfiguration() {
+        return new BackupConfiguration(
+                SRC_TABLE_NAME,
+                ACCOUNT_NAME,
+                ACCOUNT_KEY,
+                ACCOUNT_NAME,
+                ACCOUNT_KEY
+        );
+    }
+
     @Before
-    public void setUp() throws Exception {
-        sourceTableFactory = new InMemmorySourceTableFactory(SRC_TABLE_NAME);
-        backupTableFactory = new InMemmoryBackupTableFactory();
-        BackupService backupService = new BackupService(new TableCopy<String, String, String>(), sourceTableFactory, backupTableFactory);
-        when(backupServiceFactoryMock.createBackupService(any(BackupConfiguration.class))).thenReturn(backupService);
-        backupCLI = new BackupCLI(new BackupCLIParser(backupServiceFactoryMock, infoPrintStreamMock, System.err), infoPrintStreamMock, System.err);
+    public void setAzure() throws Exception {
+        CloudTableClient sourceTableClient = CloudStorageAccount.parse(BACKUP_CONFIGURATION.getSourceConnectionString()).createCloudTableClient();
+        sourceTableFactory = new AzureSourceTableFactory(sourceTableClient, BACKUP_CONFIGURATION.getSourceTableName());
+        CloudTableClient backupTableClient = CloudStorageAccount.parse(BACKUP_CONFIGURATION.getBackupConnectionString()).createCloudTableClient();
+        backupTableFactory = new AzureBackupTableFactory(backupTableClient);
+
+        clearDB();
+
+        assertNoBackups();
+    }
+
+    @Before
+    public void setUpBackupCli() {
+        backupCLI = new BackupCLI(new BackupCLIParser(new BackupServiceFactory(), infoPrintStreamMock, System.err), infoPrintStreamMock, System.err);
     }
 
     @Test
@@ -167,12 +191,22 @@ public class BackupToolIntegrationTest {
     // helper methods
     //
 
+    private void assertNoBackups() throws Exception {
+        new BackupCLI(new BackupCLIParser(new BackupServiceFactory(), System.out, System.err), System.out, System.err).execute(LIST_ALL_BACKUPS_COMMAND_LINE);
+        verify(infoPrintStreamMock, never()).println(any(String.class));
+    }
+
+    private void clearDB() throws Exception {
+        new BackupCLI(new BackupCLIParser(new BackupServiceFactory(), System.out, System.err), System.out, System.err).execute(DELETE_ALL_BACKUPS_COMMAND_LINE);
+        sourceTableFactory.clearSourceTable();
+    }
+
     /**
      * Requires DoBackupCommand to be run beforehand, it reads the backup data from the commands output
      * sent to infoPrintStreamMock.
      */
     private Table<String, String, String> getJustCreatedBackup(PrintStream infoPrintStreamMock) {
-        return backupTableFactory.getBackupTable(getJustCreatedBackupDate(infoPrintStreamMock), SRC_TABLE_NAME);
+        return backupTableFactory.getBackupTable(getJustCreatedBackupDate(infoPrintStreamMock), BACKUP_CONFIGURATION.getSourceTableName());
     }
 
     /**
@@ -235,79 +269,5 @@ public class BackupToolIntegrationTest {
         }
     }
 
-    private static class InMemmorySourceTableFactory implements SourceTableFactory {
-        private final Table<String, String, String> sourceTable;
-        private final String tableName;
 
-        private InMemmorySourceTableFactory(String tableName) {
-            this.sourceTable = HashBasedTable.create();
-            this.tableName = tableName;
-        }
-
-        @Override
-        public Table<String, String, String> getSourceTable() {
-            return sourceTable;
-        }
-
-        @Override
-        public String getTableName() {
-            return tableName;
-        }
-
-        @Override
-        public void clearSourceTable() {
-            sourceTable.clear();
-        }
-    }
-
-    private static class InMemmoryBackupTableFactory implements BackupTableFactory {
-        private final Table<String, Date, Backup.BackupStatus> backupListTable;
-        private final Table<Date, String, Table<String, String, String>> backups;
-
-        private InMemmoryBackupTableFactory() {
-            backupListTable = new AvoidConcurrentModificatinExceptionOnCellsetIterationTable();
-            backups = HashBasedTable.create();
-        }
-
-        @Override
-        public Table<String, Date, Backup.BackupStatus> getBackupListTable() {
-            return backupListTable;
-        }
-
-        @Override
-        public Table<String, String, String> createBackupTable(Date backupDate, String backupName) {
-            Table<String, String, String> backupTable = HashBasedTable.create();
-            backups.put(backupDate, backupName, backupTable);
-            return backupTable;
-        }
-
-        @Override
-        public void removeTable(Date backupDate, String backupName) {
-            backups.remove(backupDate, backupName);
-        }
-
-        @Override
-        public Table<String, String, String> getBackupTable(Date date, String name) {
-            return backups.get(date, name);
-        }
-
-        private static class AvoidConcurrentModificatinExceptionOnCellsetIterationTable<R, C, V> extends ForwardingTable<R, C, V> {
-            private final Table<R, C, V> delgate;
-
-            private AvoidConcurrentModificatinExceptionOnCellsetIterationTable() {
-                delgate = HashBasedTable.create();
-            }
-
-            @Override
-            protected Table<R, C, V> delegate() {
-                return delgate;
-            }
-
-            @Override
-            public Set<Cell<R, C, V>> cellSet() {
-                return new HashSet<>(super.cellSet());
-            }
-        }
-
-    }
 }

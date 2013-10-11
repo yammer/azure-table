@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BackupCLIParserTest {
-    private static final String CONFIG_FILE_PATH = BackupToolIntegrationTest.class.getResource("testBackupAccountConfiguration.yml").getPath();
+    private static final String CONFIG_FILE_PATH = BackupCLIParserTest.class.getResource("testBackupAccountConfiguration.yml").getPath();
     private static final String[] DO_BACKUP_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-b"};
     private static final String[] DELETE_BAD_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-db"};
     private static final String[] DELETE_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-d", "0"};
