@@ -139,7 +139,7 @@ public class BackupToolAzureIntegrationTest {
     }
 
     @Test
-    public void list_command_lists_all_backups()  {
+    public void list_command_lists_all_backups() {
         //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
