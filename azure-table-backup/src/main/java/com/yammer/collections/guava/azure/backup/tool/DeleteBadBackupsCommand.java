@@ -15,7 +15,7 @@ class DeleteBadBackupsCommand extends AbstractBackupCommand {
     }
 
     @Override
-    public void run() throws Exception {
+    public void unsafeRun() {
         Iterable<Backup> allBackups = getBackupService().listAllBackups(new Date(0));
         Iterable<Backup> badBackups = Iterables.filter(allBackups, new Predicate<Backup>() {
             @Override

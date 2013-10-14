@@ -15,7 +15,7 @@ class DeleteBackupsCommand extends AbstractBackupCommand {
     }
 
     @Override
-    public void run() throws Exception {
+    public void unsafeRun() {
         getBackupService().removeBackupsNotOlderThan(thresholdDate);
     }
 

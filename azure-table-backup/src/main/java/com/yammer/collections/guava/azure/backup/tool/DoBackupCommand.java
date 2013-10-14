@@ -12,7 +12,7 @@ class DoBackupCommand extends AbstractBackupCommand {
     }
 
     @Override
-    public void run() throws Exception {
+    public void unsafeRun() throws Exception {
         BackupService.BackupResult result = getBackupService().backup();
         Optional<Exception> failureCause = result.getFailureCause();
         if (failureCause.isPresent()) {

@@ -3,6 +3,7 @@ package com.yammer.collections.guava.azure.backup.tool;
 import com.google.common.base.Optional;
 import com.yammer.collections.guava.azure.backup.lib.Backup;
 import com.yammer.collections.guava.azure.backup.lib.BackupService;
+import com.yammer.collections.guava.azure.backup.lib.TableCopyException;
 
 import java.io.PrintStream;
 import java.util.Date;
@@ -19,7 +20,7 @@ public class RestoreFromBackupCommand extends AbstractBackupCommand {
     }
 
     @Override
-    public void run() throws Exception {
+    public void unsafeRun() throws TableCopyException {
         Optional<Backup> backup = getBackupService().findBackup(backupName, backupTime);
         if (backup.isPresent()) {
             getBackupService().restore(backup.get());

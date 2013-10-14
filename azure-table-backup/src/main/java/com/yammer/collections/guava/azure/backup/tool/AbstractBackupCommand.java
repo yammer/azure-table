@@ -1,5 +1,6 @@
 package com.yammer.collections.guava.azure.backup.tool;
 
+import com.google.common.base.Throwables;
 import com.yammer.collections.guava.azure.backup.lib.Backup;
 import com.yammer.collections.guava.azure.backup.lib.BackupService;
 
@@ -29,7 +30,15 @@ abstract class AbstractBackupCommand implements BackupCommand {
     }
 
     @Override
-    public abstract void run() throws Exception;
+    public final void run() {
+        try {
+            unsafeRun();
+        } catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    protected abstract void unsafeRun() throws Exception;
 
     final void println(String str) {
         infoStream.println(str);

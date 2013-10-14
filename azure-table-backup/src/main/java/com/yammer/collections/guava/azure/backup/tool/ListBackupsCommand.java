@@ -17,7 +17,7 @@ class ListBackupsCommand extends AbstractBackupCommand {
     }
 
     @Override
-    public void run() throws Exception {
+    public void unsafeRun() {
         Collection<Backup> backups = getBackupService().listAllBackups(thresholdDate);
         for (Backup backup : backups) {
             println(format(backup));

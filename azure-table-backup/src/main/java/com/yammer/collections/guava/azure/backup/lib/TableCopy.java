@@ -4,7 +4,7 @@ import com.google.common.collect.Table;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class TableCopy<R, C, V> { // TODO make part of a utility class
+public class TableCopy<R, C, V> { // TODO make part of a utility class,
 
     public void perform(Table<R, C, V> sourceTable, Table<R, C, V> backupTable) throws TableCopyException {
         checkNotNull(sourceTable);
