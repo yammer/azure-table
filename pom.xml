@@ -24,6 +24,7 @@
         <metrics.version>2.2.0</metrics.version>
         <commons-cli-version>1.2</commons-cli-version>
         <jackson.version>2.2.3</jackson.version>
+        <argparse4j.version>0.4.1</argparse4j.version>
     </properties>
 
     <parent>

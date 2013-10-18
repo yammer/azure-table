@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Optional;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
@@ -18,8 +20,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-
 // todo migrate to argparse4j,
+// TODO rename
 class BackupCLIParser {
     private static final String CONFIG_FILE_OPTION = "cf";
     private static final String LIST_BACKUPS_OPTION = "l";
@@ -29,6 +31,7 @@ class BackupCLIParser {
     private static final String BACKUP_OPTION = "b";
     private static final String DELETE_BAD_BACKUPS_OPTION = "db";
     private static final long BEGINING_OF_TIME = 0;
+    private static final String OPTION_DESIGNATOR = "-";
     private final BackupServiceFactory backupServiceFactory;
     private final PrintStream infoStream;
     private final PrintStream errorStream;
@@ -40,27 +43,8 @@ class BackupCLIParser {
     }
 
     public static Options buildCommandLineParserOptions() {
-        final Option configFileOption = OptionBuilder.
-                withArgName("file").
-                hasArg().
-                withDescription("azure src and backup accounts configuration file").
-                isRequired().
-                create(CONFIG_FILE_OPTION);
-        final Option listOption = OptionBuilder.
-                withArgName("timestamp").
-                hasArg().
-                withDescription("lists existing backups since timestamp").
-                create(LIST_BACKUPS_OPTION);
-        final Option deleteOption = OptionBuilder.
-                withArgName("timestamp").
-                hasArg().
-                withDescription("deletes all backups until timestamp").
-                create(DELETE_BACKUP_OPTION);
-        final Option restoreOption = OptionBuilder.
-                withArgName("timestamp").
-                hasArg().
-                withDescription("restores the backup performed at the given timestamp").
-                create(RESTORE_BACKUP_OPTION);
+
+
         final Option listaAllOption = new Option(LIST_ALL_BACKUPS_OPTION, "list all backups");
         final Option backupOption = new Option(BACKUP_OPTION, "perform a backup");
         final Option deleteBadBackupsOption = new Option(DELETE_BAD_BACKUPS_OPTION, "delete backups in bad state, i.e., not in COMPLETED");
@@ -77,6 +61,37 @@ class BackupCLIParser {
         return new Options().
                 addOption(configFileOption).
                 addOptionGroup(backupOptionsGroup);
+    }
+
+    public static void configureParser(ArgumentParser parser) {
+        parser.addArgument(OPTION_DESIGNATOR + CONFIG_FILE_OPTION).
+                required(true).
+                metavar("config_file").
+                help("config file with the details of the source and target backup accoutns");
+        MutuallyExclusiveGroup mutexGroup = parser.addMutuallyExclusiveGroup();
+        mutexGroup.
+                addArgument(OPTION_DESIGNATOR+LIST_BACKUPS_OPTION).
+                required(true).
+                metavar("timestamp").
+                help("lists existing backups since timestamp");
+        mutexGroup.
+                addArgument(OPTION_DESIGNATOR+DELETE_BACKUP_OPTION).
+                required(true).
+                metavar("timestamp").
+                help("deletes all backups until timestamp");
+       mutexGroup.addArgument(OPTION_DESIGNATOR+RESTORE_BACKUP_OPTION).
+               required(true).
+               metavar("timestamp").
+               help("restores the backup performed at the given timestamp");
+        multimodule
+
+        final Option listaAllOption = new Option(LIST_ALL_BACKUPS_OPTION, "list all backups");
+        final Option backupOption = new Option(BACKUP_OPTION, "perform a backup");
+        final Option deleteBadBackupsOption = new Option(DELETE_BAD_BACKUPS_OPTION, "delete backups in bad state, i.e., not in COMPLETED");
+
+
+
+
     }
 
     public Optional<BackupCommand> parse(String args[]) throws ParseException, IOException, URISyntaxException, InvalidKeyException {
