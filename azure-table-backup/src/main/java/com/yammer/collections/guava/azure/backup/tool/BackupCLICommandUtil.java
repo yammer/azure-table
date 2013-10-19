@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-class BackupCLIParsingUtil {
+class BackupCLICommandUtil {
     private static final String CONFIG_FILE_OPTION = "cf";
     private static final String LIST_BACKUPS_OPTION = "l";
     private static final String DELETE_BACKUP_OPTION = "d";
@@ -29,7 +29,7 @@ class BackupCLIParsingUtil {
     private final PrintStream infoStream;
     private final PrintStream errorStream;
 
-    public BackupCLIParsingUtil(BackupServiceFactory backupServiceFactory, PrintStream infoStream, PrintStream errorStream) {
+    public BackupCLICommandUtil(BackupServiceFactory backupServiceFactory, PrintStream infoStream, PrintStream errorStream) {
         this.backupServiceFactory = backupServiceFactory;
         this.infoStream = infoStream;
         this.errorStream = errorStream;

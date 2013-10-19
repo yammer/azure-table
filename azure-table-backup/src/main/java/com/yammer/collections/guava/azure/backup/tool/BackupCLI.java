@@ -7,19 +7,19 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import java.io.PrintStream;
 
 public class BackupCLI {
-    private final BackupCLIParsingUtil parser; // TODO rename
+    private final BackupCLICommandUtil parser; // TODO rename
     private final PrintStream infoStream; // TODO is this needed?
     private final PrintStream errorStream;
 
 
-    public BackupCLI(BackupCLIParsingUtil parser, PrintStream infoStream, PrintStream errorStream) {
+    public BackupCLI(BackupCLICommandUtil parser, PrintStream infoStream, PrintStream errorStream) {
         this.parser = parser;
         this.infoStream = infoStream;
         this.errorStream = errorStream;
     }
 
     public static void main(String args[]) throws Exception {
-        final BackupCLIParsingUtil parser = new BackupCLIParsingUtil(new BackupServiceFactory(), System.out, System.err);
+        final BackupCLICommandUtil parser = new BackupCLICommandUtil(new BackupServiceFactory(), System.out, System.err);
         boolean failure = !new BackupCLI(parser, System.out, System.err).execute(args);
 
         if (failure) {

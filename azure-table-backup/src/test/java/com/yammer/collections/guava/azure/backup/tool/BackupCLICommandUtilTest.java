@@ -11,37 +11,33 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BackupCLIParsingUtilTest {
-    private static final String CONFIG_FILE_PATH = BackupCLIParsingUtilTest.class.getResource("testBackupAccountConfiguration.yml").getPath();
+public class BackupCLICommandUtilTest {
+    private static final String CONFIG_FILE_PATH = BackupCLICommandUtilTest.class.getResource("testBackupAccountConfiguration.yml").getPath();
     private static final String[] DO_BACKUP_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-b"};
     private static final String[] DELETE_BAD_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-db"};
     private static final String[] DELETE_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-d", "0"};
     private static final String[] LIST_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-l", "0"};
     private static final String[] LIST_ALL_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-la"};
     private static final String[] RESTORE_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-r", "" + Long.MAX_VALUE};
-    private BackupCLIParsingUtil backupCLIParsingUtil;
+    private BackupCLICommandUtil backupCLICommandUtil;
     private ArgumentParser argumentParser;
     @Mock
     private BackupServiceFactory backupServiceFactoryMock;
 
     @Before
     public void setUp() {
-        backupCLIParsingUtil = new BackupCLIParsingUtil(backupServiceFactoryMock, System.out, System.err);
+        backupCLICommandUtil = new BackupCLICommandUtil(backupServiceFactoryMock, System.out, System.err);
         argumentParser = ArgumentParsers.newArgumentParser("test parser");
-        backupCLIParsingUtil.configureParser(argumentParser);
+        backupCLICommandUtil.configureParser(argumentParser);
     }
 
     private Optional<BackupCommand> parse(String args[]) throws ArgumentParserException {
-        return backupCLIParsingUtil.constructBackupCommand(argumentParser.parseArgs(args));
+        return backupCLICommandUtil.constructBackupCommand(argumentParser.parseArgs(args));
     }
 
     @Test
