@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-class BackupCLICommandUtil {
+public class BackupCLICommandUtil {
     private static final String CONFIG_FILE_OPTION = "cf";
     private static final String LIST_BACKUPS_OPTION = "l";
     private static final String DELETE_BACKUP_OPTION = "d";
