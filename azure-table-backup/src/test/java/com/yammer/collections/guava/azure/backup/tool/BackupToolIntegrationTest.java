@@ -73,7 +73,7 @@ public class BackupToolIntegrationTest {
         backupTableFactory = new InMemmoryBackupTableFactory();
         BackupService backupService = new BackupService(new TableCopy<String, String, String>(), sourceTableFactory, backupTableFactory);
         when(backupServiceFactoryMock.createBackupService(any(BackupConfiguration.class))).thenReturn(backupService);
-        backupCLI = new BackupCLI(new BackupCLIParser(backupServiceFactoryMock, infoPrintStreamMock, System.err), infoPrintStreamMock, System.err);
+        backupCLI = new BackupCLI(new BackupCLIParsingUtil(backupServiceFactoryMock, infoPrintStreamMock, System.err), infoPrintStreamMock, System.err);
     }
 
     @Test

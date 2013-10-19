@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -12,11 +13,8 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 
-// TODO rename
-class BackupCLIParser {
+class BackupCLIParsingUtil {
     private static final String CONFIG_FILE_OPTION = "cf";
     private static final String LIST_BACKUPS_OPTION = "l";
     private static final String DELETE_BACKUP_OPTION = "d";
@@ -31,7 +29,7 @@ class BackupCLIParser {
     private final PrintStream infoStream;
     private final PrintStream errorStream;
 
-    public BackupCLIParser(BackupServiceFactory backupServiceFactory, PrintStream infoStream, PrintStream errorStream) {
+    public BackupCLIParsingUtil(BackupServiceFactory backupServiceFactory, PrintStream infoStream, PrintStream errorStream) {
         this.backupServiceFactory = backupServiceFactory;
         this.infoStream = infoStream;
         this.errorStream = errorStream;
@@ -74,34 +72,39 @@ class BackupCLIParser {
                 help("delete backups in bad state, i.e., not in COMPLETED");
     }
 
-    public Optional<BackupCommand> constructBackupCommand(Namespace namespace) throws IOException, URISyntaxException, InvalidKeyException {
-        BackupConfiguration backupConfiguration = getBackupConfiguration(namespace.getString(CONFIG_FILE_OPTION));
+    public Optional<BackupCommand> constructBackupCommand(Namespace namespace) {
+        try {
 
-        BackupCommand backupCommand = null;
-        if (hasOption(namespace, BACKUP_OPTION)) {
-            backupCommand = new DoBackupCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream, errorStream);
-        } else if (hasOption(namespace, LIST_BACKUPS_OPTION)) {
-            backupCommand = new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
-                    errorStream, namespace.getLong(LIST_BACKUPS_OPTION));
-        } else if (hasOption(namespace, LIST_ALL_BACKUPS_OPTION)) {
-            backupCommand = new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
-                    errorStream, BEGINING_OF_TIME);
-        } else if (hasOption(namespace, DELETE_BACKUP_OPTION)) {
-            backupCommand = new DeleteBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
-                    errorStream, namespace.getLong(DELETE_BACKUP_OPTION));
-        } else if (hasOption(namespace, DELETE_BAD_BACKUPS_OPTION)) {
-            backupCommand = new DeleteBadBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
-                    errorStream);
-        } else if (hasOption(namespace, RESTORE_BACKUP_OPTION)) {
-            backupCommand = new RestoreFromBackupCommand(
-                    backupServiceFactory.createBackupService(backupConfiguration),
-                    backupConfiguration.getSourceTableName(),
-                    infoStream,
-                    errorStream,
-                    namespace.getLong(RESTORE_BACKUP_OPTION));
+            BackupConfiguration backupConfiguration = getBackupConfiguration(namespace.getString(CONFIG_FILE_OPTION));
+
+            BackupCommand backupCommand = null;
+            if (hasOption(namespace, BACKUP_OPTION)) {
+                backupCommand = new DoBackupCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream, errorStream);
+            } else if (hasOption(namespace, LIST_BACKUPS_OPTION)) {
+                backupCommand = new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
+                        errorStream, namespace.getLong(LIST_BACKUPS_OPTION));
+            } else if (hasOption(namespace, LIST_ALL_BACKUPS_OPTION)) {
+                backupCommand = new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
+                        errorStream, BEGINING_OF_TIME);
+            } else if (hasOption(namespace, DELETE_BACKUP_OPTION)) {
+                backupCommand = new DeleteBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
+                        errorStream, namespace.getLong(DELETE_BACKUP_OPTION));
+            } else if (hasOption(namespace, DELETE_BAD_BACKUPS_OPTION)) {
+                backupCommand = new DeleteBadBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
+                        errorStream);
+            } else if (hasOption(namespace, RESTORE_BACKUP_OPTION)) {
+                backupCommand = new RestoreFromBackupCommand(
+                        backupServiceFactory.createBackupService(backupConfiguration),
+                        backupConfiguration.getSourceTableName(),
+                        infoStream,
+                        errorStream,
+                        namespace.getLong(RESTORE_BACKUP_OPTION));
+            }
+
+            return Optional.fromNullable(backupCommand);
+        } catch (Exception e) {
+            throw Throwables.propagate(e);
         }
-
-        return Optional.fromNullable(backupCommand);
     }
 
     private boolean hasOption(Namespace namespace, String option) {

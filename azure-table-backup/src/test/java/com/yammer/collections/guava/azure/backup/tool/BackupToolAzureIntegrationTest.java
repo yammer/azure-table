@@ -99,7 +99,7 @@ public class BackupToolAzureIntegrationTest {
 
     @Before
     public void setUpBackupCli() {
-        backupCLI = new BackupCLI(new BackupCLIParser(new BackupServiceFactory(), infoPrintStreamMock, System.err), infoPrintStreamMock, System.err);
+        backupCLI = new BackupCLI(new BackupCLIParsingUtil(new BackupServiceFactory(), infoPrintStreamMock, System.err), infoPrintStreamMock, System.err);
     }
 
     @Test
@@ -202,12 +202,12 @@ public class BackupToolAzureIntegrationTest {
     //
 
     private void assertNoBackups() {
-        new BackupCLI(new BackupCLIParser(new BackupServiceFactory(), System.out, System.err), System.out, System.err).execute(LIST_ALL_BACKUPS_COMMAND_LINE);
+        new BackupCLI(new BackupCLIParsingUtil(new BackupServiceFactory(), System.out, System.err), System.out, System.err).execute(LIST_ALL_BACKUPS_COMMAND_LINE);
         verify(infoPrintStreamMock, never()).println(any(String.class));
     }
 
     private void clearDB() {
-        new BackupCLI(new BackupCLIParser(new BackupServiceFactory(), System.out, System.err), System.out, System.err).execute(DELETE_ALL_BACKUPS_COMMAND_LINE);
+        new BackupCLI(new BackupCLIParsingUtil(new BackupServiceFactory(), System.out, System.err), System.out, System.err).execute(DELETE_ALL_BACKUPS_COMMAND_LINE);
         sourceTableFactory.clearSourceTable();
     }
 
