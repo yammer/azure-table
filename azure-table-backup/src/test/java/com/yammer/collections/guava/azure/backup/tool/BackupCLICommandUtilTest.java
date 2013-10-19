@@ -1,7 +1,6 @@
 package com.yammer.collections.guava.azure.backup.tool;
 
 
-import com.google.common.base.Optional;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
@@ -36,51 +35,50 @@ public class BackupCLICommandUtilTest {
         backupCLICommandUtil.configureParser(argumentParser);
     }
 
-    private Optional<BackupCommand> parse(String args[]) throws ArgumentParserException {
+    private BackupCommand parse(String args[]) throws ArgumentParserException {
         return backupCLICommandUtil.constructBackupCommand(argumentParser.parseArgs(args));
     }
 
     @Test
     public void backupCommandLineOptionsParsedCorrectly() throws ArgumentParserException {
-        Optional<BackupCommand> createdCommand = parse(DO_BACKUP_COMMAND_LINE);
+        BackupCommand createdCommand = parse(DO_BACKUP_COMMAND_LINE);
 
-        assertThat(createdCommand.get(), is(instanceOf(DoBackupCommand.class)));
+        assertThat(createdCommand, is(instanceOf(DoBackupCommand.class)));
     }
 
     @Test
     public void deleteBadBackupsCommandLineOptionsParsedCorrectly() throws ArgumentParserException {
-        Optional<BackupCommand> createdCommand = parse(DELETE_BAD_BACKUPS_COMMAND_LINE);
+        BackupCommand createdCommand = parse(DELETE_BAD_BACKUPS_COMMAND_LINE);
 
-        assertThat(createdCommand.get(), is(instanceOf(DeleteBadBackupsCommand.class)));
+        assertThat(createdCommand, is(instanceOf(DeleteBadBackupsCommand.class)));
     }
 
     @Test
     public void deleteBackupCommandLineOptionsParsedCorrectly() throws ArgumentParserException {
-        Optional<BackupCommand> createdCommand = parse(DELETE_BACKUPS_COMMAND_LINE);
+        BackupCommand createdCommand = parse(DELETE_BACKUPS_COMMAND_LINE);
 
-        assertThat(createdCommand.get(), is(instanceOf(DeleteBackupsCommand.class)));
+        assertThat(createdCommand, is(instanceOf(DeleteBackupsCommand.class)));
     }
 
     @Test
     public void listBackupCommandLineOptionsParsedCorrectly() throws ArgumentParserException {
-        Optional<BackupCommand> createdCommand = parse(LIST_BACKUPS_COMMAND_LINE);
+        BackupCommand createdCommand = parse(LIST_BACKUPS_COMMAND_LINE);
 
-        assertThat(createdCommand.get(), is(instanceOf(ListBackupsCommand.class)));
+        assertThat(createdCommand, is(instanceOf(ListBackupsCommand.class)));
     }
 
     @Test
     public void listAllBackupCommandLineOptionsParsedCorrectly() throws ArgumentParserException {
-        Optional<BackupCommand> createdCommand = parse(LIST_ALL_BACKUPS_COMMAND_LINE);
+        BackupCommand createdCommand = parse(LIST_ALL_BACKUPS_COMMAND_LINE);
 
-        assertThat(createdCommand.get(), is(instanceOf(ListBackupsCommand.class)));
+        assertThat(createdCommand, is(instanceOf(ListBackupsCommand.class)));
     }
 
     @Test
     public void restoreBackupCommandLineOptionsParsedCorrectly() throws ArgumentParserException {
-        Optional<BackupCommand> createdCommand = parse(RESTORE_COMMAND_LINE);
+        BackupCommand createdCommand = parse(RESTORE_COMMAND_LINE);
 
-        assertThat(createdCommand.get(), is(instanceOf(RestoreFromBackupCommand.class)));
+        assertThat(createdCommand, is(instanceOf(RestoreFromBackupCommand.class)));
     }
 
-    // TODO test for no option
 }
