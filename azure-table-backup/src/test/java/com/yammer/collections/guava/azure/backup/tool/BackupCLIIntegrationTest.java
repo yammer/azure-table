@@ -43,7 +43,7 @@ public class BackupCLIIntegrationTest {
     private static final String[] DO_BACKUP_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-b"};
     private static final String[] DELETE_ALL_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-d", "" + Long.MAX_VALUE};
     private static final String[] DELETE_BAD_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-db"};
-    private static final String[] LIST_ALL_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-l", "0"};
+    private static final String[] LIST_ALL_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-la"};
     private static final String SRC_TABLE_NAME = "backupToolIntegrationTestTable";
     private static final String BACKUP_INFO_PATTERN_STRING = "Backup: NAME=" + SRC_TABLE_NAME + ".*TIMESTAMP=(\\d*) STATUS=" + Backup.BackupStatus.COMPLETED;
     private static final Pattern BACKUP_CREATED_PATTERN = Pattern.compile("Created. " + BACKUP_INFO_PATTERN_STRING);
@@ -73,7 +73,14 @@ public class BackupCLIIntegrationTest {
         backupTableFactory = new InMemmoryBackupTableFactory();
         BackupService backupService = new BackupService(new TableCopy<String, String, String>(), sourceTableFactory, backupTableFactory);
         when(backupServiceFactoryMock.createBackupService(any(BackupConfiguration.class))).thenReturn(backupService);
-        backupCLI = new BackupCLI(new BackupCLICommandUtil(backupServiceFactoryMock, infoPrintStreamMock, System.err));
+        backupCLI = new BackupCLI(
+                "test usage",
+                new BackupCLICommandUtil(
+                        backupServiceFactoryMock,
+                        infoPrintStreamMock,
+                        System.err
+                )
+        );
     }
 
     @Test

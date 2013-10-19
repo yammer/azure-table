@@ -99,7 +99,7 @@ public class BackupCLIAzureIntegrationTest {
 
     @Before
     public void setUpBackupCli() {
-        backupCLI = new BackupCLI(new BackupCLICommandUtil(new BackupServiceFactory(), infoPrintStreamMock, System.err));
+        backupCLI = createBackupCLI();
     }
 
     @Test
@@ -202,13 +202,23 @@ public class BackupCLIAzureIntegrationTest {
     //
 
     private void assertNoBackups() {
-        new BackupCLI(new BackupCLICommandUtil(new BackupServiceFactory(), System.out, System.err)).execute(LIST_ALL_BACKUPS_COMMAND_LINE);
+        createBackupCLI().execute(LIST_ALL_BACKUPS_COMMAND_LINE);
         verify(infoPrintStreamMock, never()).println(any(String.class));
     }
 
     private void clearDB() {
-        new BackupCLI(new BackupCLICommandUtil(new BackupServiceFactory(), System.out, System.err)).execute(DELETE_ALL_BACKUPS_COMMAND_LINE);
+        createBackupCLI().execute(DELETE_ALL_BACKUPS_COMMAND_LINE);
         sourceTableFactory.clearSourceTable();
+    }
+
+    private BackupCLI createBackupCLI() {
+        return new BackupCLI(
+                "test command line usage",
+                new BackupCLICommandUtil(
+                        new BackupServiceFactory(),
+                        infoPrintStreamMock,
+                        System.err)
+        );
     }
 
     /**

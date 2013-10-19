@@ -5,31 +5,48 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
+import java.io.File;
+import java.net.URL;
+
 public class BackupCLI {
-    private final BackupCLICommandUtil parser; // TODO rename
+    private final BackupCLICommandUtil backupCliCommandUtil;
+    private final String usageString;
 
 
-    public BackupCLI(BackupCLICommandUtil parser) {
-        this.parser = parser;
+    public BackupCLI(String usageString, BackupCLICommandUtil backupCliCommandUtil) {
+        this.usageString = usageString;
+        this.backupCliCommandUtil = backupCliCommandUtil;
     }
 
     public static void main(String args[]) throws Exception {
-        final BackupCLICommandUtil parser = new BackupCLICommandUtil(new BackupServiceFactory(), System.out, System.err);
-        new BackupCLI(parser).execute(args);
+        BackupCLICommandUtil backupCliCommandUtil = new BackupCLICommandUtil(
+                new BackupServiceFactory(),
+                System.out,
+                System.err);
+        new BackupCLI("java -jar " + getJarName(), backupCliCommandUtil).execute(args);
     }
 
-    private BackupCommand parse(String args[]) throws ArgumentParserException {
-        ArgumentParser argumentParser = ArgumentParsers.newArgumentParser("blah");// TODO rewrite this, pass in stuff here
-        parser.configureParser(argumentParser);
-        Namespace namespace = argumentParser.parseArgs(args);
-        return parser.constructBackupCommand(namespace);
+    public static String getJarName() {
+        URL location = BackupCLI.class.getProtectionDomain().getCodeSource().getLocation();
+        try {
+            final String jar = new File(location.toURI()).getName();
+            if (jar.endsWith(".jar")) {
+                return jar;
+            }
+            return "project.jar";
+        } catch (Exception ignored) {
+            return "project.jar";
+        }
     }
 
     public void execute(String args[]) {
+        ArgumentParser argumentParser = ArgumentParsers.newArgumentParser(usageString);
         try {
-            parse(args).run();
+            backupCliCommandUtil.configureParser(argumentParser);
+            Namespace namespace = argumentParser.parseArgs(args);
+            backupCliCommandUtil.constructBackupCommand(namespace).run();
         } catch (ArgumentParserException e) {
-            e.printStackTrace();// TODO change around, to the tool
+            argumentParser.handleError(e);
         }
     }
 
