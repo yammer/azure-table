@@ -1,14 +1,15 @@
 package com.yammer.collections.guava.azure.backup.tool;
 
 import com.google.common.base.Optional;
-import org.apache.commons.cli.HelpFormatter;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
 
+import javax.xml.stream.events.Namespace;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 
 public class BackupCLI {
-    private final BackupCLIParser parser;
-    private final PrintStream infoStream;
+    private final BackupCLIParser parser; // TODO rename
+    private final PrintStream infoStream; // TODO is this needed?
     private final PrintStream errorStream;
 
 
@@ -28,12 +29,8 @@ public class BackupCLI {
     }
 
     private void printHelpAndExit() {
-        try (PrintWriter pw = new PrintWriter(infoStream)) {
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp(pw, HelpFormatter.DEFAULT_WIDTH, BackupCLI.class.getName(), null, BackupCLIParser.buildCommandLineParserOptions(),
-                    HelpFormatter.DEFAULT_LEFT_PAD, HelpFormatter.DEFAULT_DESC_PAD, null, false);
-            pw.flush();
-        }
+        // TODO format help output
+
     }
 
     private boolean executeBackupCommand(BackupCommand backupCommand) {
@@ -48,7 +45,10 @@ public class BackupCLI {
 
     private Optional<BackupCommand> parse(String args[]) {
         try {
-            return parser.parse(args);
+            ArgumentParser argumentParser = ArgumentParsers.newArgumentParser("blah");// TODO rewrite this, pass in stuff here
+            parser.configureParser(argumentParser);
+            net.sourceforge.argparse4j.inf.Namespace namespace = argumentParser.parseArgs(args);
+            return parser.constructBackupCommand(namespace);
         } catch (Exception e) {
             errorStream.println(e.getMessage());
             return Optional.absent();

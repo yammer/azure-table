@@ -2,7 +2,9 @@ package com.yammer.collections.guava.azure.backup.tool;
 
 
 import com.google.common.base.Optional;
-import org.apache.commons.cli.ParseException;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,55 +28,63 @@ public class BackupCLIParserTest {
     private static final String[] LIST_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-l", "0"};
     private static final String[] LIST_ALL_BACKUPS_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-la"};
     private static final String[] RESTORE_COMMAND_LINE = {"-cf", CONFIG_FILE_PATH, "-r", "" + Long.MAX_VALUE};
-
     private BackupCLIParser backupCLIParser;
+    private ArgumentParser argumentParser;
     @Mock
     private BackupServiceFactory backupServiceFactoryMock;
 
     @Before
     public void setUp() {
         backupCLIParser = new BackupCLIParser(backupServiceFactoryMock, System.out, System.err);
+        argumentParser = ArgumentParsers.newArgumentParser("test parser");
+        backupCLIParser.configureParser(argumentParser);
+    }
+
+    private Optional<BackupCommand> parse(String args[]) throws ArgumentParserException, InvalidKeyException, IOException, URISyntaxException {
+        return backupCLIParser.constructBackupCommand(argumentParser.parseArgs(args));
     }
 
     @Test
-    public void backupCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, ParseException, IOException {
-        Optional<BackupCommand> createdCommand = backupCLIParser.parse(DO_BACKUP_COMMAND_LINE);
+    public void backupCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, IOException, ArgumentParserException {
+        Optional<BackupCommand> createdCommand = parse(DO_BACKUP_COMMAND_LINE);
 
         assertThat(createdCommand.get(), is(instanceOf(DoBackupCommand.class)));
     }
 
     @Test
-    public void deleteBadBackupsCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, ParseException, IOException {
-        Optional<BackupCommand> createdCommand = backupCLIParser.parse(DELETE_BAD_BACKUPS_COMMAND_LINE);
+    public void deleteBadBackupsCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, IOException, ArgumentParserException {
+        Optional<BackupCommand> createdCommand = parse(DELETE_BAD_BACKUPS_COMMAND_LINE);
 
         assertThat(createdCommand.get(), is(instanceOf(DeleteBadBackupsCommand.class)));
     }
 
     @Test
-    public void deleteBackupCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, ParseException, IOException {
-        Optional<BackupCommand> createdCommand = backupCLIParser.parse(DELETE_BACKUPS_COMMAND_LINE);
+    public void deleteBackupCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, IOException, ArgumentParserException {
+        Optional<BackupCommand> createdCommand = parse(DELETE_BACKUPS_COMMAND_LINE);
 
         assertThat(createdCommand.get(), is(instanceOf(DeleteBackupsCommand.class)));
     }
 
     @Test
-    public void listBackupCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, ParseException, IOException {
-        Optional<BackupCommand> createdCommand = backupCLIParser.parse(LIST_BACKUPS_COMMAND_LINE);
+    public void listBackupCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, IOException, ArgumentParserException {
+        Optional<BackupCommand> createdCommand = parse(LIST_BACKUPS_COMMAND_LINE);
 
         assertThat(createdCommand.get(), is(instanceOf(ListBackupsCommand.class)));
     }
 
     @Test
-    public void listAllBackupCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, ParseException, IOException {
-        Optional<BackupCommand> createdCommand = backupCLIParser.parse(LIST_ALL_BACKUPS_COMMAND_LINE);
+    public void listAllBackupCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, IOException, ArgumentParserException {
+        Optional<BackupCommand> createdCommand = parse(LIST_ALL_BACKUPS_COMMAND_LINE);
 
         assertThat(createdCommand.get(), is(instanceOf(ListBackupsCommand.class)));
     }
 
     @Test
-    public void restoreBackupCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, ParseException, IOException {
-        Optional<BackupCommand> createdCommand = backupCLIParser.parse(RESTORE_COMMAND_LINE);
+    public void restoreBackupCommandLineOptionsParsedCorrectly() throws URISyntaxException, InvalidKeyException, IOException, ArgumentParserException {
+        Optional<BackupCommand> createdCommand = parse(RESTORE_COMMAND_LINE);
 
         assertThat(createdCommand.get(), is(instanceOf(RestoreFromBackupCommand.class)));
     }
+
+    // TODO test for no option
 }
