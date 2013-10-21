@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.yammer.collections.guava.azure</groupId>
         <artifactId>azure-table</artifactId>
-        <version>0.0.4-SNAPSHOT</version>
+        <version>0.0.4</version>
     </parent>
 
     <name>Azure Table Backup</name>
@@ -14,6 +14,12 @@
     <artifactId>azure-table-backup</artifactId>
 
     <dependencies>
+         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.simple.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.yammer.collections.guava.azure</groupId>
             <artifactId>azure-table-core</artifactId>
