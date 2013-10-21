@@ -14,12 +14,7 @@
     <artifactId>azure-table-backup</artifactId>
 
     <dependencies>
-         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.simple.version}</version>
-        </dependency>
-
+        <!-- TODO split into library, cmd-line util and tool, to avoid adding compile time dep, and remove warnings in SLF4J -->
         <dependency>
             <groupId>com.yammer.collections.guava.azure</groupId>
             <artifactId>azure-table-core</artifactId>
