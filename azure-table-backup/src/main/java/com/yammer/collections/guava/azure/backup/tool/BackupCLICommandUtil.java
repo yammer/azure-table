@@ -23,7 +23,7 @@ public class BackupCLICommandUtil {
     private static final String DELETE_BAD_BACKUPS_OPTION = "db";
     private static final long BEGINING_OF_TIME = 0;
     private static final String OPTION_DESIGNATOR = "-";
-    private static final Object CONST_DUMMY_ARG = "const"; // TODO this is a hack, as no access do documentation
+    private static final Object CONST_DUMMY_ARG = "const";
     private final BackupServiceFactory backupServiceFactory;
     private final PrintStream infoStream;
     private final PrintStream errorStream;
