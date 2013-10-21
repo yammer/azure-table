@@ -13,7 +13,7 @@ import com.yammer.collections.guava.azure.backup.lib.TableCopy;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 
-class BackupServiceFactory {
+public class BackupServiceFactory {
     private CloudTableClient createCloudTableClient(String connectionString) throws URISyntaxException, InvalidKeyException {
         CloudStorageAccount storageAccount = CloudStorageAccount.parse(connectionString);
         return storageAccount.createCloudTableClient();
