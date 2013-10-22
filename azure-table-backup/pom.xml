@@ -14,7 +14,6 @@
     <artifactId>azure-table-backup</artifactId>
 
     <dependencies>
-        <!-- TODO split into library, cmd-line util and tool, to avoid adding compile time dep, and remove warnings in SLF4J -->
         <dependency>
             <groupId>com.yammer.collections.guava.azure</groupId>
             <artifactId>azure-table-core</artifactId>
@@ -41,95 +40,4 @@
             <version>${jackson.version}</version>
         </dependency>
     </dependencies>
-
-    <!-- build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.2.1</version>
-                <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <mavenExecutorId>forked-path</mavenExecutorId>
-                    <tagNameFormat>v@{project.version}</tagNameFormat>
-                    <preparationGoals>clean test</preparationGoals>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>1.4</version>
-                <configuration>
-                    <createDependencyReducedPom>true</createDependencyReducedPom>
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>META-INF/*.SF</exclude>
-                                <exclude>META-INF/*.DSA</exclude>
-                                <exclude>META-INF/*.RSA</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>azure-table-backup-${project.version}</finalName>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.yammer.collections.guava.azure.backup.tool.BackupCLI</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.0</version>
-                <configuration>
-                    <reportPlugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-project-info-reports-plugin</artifactId>
-                            <version>2.4</version>
-                            <configuration>
-                                <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                                <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
-                            </configuration>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-checkstyle-plugin</artifactId>
-                            <version>2.8</version>
-                            <configuration>
-                                <configLocation>http://codahale.com/checkstyle.xml</configLocation>
-                                <encoding>UTF-8</encoding>
-                            </configuration>
-                        </plugin>
-                    </reportPlugins>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build -->
-
 </project>
