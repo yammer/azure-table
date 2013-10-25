@@ -6,7 +6,7 @@ import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.yammer.collections.guava.azure.AzureTable;
-import com.yammer.collections.guava.azure.StringAzureTable;
+import com.yammer.collections.guava.azure.BaseAzureTable;
 import com.yammer.collections.guava.azure.backup.lib.BackupTableFactory;
 
 import java.net.URISyntaxException;
@@ -113,7 +113,7 @@ public class AzureBackupTableFactory implements BackupTableFactory {
             final String backupTableName = createBackupTableName(backupDate, backupName);
             CloudTable cloudTable = cloudTableClient.getTableReference(backupTableName);
             if (cloudTable.exists()) {
-                return new StringAzureTable(backupTableName, cloudTableClient);
+                return new BaseAzureTable(backupTableName, cloudTableClient);
             }
             return null;
         } catch (Exception e) {
@@ -125,10 +125,10 @@ public class AzureBackupTableFactory implements BackupTableFactory {
         return String.format(BACKUP_TABLE_NAME_TEMPLATE, backupName, backupDate.getTime());
     }
 
-    private StringAzureTable getOrCreateTable(String tableName) throws URISyntaxException, StorageException {
+    private BaseAzureTable getOrCreateTable(String tableName) throws URISyntaxException, StorageException {
         CloudTable table = cloudTableClient.getTableReference(tableName);
         table.createIfNotExist();
-        return new StringAzureTable(tableName, cloudTableClient);
+        return new BaseAzureTable(tableName, cloudTableClient);
     }
 
 }

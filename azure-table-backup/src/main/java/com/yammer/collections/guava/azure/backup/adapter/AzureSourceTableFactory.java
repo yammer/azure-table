@@ -6,7 +6,7 @@ import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableServiceException;
-import com.yammer.collections.guava.azure.StringAzureTable;
+import com.yammer.collections.guava.azure.BaseAzureTable;
 import com.yammer.collections.guava.azure.backup.lib.SourceTableFactory;
 
 public class AzureSourceTableFactory implements SourceTableFactory {
@@ -29,7 +29,7 @@ public class AzureSourceTableFactory implements SourceTableFactory {
         try {
             CloudTable table = cloudTableClient.getTableReference(tableName);
             table.createIfNotExist();
-            return new StringAzureTable(tableName, cloudTableClient);
+            return new BaseAzureTable(tableName, cloudTableClient);
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
