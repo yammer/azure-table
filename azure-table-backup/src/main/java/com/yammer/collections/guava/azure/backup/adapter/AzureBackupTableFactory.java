@@ -5,7 +5,7 @@ import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
-import com.yammer.collections.guava.azure.AzureTable;
+import com.yammer.collections.guava.azure.transforming.TransformingTable;
 import com.yammer.collections.guava.azure.BaseAzureTable;
 import com.yammer.collections.guava.azure.backup.lib.BackupTableFactory;
 
@@ -17,7 +17,7 @@ import static com.yammer.collections.guava.azure.backup.lib.Backup.BackupStatus;
 public class AzureBackupTableFactory implements BackupTableFactory {
     private static final String BACKUP_LIST_TABLE_NAME = "comYammerAzureTableBackupListTable";
     private static final String BACKUP_TABLE_NAME_TEMPLATE = "BackupNAME%sDATE%s";
-    private static final AzureTable.Marshaller<String, String> IDENTITY_MARSHALLER = new AzureTable.Marshaller<String, String>() {
+    private static final TransformingTable.Marshaller<String, String> IDENTITY_MARSHALLER = new TransformingTable.Marshaller<String, String>() {
         @Override
         public String marshal(String unmarshalled) {
             return unmarshalled;
@@ -33,7 +33,7 @@ public class AzureBackupTableFactory implements BackupTableFactory {
             return String.class;
         }
     };
-    private static final AzureTable.Marshaller<Date, String> DATE_MARSHALLER = new AzureTable.Marshaller<Date, String>() {
+    private static final TransformingTable.Marshaller<Date, String> DATE_MARSHALLER = new TransformingTable.Marshaller<Date, String>() {
         @Override
         public String marshal(Date unmarshalled) {
             return Long.toString(unmarshalled.getTime());
@@ -49,7 +49,7 @@ public class AzureBackupTableFactory implements BackupTableFactory {
             return Date.class;
         }
     };
-    private static final AzureTable.Marshaller<BackupStatus, String> BACKUP_STATUS_MARSHALLER = new AzureTable.Marshaller<BackupStatus, String>() {
+    private static final TransformingTable.Marshaller<BackupStatus, String> BACKUP_STATUS_MARSHALLER = new TransformingTable.Marshaller<BackupStatus, String>() {
 
         @Override
         public String marshal(BackupStatus unmarshalled) {
@@ -75,7 +75,7 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     @Override
     public Table<String, Date, BackupStatus> getBackupListTable() {
         try {
-            return new AzureTable<>(
+            return new TransformingTable<>(
                     IDENTITY_MARSHALLER,
                     DATE_MARSHALLER,
                     BACKUP_STATUS_MARSHALLER,
