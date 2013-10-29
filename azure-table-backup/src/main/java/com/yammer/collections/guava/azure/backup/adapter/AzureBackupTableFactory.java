@@ -1,13 +1,15 @@
 package com.yammer.collections.guava.azure.backup.adapter;
 
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
-import com.yammer.collections.guava.azure.transforming.TransformingTable;
 import com.yammer.collections.guava.azure.BaseAzureTable;
 import com.yammer.collections.guava.azure.backup.lib.BackupTableFactory;
+import com.yammer.collections.guava.azure.transforming.TransformingTable;
 
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -17,53 +19,29 @@ import static com.yammer.collections.guava.azure.backup.lib.Backup.BackupStatus;
 public class AzureBackupTableFactory implements BackupTableFactory {
     private static final String BACKUP_LIST_TABLE_NAME = "comYammerAzureTableBackupListTable";
     private static final String BACKUP_TABLE_NAME_TEMPLATE = "BackupNAME%sDATE%s";
-    private static final TransformingTable.Marshaller<String, String> IDENTITY_MARSHALLER = new TransformingTable.Marshaller<String, String>() {
+    private static final Function<Date, String> DATE_MARSHALLER = new Function<Date, String>() {
         @Override
-        public String marshal(String unmarshalled) {
-            return unmarshalled;
-        }
-
-        @Override
-        public String unmarshal(String marshalled) {
-            return marshalled;
-        }
-
-        @Override
-        public Class<String> getType() {
-            return String.class;
-        }
-    };
-    private static final TransformingTable.Marshaller<Date, String> DATE_MARSHALLER = new TransformingTable.Marshaller<Date, String>() {
-        @Override
-        public String marshal(Date unmarshalled) {
+        public String apply(Date unmarshalled) {
             return Long.toString(unmarshalled.getTime());
         }
-
+    };
+    private static final Function<String, Date> DATE_UNMARSHALLER = new Function<String, Date>() {
         @Override
-        public Date unmarshal(String marshalled) {
-            return new Date(Long.parseLong(marshalled));
-        }
-
-        @Override
-        public Class<Date> getType() {
-            return Date.class;
+        public Date apply(String marshalled) {
+            return new Date(Long.valueOf(marshalled));
         }
     };
-    private static final TransformingTable.Marshaller<BackupStatus, String> BACKUP_STATUS_MARSHALLER = new TransformingTable.Marshaller<BackupStatus, String>() {
+    private static final Function<BackupStatus, String> BACKUP_STATUS_MARSHALLER = new Function<BackupStatus, String>() {
 
         @Override
-        public String marshal(BackupStatus unmarshalled) {
+        public String apply(BackupStatus unmarshalled) {
             return unmarshalled.toString();
         }
-
+    };
+    private static final Function<String, BackupStatus> BACKUP_STATUS_UNMARSHALLER = new Function<String, BackupStatus>() {
         @Override
-        public BackupStatus unmarshal(String marshalled) {
+        public BackupStatus apply(String marshalled) {
             return BackupStatus.valueOf(marshalled);
-        }
-
-        @Override
-        public Class<BackupStatus> getType() {
-            return BackupStatus.class;
         }
     };
     private final CloudTableClient cloudTableClient;
@@ -76,10 +54,10 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     public Table<String, Date, BackupStatus> getBackupListTable() {
         try {
             return new TransformingTable<>(
-                    IDENTITY_MARSHALLER,
-                    DATE_MARSHALLER,
-                    BACKUP_STATUS_MARSHALLER,
-                    getOrCreateTable(BACKUP_LIST_TABLE_NAME)
+                    getOrCreateTable(BACKUP_LIST_TABLE_NAME),
+                    Functions.<String>identity(), Functions.<String>identity(),
+                    DATE_MARSHALLER, DATE_UNMARSHALLER,
+                    BACKUP_STATUS_MARSHALLER, BACKUP_STATUS_UNMARSHALLER
             );
         } catch (Exception e) {
             throw Throwables.propagate(e);
