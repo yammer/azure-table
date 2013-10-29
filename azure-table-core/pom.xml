@@ -12,6 +12,6 @@
     <description>The Azure backed implementation of Google Guava Table.</description>
 
     <artifactId>azure-table-core</artifactId>
-
+     <!-- TODO extract transforming code to a separate library, has uses beyond azure table -->
 </project>
 
