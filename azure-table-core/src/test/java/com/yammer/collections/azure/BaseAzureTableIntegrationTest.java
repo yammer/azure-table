@@ -4,14 +4,11 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
-import com.microsoft.windowsazure.services.table.client.TableOperation;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,14 +17,10 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-
-@SuppressWarnings({"ClassWithTooManyMethods", "InstanceVariableMayNotBeInitialized", "JUnitTestMethodWithNoAssertions"})
-@RunWith(MockitoJUnitRunner.class)
-public class BaseAzureTableTest {
+// TODO trim down the set of test cases to those that matter for integration tests (clinet code edge cases are probably irrelevatn)
+//@Ignore("talks to azure directly, switched off by default")
+public class BaseAzureTableIntegrationTest {
     private static final String ROW_KEY_1 = "rown_name_1";
     private static final String ROW_KEY_2 = "row_name_2";
     private static final String COLUMN_KEY_1 = "column_key_1";
@@ -38,20 +31,21 @@ public class BaseAzureTableTest {
     private static final String TABLE_NAME = "secretie_table";
     private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
     private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
-    @Mock
-    private AzureTableCloudClient azureTableCloudClientMock;
-    @Mock
-    private AzureTableRequestFactory azureTableRequestFactoryMock;
-    private BaseAzureTable baseAzureTable;
+    // TODO setup azure, starting with in memmory
+    private Table<String, String, String> baseAzureTable = HashBasedTable.create();//TODO temp
 
-    @Before
-    public void setUp() throws IOException {
-        baseAzureTable = new BaseAzureTable(TABLE_NAME, azureTableCloudClientMock, azureTableRequestFactoryMock);
+    private static String encode(String stringToBeEncoded) {
+        return AzureTestUtil.encode(stringToBeEncoded);
     }
 
-    @Test
-    public void get_table_name_returns_table_name() {
-        assertThat(baseAzureTable.getTableName(), is(equalTo(TABLE_NAME)));
+    @Before
+    public void setUp() {
+        baseAzureTable.clear();
+    }
+
+    @After
+    public void cleanUp() {
+        baseAzureTable.clear();
     }
 
     @Test
@@ -94,56 +88,27 @@ public class BaseAzureTableTest {
         assertThat(value, is(nullValue()));
     }
 
-    @Test(expected = RuntimeException.class)
-    public void when_table_client_throws_storage_exception_during_get_then_exception_rethrown() throws StorageException {
-        //noinspection unchecked
-        setAzureTableToContain(CELL_1);
-        setToThrowStorageExceptionOnRetrievalOf(CELL_1);
-
-        baseAzureTable.get(ROW_KEY_1, COLUMN_KEY_1);
-    }
-
     @Test
     public void when_put_then_value_added_or_replaced_in_azure() throws StorageException {
-        TableOperation putTableOperationMock = mockPutTableOperation(CELL_2);
 
         baseAzureTable.put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
 
-        verify(azureTableCloudClientMock).execute(TABLE_NAME, putTableOperationMock);
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void when_table_client_throws_storage_exception_during_put_then_exception_rethrown() throws StorageException {
-        TableOperation putTableOperationMock = mockPutTableOperation(CELL_1);
-        setupThrowStorageExceptionOnTableOperation(putTableOperationMock);
-
-        baseAzureTable.put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
+        assertThat(baseAzureTable.get(ROW_KEY_2, COLUMN_KEY_2), is(equalTo(VALUE_2)));
     }
 
     @Test
     public void when_delete_then_deleted_in_azure() throws StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1);
-        TableOperation deleteTableOperationMock = mockDeleteTableOperation(CELL_1);
 
         baseAzureTable.remove(ROW_KEY_1, COLUMN_KEY_1);
 
-        verify(azureTableCloudClientMock).execute(TABLE_NAME, deleteTableOperationMock);
+        assertThat(baseAzureTable.get(ROW_KEY_2, COLUMN_KEY_2), is(nullValue()));
     }
 
     @Test
     public void when_key_does_not_exist_then_delete_return_null() throws StorageException {
         assertThat(baseAzureTable.remove(ROW_KEY_1, NON_EXISTENT_COLUMN_KEY), is(equalTo(null)));
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void when_table_client_throws_storage_exception_during_delete_then_exception_rethrown() throws StorageException {
-        //noinspection unchecked
-        setAzureTableToContain(CELL_1);
-        TableOperation deleteTableOperationMock = mockDeleteTableOperation(CELL_1);
-        setupThrowStorageExceptionOnTableOperation(deleteTableOperationMock);
-
-        baseAzureTable.remove(ROW_KEY_1, COLUMN_KEY_1);
     }
 
     @Test
@@ -250,32 +215,6 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void clear_deletes_all_in_cell_set() throws StorageException {
-        setAzureTableToContain(CELL_1, CELL_2);
-        TableOperation deleteTableOperationMock1 = mockDeleteTableOperation(CELL_1);
-        TableOperation deleteTableOperationMock2 = mockDeleteTableOperation(CELL_2);
-
-        baseAzureTable.clear();
-
-        verify(azureTableCloudClientMock).execute(TABLE_NAME, deleteTableOperationMock1);
-        verify(azureTableCloudClientMock).execute(TABLE_NAME, deleteTableOperationMock2);
-    }
-
-    @Test
-    public void put_all_puts_all_the_values() throws StorageException {
-        Table<String, String, String> sourceTable = HashBasedTable.create();
-        sourceTable.put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
-        sourceTable.put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
-        TableOperation putTableOperationMock1 = mockPutTableOperation(CELL_1);
-        TableOperation putTableOperationMock2 = mockPutTableOperation(CELL_2);
-
-        baseAzureTable.putAll(sourceTable);
-
-        verify(azureTableCloudClientMock).execute(TABLE_NAME, putTableOperationMock1);
-        verify(azureTableCloudClientMock).execute(TABLE_NAME, putTableOperationMock2);
-    }
-
-    @Test
     public void column_returns_row_map_with_appropriate_contents() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
@@ -340,42 +279,14 @@ public class BaseAzureTableTest {
         assertThat(columnKeyMap2.get(ROW_KEY_2), is(equalTo(VALUE_2)));
     }
 
-    //
-    // Utility methods
-    //
-
-    private static String encode(String stringToBeEncoded) {
-        return AzureTestUtil.encode(stringToBeEncoded);
-    }
-
     @SafeVarargs
-    private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws StorageException {
-        AzureTestUtil.setAzureTableToContain(TABLE_NAME, azureTableRequestFactoryMock, azureTableCloudClientMock, cells);
-    }
+    private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) {
+        for (Table.Cell<String, String, String> cell : cells) {
+            baseAzureTable.put(cell.getRowKey(), cell.getColumnKey(), cell.getValue());
 
-    private void setToThrowStorageExceptionOnRetrievalOf(Table.Cell<String, String, String> cell) throws StorageException {
-        TableOperation retriveTableOperationMock = mock(TableOperation.class);
-        when(azureTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()))).thenReturn(retriveTableOperationMock);
-        setupThrowStorageExceptionOnTableOperation(retriveTableOperationMock);
-    }
+        }
 
-    private TableOperation mockPutTableOperation(Table.Cell<String, String, String> cell) {
-        TableOperation putTableOperationMock = mock(TableOperation.class);
-        when(azureTableRequestFactoryMock.put(encode(cell.getRowKey()), encode(cell.getColumnKey()), encode(cell.getValue()))).thenReturn(putTableOperationMock);
-        return putTableOperationMock;
-    }
 
-    private void setupThrowStorageExceptionOnTableOperation(TableOperation tableOperationMock) throws StorageException {
-        StorageException storageExceptionMock = mock(StorageException.class);
-        when(azureTableCloudClientMock.execute(TABLE_NAME, tableOperationMock)).thenThrow(storageExceptionMock);
-    }
-
-    private TableOperation mockDeleteTableOperation(Table.Cell<String, String, String> cell) throws StorageException {
-        TableOperation retrieveOperation = azureTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()));
-        AzureEntity result = azureTableCloudClientMock.execute(TABLE_NAME, retrieveOperation);
-        TableOperation deleteTableOperationMock = mock(TableOperation.class);
-        when(azureTableRequestFactoryMock.delete(result)).thenReturn(deleteTableOperationMock);
-        return deleteTableOperationMock;
     }
 
 
