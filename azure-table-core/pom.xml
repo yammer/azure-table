@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.yammer.collections.guava.azure</groupId>
+        <groupId>com.yammer.collections.azure</groupId>
         <artifactId>azure-table</artifactId>
         <version>0.0.7-SNAPSHOT</version>
     </parent>
