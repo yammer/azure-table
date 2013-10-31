@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure;
+package com.yammer.collections.azure;
 
 
 import com.google.common.base.Function;
@@ -8,35 +8,36 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import static com.yammer.collections.guava.azure.AzureEntityUtil.EXTRACT_VALUE;
-import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
-import static com.yammer.collections.guava.azure.AzureEntityUtil.encode;
+import static com.yammer.collections.azure.AzureEntityUtil.EXTRACT_VALUE;
+import static com.yammer.collections.azure.AzureEntityUtil.decode;
+import static com.yammer.collections.azure.AzureEntityUtil.encode;
 
-class ColumnView implements Map<String, String> {
-    private static final Function<AzureEntity, String> EXTRACT_COLUMN_KEY = new Function<AzureEntity, String>() {
+public class RowView implements Map<String, String> {
+    private static final Function<AzureEntity, String> EXTRACT_ROW_KEY = new Function<AzureEntity, String>() {
         @Override
         public String apply(AzureEntity input) {
-            return decode(input.getRowKey());
+            return decode(input.getPartitionKey());
         }
     };
-    private final Function<AzureEntity, Entry<String, String>> extractEntry;
     private final BaseAzureTable baseAzureTable;
-    private final String rowKey;
+    private final String columnKey;
     private final AzureTableCloudClient azureTableCloudClient;
     private final AzureTableRequestFactory azureTableRequestFactory;
+    private final Function<AzureEntity, Entry<String, String>> extractEntry;
 
-    public ColumnView(final BaseAzureTable baseAzureTable,
-                      final String rowKey,
-                      AzureTableCloudClient azureTableCloudClient,
-                      AzureTableRequestFactory azureTableRequestFactory) {
+    public RowView(
+            final BaseAzureTable baseAzureTable,
+            final String columnKey,
+            AzureTableCloudClient azureTableCloudClient,
+            AzureTableRequestFactory azureTableRequestFactory) {
         this.baseAzureTable = baseAzureTable;
-        this.rowKey = rowKey;
+        this.columnKey = columnKey;
         this.azureTableCloudClient = azureTableCloudClient;
         this.azureTableRequestFactory = azureTableRequestFactory;
         extractEntry = new Function<AzureEntity, Entry<String, String>>() {
             @Override
             public Entry<String, String> apply(AzureEntity input) {
-                return new ColumnMapEntry(rowKey, decode(input.getRowKey()), baseAzureTable);
+                return new RowMapEntry(decode(input.getPartitionKey()), columnKey, baseAzureTable);
             }
         };
     }
@@ -53,7 +54,7 @@ class ColumnView implements Map<String, String> {
 
     @Override
     public boolean containsKey(Object key) {
-        return baseAzureTable.contains(rowKey, key);
+        return baseAzureTable.contains(key, columnKey);
     }
 
     @Override
@@ -62,24 +63,24 @@ class ColumnView implements Map<String, String> {
             return false;
         }
 
-        TableQuery<AzureEntity> valueQuery = azureTableRequestFactory.containsValueForRowQuery(baseAzureTable.getTableName(), encode(rowKey),
+        TableQuery<AzureEntity> valueQuery = azureTableRequestFactory.containsValueForColumnQuery(baseAzureTable.getTableName(), encode(columnKey),
                 encode((String) value));
         return azureTableCloudClient.execute(valueQuery).iterator().hasNext();
     }
 
     @Override
     public String get(Object key) {
-        return baseAzureTable.get(rowKey, key);
+        return baseAzureTable.get(key, columnKey);
     }
 
     @Override
     public String put(String key, String value) {
-        return baseAzureTable.put(rowKey, key, value);
+        return baseAzureTable.put(key, columnKey, value);
     }
 
     @Override
     public String remove(Object key) {
-        return baseAzureTable.remove(rowKey, key);
+        return baseAzureTable.remove(key, columnKey);
     }
 
     @SuppressWarnings("NullableProblems")
@@ -92,8 +93,8 @@ class ColumnView implements Map<String, String> {
 
     @Override
     public void clear() {
-        for (String columnKey : keySet()) {
-            remove(columnKey);
+        for (String rowKey : keySet()) {
+            remove(rowKey);
         }
     }
 
@@ -101,37 +102,30 @@ class ColumnView implements Map<String, String> {
     @Override
     public Set<String> keySet() {
         return SetView.fromSetCollectionView(
-                new ColumnMapSetView<>(
-                        baseAzureTable,
-                        rowKey,
-                        EXTRACT_COLUMN_KEY,
-                        azureTableCloudClient,
-                        azureTableRequestFactory
-                )
-        );
+                        new RowMapSetView<>(baseAzureTable, columnKey, EXTRACT_ROW_KEY, azureTableCloudClient, azureTableRequestFactory)
+                );
     }
 
     @SuppressWarnings("NullableProblems")
     @Override
     public Collection<String> values() {
-        return new ColumnMapSetView<>(baseAzureTable, rowKey, EXTRACT_VALUE, azureTableCloudClient, azureTableRequestFactory);
+        return new RowMapSetView<>(baseAzureTable, columnKey, EXTRACT_VALUE, azureTableCloudClient, azureTableRequestFactory);
     }
 
     @SuppressWarnings("NullableProblems")
     @Override
     public Set<Entry<String, String>> entrySet() {
         return SetView.fromSetCollectionView(
-                new ColumnMapSetView<>(baseAzureTable, rowKey, extractEntry, azureTableCloudClient, azureTableRequestFactory)
+                new RowMapSetView<>(baseAzureTable, columnKey, extractEntry, azureTableCloudClient, azureTableRequestFactory)
         );
     }
 
-    // TODO : extractable, as common class?
-    private static class ColumnMapEntry implements Entry<String, String> {
+    private static class RowMapEntry implements Entry<String, String> {
         private final String columnKey;
         private final String rowKey;
         private final BaseAzureTable azureTable;
 
-        private ColumnMapEntry(String rowKey, String columnKey, BaseAzureTable azureTable) {
+        private RowMapEntry(String rowKey, String columnKey, BaseAzureTable azureTable) {
             this.rowKey = rowKey;
             this.columnKey = columnKey;
             this.azureTable = azureTable;
@@ -139,7 +133,7 @@ class ColumnView implements Map<String, String> {
 
         @Override
         public String getKey() {
-            return columnKey;
+            return rowKey;
         }
 
         @Override
@@ -153,29 +147,30 @@ class ColumnView implements Map<String, String> {
         }
     }
 
-    private static class ColumnMapSetView<E> extends AbstractCollectionView<E> {
+    private static class RowMapSetView<E> extends AbstractCollectionView<E> {
         private final BaseAzureTable baseAzureTable;
-        private final String rowKey;
+        private final String columnKey;
         private final AzureTableCloudClient azureTableCloudClient;
         private final AzureTableRequestFactory azureTableRequestFactory;
 
-        public ColumnMapSetView(
+        public RowMapSetView(
                 BaseAzureTable baseAzureTable,
-                String rowKey,
+                String columnKey,
                 Function<AzureEntity, E> typeExtractor,
                 AzureTableCloudClient azureTableCloudClient,
                 AzureTableRequestFactory azureTableRequestFactory) {
             super(typeExtractor);
             this.baseAzureTable = baseAzureTable;
-            this.rowKey = rowKey;
+            this.columnKey = columnKey;
             this.azureTableCloudClient = azureTableCloudClient;
             this.azureTableRequestFactory = azureTableRequestFactory;
         }
 
         @Override
         protected Iterable<AzureEntity> getBackingIterable() {
-            TableQuery<AzureEntity> selectAllForRowQuery = azureTableRequestFactory.selectAllForRow(baseAzureTable.getTableName(), encode(rowKey));
+            TableQuery<AzureEntity> selectAllForRowQuery = azureTableRequestFactory.selectAllForColumn(baseAzureTable.getTableName(), encode(columnKey));
             return azureTableCloudClient.execute(selectAllForRowQuery);
         }
     }
+
 }

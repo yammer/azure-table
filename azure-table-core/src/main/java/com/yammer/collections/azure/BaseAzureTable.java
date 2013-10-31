@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure;
+package com.yammer.collections.azure;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
@@ -13,9 +13,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import static com.yammer.collections.guava.azure.AzureEntityUtil.EXTRACT_VALUE;
-import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
-import static com.yammer.collections.guava.azure.AzureEntityUtil.encode;
+import static com.yammer.collections.azure.AzureEntityUtil.EXTRACT_VALUE;
+import static com.yammer.collections.azure.AzureEntityUtil.decode;
+import static com.yammer.collections.azure.AzureEntityUtil.encode;
 
 @SuppressWarnings("ClassWithTooManyMethods")
 public class BaseAzureTable implements Table<String, String, String> {

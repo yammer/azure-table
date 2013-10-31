@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure;
+package com.yammer.collections.azure;
 
 
 import com.google.common.base.Function;
@@ -14,8 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
-import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
-import static com.yammer.collections.guava.azure.AzureTestUtil.ENCODE_CELL;
+import static com.yammer.collections.azure.AzureEntityUtil.decode;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -158,7 +157,7 @@ public class AbstractCollectionViewTest {
     @SafeVarargs
     private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) {
         when(stringEntityIterableMock.iterator()).thenReturn(
-                Iterables.transform(Arrays.asList(cells), ENCODE_CELL).iterator()
+                Iterables.transform(Arrays.asList(cells), AzureTestUtil.ENCODE_CELL).iterator()
         );
     }
 

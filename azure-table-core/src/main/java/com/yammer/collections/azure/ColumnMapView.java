@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure;
+package com.yammer.collections.azure;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -8,32 +8,32 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
+public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
     private final Table<R, C, V> backingTable;
-    private final Function<R, Map<C, V>> valueCreator;
-    private final Function<R, Entry<R, Map<C, V>>> entryCreator;
+    private final Function<C, Map<R, V>> valueCreator;
+    private final Function<C, Entry<C, Map<R, V>>> entryConstructor;
 
-    public RowMapView(final Table<R, C, V> backingTable) {
+    public ColumnMapView(final Table<R, C, V> backingTable) {
         this.backingTable = backingTable;
-        valueCreator = new Function<R, Map<C, V>>() {
+        valueCreator = new Function<C, Map<R, V>>() {
             @Override
-            public Map<C, V> apply(R key) {
-                return backingTable.row(key);
+            public Map<R, V> apply(C key) {
+                return backingTable.column(key);
             }
         };
-        entryCreator = new
+        entryConstructor = new
 
-                Function<R, Entry<R, Map<C, V>>>() {
+                Function<C, Entry<C, Map<R, V>>>() {
                     @Override
-                    public Entry<R, Map<C, V>> apply(R input) {
-                        return new RowMapViewEntry<>(backingTable, RowMapView.this, input);
+                    public Entry<C, Map<R, V>> apply(C input) {
+                        return new ColumnMapViewEntry<>(backingTable, ColumnMapView.this, input);
                     }
                 };
     }
 
     @Override
     public int size() {
-        return backingTable.rowKeySet().size();
+        return backingTable.columnKeySet().size();
     }
 
     @Override
@@ -43,7 +43,7 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
 
     @Override
     public boolean containsKey(Object key) {
-        return backingTable.containsRow(key);
+        return backingTable.containsColumn(key);
     }
 
     @Override
@@ -54,16 +54,16 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
 
         Entry<?, ?> entry = (Entry<?, ?>) value;
         try {
-            return backingTable.column((C) entry.getKey()).containsValue(entry.getValue());
+            return backingTable.row((R) entry.getKey()).containsValue(entry.getValue());
         } catch (ClassCastException ignored) {
             return false;
         }
     }
 
     @Override
-    public Map<C, V> get(Object key) {
+    public Map<R, V> get(Object key) {
         try {
-            Map<C, V> mapForRow = backingTable.row((R) key);
+            Map<R, V> mapForRow = backingTable.column((C) key);
             return mapForRow.isEmpty() ? null : mapForRow;
         } catch (ClassCastException ignored) {
             return null;
@@ -76,11 +76,11 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
      * data store.
      */
     @Override
-    public Map<C, V> put(R key, Map<C, V> value) {
-        Map<C, V> oldValue = get(key);
+    public Map<R, V> put(C key, Map<R, V> value) {
+        Map<R, V> oldValue = get(key);
         oldValue.clear();
         if (!value.isEmpty()) {
-            backingTable.row(key).putAll(value);
+            backingTable.column(key).putAll(value);
         }
         return oldValue;
     }
@@ -91,17 +91,17 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
      * data store.
      */
     @Override
-    public Map<C, V> remove(Object key) {
-        Map<C, V> oldValue = get(key);
+    public Map<R, V> remove(Object key) {
+        Map<R, V> oldValue = get(key);
         oldValue.clear();
         return oldValue;
     }
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public void putAll(Map<? extends R, ? extends Map<C, V>> m) {
-        for (Entry<? extends R, ? extends Map<C, V>> entry : m.entrySet()) {
-            backingTable.row(entry.getKey()).putAll(entry.getValue());
+    public void putAll(Map<? extends C, ? extends Map<R, V>> m) {
+        for (Entry<? extends C, ? extends Map<R, V>> entry : m.entrySet()) {
+            backingTable.column(entry.getKey()).putAll(entry.getValue());
         }
     }
 
@@ -112,13 +112,13 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public Set<R> keySet() {
-        return backingTable.rowKeySet();
+    public Set<C> keySet() {
+        return backingTable.columnKeySet();
     }
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public Collection<Map<C, V>> values() {
+    public Collection<Map<R, V>> values() {
         return Collections2.transform(
                 keySet(),
                 valueCreator
@@ -127,38 +127,39 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public Set<Entry<R, Map<C, V>>> entrySet() {
+    public Set<Entry<C, Map<R, V>>> entrySet() {
         return SetView.fromSetCollectionView(
                 Collections2.transform(
                         keySet(),
-                        entryCreator
-                ));
+                        entryConstructor
+                )
+        );
     }
 
-    private static final class RowMapViewEntry<R, C, V> implements Entry<R, Map<C, V>> {
+    private static final class ColumnMapViewEntry<R, C, V> implements Entry<C, Map<R, V>> {
         private final Table<R, C, V> backingTable;
-        private final Map<R, Map<C, V>> backingMap;
-        private final R key;
+        private final Map<C, Map<R, V>> backingMap;
+        private final C key;
 
 
-        private RowMapViewEntry(Table<R, C, V> backingTable, Map<R, Map<C, V>> backingMap, R key) {
+        private ColumnMapViewEntry(Table<R, C, V> backingTable, Map<C, Map<R, V>> backingMap, C key) {
             this.backingTable = backingTable;
             this.backingMap = backingMap;
             this.key = key;
         }
 
         @Override
-        public R getKey() {
+        public C getKey() {
             return key;
         }
 
         @Override
-        public Map<C, V> getValue() {
-            return backingTable.row(key);
+        public Map<R, V> getValue() {
+            return backingTable.column(key);
         }
 
         @Override
-        public Map<C, V> setValue(Map<C, V> value) {
+        public Map<R, V> setValue(Map<R, V> value) {
             return backingMap.put(key, value);
         }
     }

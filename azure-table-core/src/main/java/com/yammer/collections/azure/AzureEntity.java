@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure;
+package com.yammer.collections.azure;
 
 import com.microsoft.windowsazure.services.table.client.TableServiceEntity;
 

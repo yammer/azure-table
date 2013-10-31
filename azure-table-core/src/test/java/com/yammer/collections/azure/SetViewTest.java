@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure;
+package com.yammer.collections.azure;
 
 
 import org.junit.Before;
@@ -65,8 +65,6 @@ public class SetViewTest {
 
         assertThat(setView, containsInAnyOrder(L1, L2, L1_DUPLICATE));
     }
-
-
 
     @Test(expected = UnsupportedOperationException.class)
     public void add_not_supported() {

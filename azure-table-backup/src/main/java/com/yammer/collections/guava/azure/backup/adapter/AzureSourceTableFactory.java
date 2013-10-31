@@ -6,7 +6,7 @@ import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableServiceException;
-import com.yammer.collections.guava.azure.BaseAzureTable;
+import com.yammer.collections.azure.BaseAzureTable;
 import com.yammer.collections.guava.azure.backup.lib.SourceTableFactory;
 
 import java.net.URISyntaxException;

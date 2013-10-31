@@ -1,5 +1,4 @@
-package com.yammer.collections.guava.azure;
-
+package com.yammer.collections.azure;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -28,168 +27,167 @@ import static org.mockito.Mockito.when;
 
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized", "SuspiciousMethodCalls"})
 @RunWith(MockitoJUnitRunner.class)
-public class RowMapViewTest {
+public class ColumnMapViewTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Table<Integer, Long, String> backingTableMock;
     @Mock
-    private Map<Long, String> columnMock;
+    private Map<Integer, String> rowMock;
     @Mock
-    private Map<Long, String> columnMock2;
-    private RowMapView<Integer, Long, String> rowMapView;
+    private Map<Integer, String> rowMock2;
+    private ColumnMapView<Integer, Long, String> columnMapView;
 
     @Before
     public void setUp() {
-        rowMapView = new RowMapView<>(backingTableMock);
+        columnMapView = new ColumnMapView<>(backingTableMock);
     }
 
     @Test
     public void size_delegates() {
-        when(backingTableMock.rowKeySet().size()).thenReturn(3);
+        when(backingTableMock.columnKeySet().size()).thenReturn(3);
 
-        assertThat(rowMapView.size(), is(equalTo(3)));
+        assertThat(columnMapView.size(), is(equalTo(3)));
     }
 
     @Test
     public void isEmpty_delegates() {
         when(backingTableMock.isEmpty()).thenReturn(true);
 
-        assertThat(rowMapView.isEmpty(), is(equalTo(true)));
+        assertThat(columnMapView.isEmpty(), is(equalTo(true)));
     }
 
     @Test
     public void containsKey_delegates_to_contains_row() {
-        when(backingTableMock.containsRow(2)).thenReturn(true);
+        when(backingTableMock.containsColumn(2)).thenReturn(true);
 
-        assertThat(rowMapView.containsKey(2), is(equalTo(true)));
+        assertThat(columnMapView.containsKey(2), is(equalTo(true)));
     }
 
     @Test
     public void when_contains_value_on_non_entry_than_false() {
-        assertThat(rowMapView.containsValue(new Object()), is(equalTo(false)));
+        assertThat(columnMapView.containsValue(new Object()), is(equalTo(false)));
     }
 
     @Test
     public void when_contains_value_on_entry_with_badly_typed_key_than_false() {
-        assertThat(rowMapView.containsValue(new TestEntry<>("ala", "ma")), is(equalTo(false)));
+        assertThat(columnMapView.containsValue(new TestEntry<>("ala", "ma")), is(equalTo(false)));
     }
 
     @Test
     public void when_contain_on_correctly_typed_entry_then_delegates_to_backig_table() {
-        Map.Entry<Long, String> entry = new TestEntry<>(1L, "ala");
-        when(backingTableMock.column(entry.getKey()).containsValue(entry.getValue())).thenReturn(true);
+        Map.Entry<Integer, String> entry = new TestEntry<>(1, "ala");
+        when(backingTableMock.row(entry.getKey()).containsValue(entry.getValue())).thenReturn(true);
 
-        assertThat(rowMapView.containsValue(entry), is(equalTo(true)));
+        assertThat(columnMapView.containsValue(entry), is(equalTo(true)));
     }
 
     @Test
     public void when_get_on_key_of_correct_type_and_delegate_returned_map_is_empty_then_null_returned() {
-        when(backingTableMock.row(2).isEmpty()).thenReturn(true);
+        when(backingTableMock.column(2L).isEmpty()).thenReturn(true);
 
-        assertThat(rowMapView.get(2), is(nullValue()));
+        assertThat(columnMapView.get(2L), is(nullValue()));
     }
 
     @Test
     public void when_get_on_key_of_correct_type_then_delegates() {
-        when(backingTableMock.row(2)).thenReturn(columnMock);
+        when(backingTableMock.column(2L)).thenReturn(rowMock);
 
-        assertThat(rowMapView.get(2), is(equalTo(columnMock)));
+        assertThat(columnMapView.get(2L), is(equalTo(rowMock)));
     }
 
     @Test
     public void put_removes_old_values() {
-        when(backingTableMock.row(1)).thenReturn(columnMock);
+        when(backingTableMock.column(1L)).thenReturn(rowMock);
 
-        rowMapView.put(1, new HashMap<Long, String>());
+        columnMapView.put(1L, new HashMap<Integer, String>());
 
-        verify(columnMock).clear();
+        verify(rowMock).clear();
     }
 
     @Test
     public void put_delegates_on_non_empty_map() {
-        Map<Long, String> valueToPut = ImmutableMap.of(1L, "ala");
-        when(backingTableMock.row(1)).thenReturn(columnMock);
+        Map<Integer, String> valueToPut = ImmutableMap.of(1, "ala");
+        when(backingTableMock.column(1L)).thenReturn(rowMock);
 
-        rowMapView.put(1, valueToPut);
+        columnMapView.put(1L, valueToPut);
 
-        verify(columnMock).putAll(valueToPut);
+        verify(rowMock).putAll(valueToPut);
     }
 
     @Test
     public void put_doesn_not_delegate_on_empty_map() {
-        Map<Long, String> valueToPut = ImmutableMap.of();
-        when(backingTableMock.row(1)).thenReturn(columnMock);
+        Map<Integer, String> valueToPut = ImmutableMap.of();
+        when(backingTableMock.column(1L)).thenReturn(rowMock);
 
-        rowMapView.put(1, valueToPut);
+        columnMapView.put(1L, valueToPut);
 
-        verify(columnMock, never()).putAll(valueToPut);
+        verify(rowMock, never()).putAll(valueToPut);
     }
 
     @Test
     public void remove_removes_all_values_for_row() {
-        when(backingTableMock.row(1)).thenReturn(columnMock);
+        when(backingTableMock.column(1L)).thenReturn(rowMock);
 
-        rowMapView.remove(1);
+        columnMapView.remove(1L);
 
-        verify(columnMock).clear();
+        verify(rowMock).clear();
     }
 
     @Test
     public void putAll_puts_every_map() {
-        Map<Long, String> map1 = ImmutableMap.of(3L, "ala");
-        Map<Long, String> map2 = ImmutableMap.of(4L, "ma");
-        when(backingTableMock.row(1)).thenReturn(columnMock);
-        when(backingTableMock.row(2)).thenReturn(columnMock2);
+        Map<Integer, String> map1 = ImmutableMap.of(3, "ala");
+        Map<Integer, String> map2 = ImmutableMap.of(4, "ma");
+        when(backingTableMock.column(1L)).thenReturn(rowMock);
+        when(backingTableMock.column(2L)).thenReturn(rowMock2);
 
-        Map<Integer, Map<Long, String>> mapToPut = ImmutableMap.of(
-                1, map1,
-                2, map2
+        Map<Long, Map<Integer, String>> mapToPut = ImmutableMap.of(
+                1L, map1,
+                2L, map2
         );
 
-        rowMapView.putAll(mapToPut);
+        columnMapView.putAll(mapToPut);
 
-        verify(columnMock).putAll(map1);
-        verify(columnMock2).putAll(map2);
+        verify(rowMock).putAll(map1);
+        verify(rowMock2).putAll(map2);
     }
 
     @Test
     public void clear_delegates() {
-        rowMapView.clear();
+        columnMapView.clear();
 
         verify(backingTableMock).clear();
     }
 
     @Test
     public void keySet_delegates() {
-        Set<Integer> keySet = ImmutableSet.of(1, 2);
-        when(backingTableMock.rowKeySet()).thenReturn(keySet);
+        Set<Long> keySet = ImmutableSet.of(1L, 2L);
+        when(backingTableMock.columnKeySet()).thenReturn(keySet);
 
-        assertThat(rowMapView.keySet(), is(equalTo(keySet)));
+        assertThat(columnMapView.keySet(), is(equalTo(keySet)));
     }
 
     @Test
     public void values_returns_correct_values() {
-        when(backingTableMock.row(1)).thenReturn(columnMock);
-        when(backingTableMock.row(2)).thenReturn(columnMock2);
-        when(backingTableMock.rowKeySet()).thenReturn(ImmutableSet.of(1, 2));
+        when(backingTableMock.column(1L)).thenReturn(rowMock);
+        when(backingTableMock.column(2L)).thenReturn(rowMock2);
+        when(backingTableMock.columnKeySet()).thenReturn(ImmutableSet.of(1L, 2L));
 
-        assertThat(rowMapView.values(), containsInAnyOrder(columnMock, columnMock2));
+        assertThat(columnMapView.values(), containsInAnyOrder(rowMock, rowMock2));
     }
 
     @Test
     public void entrySet_returns_correct_values() {
-        when(backingTableMock.row(1)).thenReturn(columnMock);
-        when(backingTableMock.row(2)).thenReturn(columnMock2);
-        when(backingTableMock.rowKeySet()).thenReturn(ImmutableSet.of(1, 2));
+        when(backingTableMock.column(1L)).thenReturn(rowMock);
+        when(backingTableMock.column(2L)).thenReturn(rowMock2);
+        when(backingTableMock.columnKeySet()).thenReturn(ImmutableSet.of(1L, 2L));
 
-        Map.Entry<Integer, Map<Long, String>> expectedEntry1 = new TestEntry<>(1, backingTableMock.row(1));
-        Map.Entry<Integer, Map<Long, String>> expectedEntry2 = new TestEntry<>(2, backingTableMock.row(2));
+        Map.Entry<Long, Map<Integer, String>> expectedEntry1 = new TestEntry<>(1L, backingTableMock.column(1L));
+        Map.Entry<Long, Map<Integer, String>> expectedEntry2 = new TestEntry<>(2L, backingTableMock.column(2L));
 
-        Iterator<Map.Entry<Integer, Map<Long, String>>> entrySetIterator = rowMapView.entrySet().iterator();
+        Iterator<Map.Entry<Long, Map<Integer, String>>> entrySetIterator = columnMapView.entrySet().iterator();
 
-
-        Map.Entry<Integer, Map<Long, String>> foundEntry1 = entrySetIterator.next();
-        Map.Entry<Integer, Map<Long, String>> foundEntry2 = entrySetIterator.next();
+        Map.Entry<Long, Map<Integer, String>> foundEntry1 = entrySetIterator.next();
+        Map.Entry<Long, Map<Integer, String>> foundEntry2 = entrySetIterator.next();
         assertThat(entrySetIterator.hasNext(), is(equalTo(false)));
 
         if (expectedEntry1.equals(foundEntry1)) {

@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure;
+package com.yammer.collections.azure;
 
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;

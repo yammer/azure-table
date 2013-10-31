@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure;
+package com.yammer.collections.azure;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -65,7 +65,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_rowKeySet_requested_then_all_keys_returned() throws  StorageException {
+    public void when_rowKeySet_requested_then_all_keys_returned() throws StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
@@ -85,7 +85,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void get_of_non_existing_entry_returns_null() throws  StorageException {
+    public void get_of_non_existing_entry_returns_null() throws StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1);
 
@@ -147,7 +147,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void cellSet_returns_all_table_cells() throws  StorageException {
+    public void cellSet_returns_all_table_cells() throws StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
@@ -158,19 +158,19 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_contains_value_for_row_and_key_then_returns_true() throws  StorageException {
+    public void when_contains_value_for_row_and_key_then_returns_true() throws StorageException {
         setAzureTableToContain(CELL_1);
 
         assertThat(baseAzureTable.contains(ROW_KEY_1, COLUMN_KEY_1), is(equalTo(true)));
     }
 
     @Test
-    public void when_does_not_contain_value_for_row_and_key_then_returns_false() throws  StorageException {
+    public void when_does_not_contain_value_for_row_and_key_then_returns_false() throws StorageException {
         assertThat(baseAzureTable.contains(ROW_KEY_1, COLUMN_KEY_1), is(equalTo(false)));
     }
 
     @Test
-    public void row_returns_column_map_with_appropriate_contents() throws  StorageException {
+    public void row_returns_column_map_with_appropriate_contents() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         Map<String, String> columnMap = baseAzureTable.row(ROW_KEY_1);
@@ -180,77 +180,77 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_contains_value_for_given_row_contains_row_returns_true() throws  StorageException {
+    public void when_contains_value_for_given_row_contains_row_returns_true() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.containsRow(ROW_KEY_1), is(equalTo(true)));
     }
 
     @Test
-    public void when_row_object_is_not_a_string_then_contains_row_returns_false() throws  StorageException {
+    public void when_row_object_is_not_a_string_then_contains_row_returns_false() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.containsRow(new Object()), is(equalTo(false)));
     }
 
     @Test
-    public void when_does_not_contain_a_value_for_given_row_contains_row_returns_false() throws  StorageException {
+    public void when_does_not_contain_a_value_for_given_row_contains_row_returns_false() throws StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(baseAzureTable.containsRow(ROW_KEY_1), is(equalTo(false)));
     }
 
     @Test
-    public void values_returns_all_values() throws  StorageException {
+    public void values_returns_all_values() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.values(), containsInAnyOrder(VALUE_1, VALUE_2));
     }
 
     @Test
-    public void contains_value_returns_true_if_value_contains() throws  StorageException {
+    public void contains_value_returns_true_if_value_contains() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.containsValue(VALUE_1), is(equalTo(true)));
     }
 
     @Test
-    public void contains_value_returns_false_if_does_not_contain_value() throws  StorageException {
+    public void contains_value_returns_false_if_does_not_contain_value() throws StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(baseAzureTable.containsValue(VALUE_1), is(equalTo(false)));
     }
 
     @Test
-    public void contains_value_returns_false_if_object_not_string() throws  StorageException {
+    public void contains_value_returns_false_if_object_not_string() throws StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(baseAzureTable.containsValue(new Object()), is(equalTo(false)));
     }
 
     @Test
-    public void when_contains_values_the_is_empty_returns_false() throws  StorageException {
+    public void when_contains_values_the_is_empty_returns_false() throws StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(baseAzureTable.isEmpty(), is(equalTo(false)));
     }
 
     @Test
-    public void when_empty_then_is_empty_returns_true() throws  StorageException {
+    public void when_empty_then_is_empty_returns_true() throws StorageException {
         setAzureTableToContain();
 
         assertThat(baseAzureTable.isEmpty(), is(equalTo(true)));
     }
 
     @Test
-    public void size_returns_correct_size() throws  StorageException {
+    public void size_returns_correct_size() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.size(), is(equalTo(2)));
     }
 
     @Test
-    public void clear_deletes_all_in_cell_set() throws  StorageException {
+    public void clear_deletes_all_in_cell_set() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
         TableOperation deleteTableOperationMock1 = mockDeleteTableOperation(CELL_1);
         TableOperation deleteTableOperationMock2 = mockDeleteTableOperation(CELL_2);
@@ -262,7 +262,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void put_all_puts_all_the_values() throws  StorageException {
+    public void put_all_puts_all_the_values() throws StorageException {
         Table<String, String, String> sourceTable = HashBasedTable.create();
         sourceTable.put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
         sourceTable.put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
@@ -276,7 +276,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void column_returns_row_map_with_appropriate_contents() throws  StorageException {
+    public void column_returns_row_map_with_appropriate_contents() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         Map<String, String> columnMap = baseAzureTable.column(COLUMN_KEY_1);
@@ -286,28 +286,28 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_contains_value_for_given_column_contains_column_returns_true() throws  StorageException {
+    public void when_contains_value_for_given_column_contains_column_returns_true() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.containsColumn(COLUMN_KEY_1), is(equalTo(true)));
     }
 
     @Test
-    public void when_column_object_is_not_a_string_then_contains_column_returns_false() throws  StorageException {
+    public void when_column_object_is_not_a_string_then_contains_column_returns_false() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.containsColumn(new Object()), is(equalTo(false)));
     }
 
     @Test
-    public void when_does_not_contain_a_value_for_given_column_contains_column_returns_false() throws  StorageException {
+    public void when_does_not_contain_a_value_for_given_column_contains_column_returns_false() throws StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(baseAzureTable.containsColumn(COLUMN_KEY_1), is(equalTo(false)));
     }
 
     @Test
-    public void rowMap_returns_correct_map() throws  StorageException {
+    public void rowMap_returns_correct_map() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         Map<String, Map<String, String>> rowMap = baseAzureTable.rowMap();
@@ -324,7 +324,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void columnMap_returns_correct_map() throws  StorageException {
+    public void columnMap_returns_correct_map() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
         Map<String, Map<String, String>> columnMap = baseAzureTable.columnMap();
@@ -349,7 +349,7 @@ public class BaseAzureTableTest {
     }
 
     @SafeVarargs
-    private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws  StorageException {
+    private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws StorageException {
         AzureTestUtil.setAzureTableToContain(TABLE_NAME, azureTableRequestFactoryMock, azureTableCloudClientMock, cells);
     }
 

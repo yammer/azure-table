@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure;
+package com.yammer.collections.azure;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,11 +14,12 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("InstanceVariableMayNotBeInitialized")
 @RunWith(MockitoJUnitRunner.class)
 public class EnforceSetViewTest {
-    private static final Long L1 = 1L;
-    private static final Long L2 = 2L;
-    private static final Integer SIZE = 2;
+    private static final Long LONG_VALUE_1 = 1L;
+    private static final Long LONG_VALUE_2 = 2L;
+    private static final Integer COLLECTION_SIZE = 2;
     @Mock
     private AbstractCollectionView<Long> abstractCollectionViewMock;
     private SetView<Long> setView;
@@ -30,9 +31,9 @@ public class EnforceSetViewTest {
 
     @Test
     public void size_computed_correctly() {
-        when(abstractCollectionViewMock.iterator()).thenReturn(Arrays.asList(L1, L2, L2, L1, L1, L2, L1, L2, L1, L1, L1).iterator());
+        when(abstractCollectionViewMock.iterator()).thenReturn(Arrays.asList(LONG_VALUE_1, LONG_VALUE_2, LONG_VALUE_2, LONG_VALUE_1, LONG_VALUE_1, LONG_VALUE_2, LONG_VALUE_1, LONG_VALUE_2, LONG_VALUE_1, LONG_VALUE_1, LONG_VALUE_1).iterator());
 
-        assertThat(setView.size(), is(equalTo(SIZE)));
+        assertThat(setView.size(), is(equalTo(COLLECTION_SIZE)));
     }
 
     @Test
@@ -44,47 +45,45 @@ public class EnforceSetViewTest {
 
     @Test
     public void contains_delegates() {
-        when(abstractCollectionViewMock.contains(L1)).thenReturn(true);
+        when(abstractCollectionViewMock.contains(LONG_VALUE_1)).thenReturn(true);
 
-        assertThat(setView.contains(L1), is(equalTo(true)));
+        assertThat(setView.contains(LONG_VALUE_1), is(equalTo(true)));
     }
 
     @Test
     public void iterator_delegates() {
-        when(abstractCollectionViewMock.iterator()).thenReturn(Arrays.asList(L1, L2).iterator());
+        when(abstractCollectionViewMock.iterator()).thenReturn(Arrays.asList(LONG_VALUE_1, LONG_VALUE_2).iterator());
 
-        assertThat(setView, containsInAnyOrder(L1, L2));
+        assertThat(setView, containsInAnyOrder(LONG_VALUE_1, LONG_VALUE_2));
     }
 
     @Test
     public void if_underlying_collection_is_a_multiset_then_this_collection_is_a_set() {
-        when(abstractCollectionViewMock.iterator()).thenReturn(Arrays.asList(L1, L2, L2, L1, L1, L2, L1, L2, L1, L1, L1).iterator());
+        when(abstractCollectionViewMock.iterator()).thenReturn(Arrays.asList(LONG_VALUE_1, LONG_VALUE_2, LONG_VALUE_2, LONG_VALUE_1, LONG_VALUE_1, LONG_VALUE_2, LONG_VALUE_1, LONG_VALUE_2, LONG_VALUE_1, LONG_VALUE_1, LONG_VALUE_1).iterator());
 
-        assertThat(setView, containsInAnyOrder(L1, L2));
+        assertThat(setView, containsInAnyOrder(LONG_VALUE_1, LONG_VALUE_2));
     }
-
-
 
     @Test(expected = UnsupportedOperationException.class)
     public void add_not_supported() {
-        setView.add(L1);
+        setView.add(LONG_VALUE_1);
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void remove_not_supported() {
-        setView.remove(L2);
+        setView.remove(LONG_VALUE_2);
     }
 
     @Test
     public void when_contains_all_delegates() {
-        when(abstractCollectionViewMock.containsAll(Arrays.asList(L1, L2))).thenReturn(true);
+        when(abstractCollectionViewMock.containsAll(Arrays.asList(LONG_VALUE_1, LONG_VALUE_2))).thenReturn(true);
 
-        assertThat(setView.containsAll(Arrays.asList(L1, L2)), is(equalTo(true)));
+        assertThat(setView.containsAll(Arrays.asList(LONG_VALUE_1, LONG_VALUE_2)), is(equalTo(true)));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void remove_all_unsupported() {
-        setView.removeAll(Arrays.asList(L1, L2));
+        setView.removeAll(Arrays.asList(LONG_VALUE_1, LONG_VALUE_2));
     }
 
     @Test(expected = UnsupportedOperationException.class)

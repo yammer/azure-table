@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure;
+package com.yammer.collections.azure;
 
 
 import com.google.common.base.Function;
@@ -11,7 +11,7 @@ import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 
-import static com.yammer.collections.guava.azure.AzureEntityUtil.decode;
+import static com.yammer.collections.azure.AzureEntityUtil.decode;
 
 /**
  * This class implements the set interface, however it does not enforce it as it only a view.
