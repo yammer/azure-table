@@ -20,6 +20,11 @@
             <artifactId>metrics-core</artifactId>
             <version>${metrics.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.yammer.collections</groupId>
+            <artifactId>yammer-collections</artifactId>
+            <version>${yammer.collections.version}</version>
+        </dependency>
     </dependencies>
     <!-- TODO extract transforming code to a separate library, has uses beyond azure table -->
 </project>

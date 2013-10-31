@@ -9,7 +9,7 @@ import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.yammer.collections.guava.azure.BaseAzureTable;
 import com.yammer.collections.guava.azure.backup.lib.BackupTableFactory;
-import com.yammer.collections.guava.azure.transforming.TransformingTable;
+import com.yammer.collections.transforming.TransformingTable;
 
 import java.net.URISyntaxException;
 import java.util.Date;

@@ -3,7 +3,7 @@ package com.yammer.collections.guava.azure.serialisation.json;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Table;
-import com.yammer.collections.guava.azure.transforming.TransformingTable;
+import com.yammer.collections.transforming.TransformingTable;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
