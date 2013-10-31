@@ -264,7 +264,6 @@ public class BaseAzureTableIntegrationTest {
         assertThat(entry.getValue(), is(equalTo(VALUE_1)));
     }
 
-
     @SafeVarargs
     private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) {
         for (Table.Cell<String, String, String> cell : cells) {
