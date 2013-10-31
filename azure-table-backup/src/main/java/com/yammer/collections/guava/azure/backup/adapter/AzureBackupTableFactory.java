@@ -9,6 +9,7 @@ import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.yammer.collections.guava.azure.BaseAzureTable;
 import com.yammer.collections.guava.azure.backup.lib.BackupTableFactory;
+import com.yammer.collections.guava.azure.serialisation.json.JsonSerializingTable;
 import com.yammer.collections.transforming.TransformingTable;
 
 import java.net.URISyntaxException;
@@ -53,12 +54,11 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     @Override
     public Table<String, Date, BackupStatus> getBackupListTable() {
         try {
-            return new TransformingTable<>(
+            return new JsonSerializingTable<>(
                     getOrCreateTable(BACKUP_LIST_TABLE_NAME),
-                    Functions.<String>identity(), Functions.<String>identity(),
-                    DATE_MARSHALLER, DATE_UNMARSHALLER,
-                    BACKUP_STATUS_MARSHALLER, BACKUP_STATUS_UNMARSHALLER
-            );
+                    String.class,
+                    Date.class,
+                    BackupStatus.class);
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
