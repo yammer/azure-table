@@ -125,7 +125,6 @@ class ColumnView implements Map<String, String> {
         );
     }
 
-    // TODO : extractable, as common class?
     private static class ColumnMapEntry implements Entry<String, String> {
         private final String columnKey;
         private final String rowKey;
