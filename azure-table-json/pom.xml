@@ -9,12 +9,12 @@
         <version>0.0.7-SNAPSHOT</version>
     </parent>
 
-    <name>Azure Table Core</name>
-    <description>The Azure backed implementation of Google Guava Table.</description>
+    <name>Azure Table JSON</name>
+    <description>Azure Table that Uses FasterXML JSON to serialize values.</description>
 
-    <artifactId>azure-table-core</artifactId>
+    <artifactId>azure-table-json</artifactId>
 
-    <dependencies>
+    <dependencies>  <!-- TODO we should make it trivial to use -->
         <dependency>
             <groupId>com.yammer.collections</groupId>
             <artifactId>yammer-collections</artifactId>

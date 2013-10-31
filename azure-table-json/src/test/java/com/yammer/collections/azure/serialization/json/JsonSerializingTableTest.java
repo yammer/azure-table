@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure.serialisation.json;
+package com.yammer.collections.azure.serialization.json;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;

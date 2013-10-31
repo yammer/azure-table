@@ -43,6 +43,7 @@ import static org.mockito.Mockito.verify;
  * This test runs the commandline tool, for that reason it is fragile, as it relies on the tools output to verify assertions.
  * I know, it isn't ideal but didn't have better idea. Suggestions welcome.
  */
+// TODO: make sure this test passes, it doesn't at the moment
 @Ignore("Ignored as it talks to azure, should be used to integration test changes to this project")
 @RunWith(MockitoJUnitRunner.class)
 public class BackupCLIAzureIntegrationTest {

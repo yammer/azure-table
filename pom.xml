@@ -12,6 +12,8 @@
 
     <modules>
         <module>azure-table-core</module>
+        <module>azure-table-json</module>
+        <module>azure-table-metrics</module>
         <module>azure-table-backup</module>
     </modules>
 

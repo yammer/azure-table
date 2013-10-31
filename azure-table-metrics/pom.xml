@@ -9,16 +9,16 @@
         <version>0.0.7-SNAPSHOT</version>
     </parent>
 
-    <name>Azure Table Core</name>
-    <description>The Azure backed implementation of Google Guava Table.</description>
+    <name>Azure Table Metrics</name>
+    <description>Metrics wrapper which times the core operations.</description>
 
-    <artifactId>azure-table-core</artifactId>
+    <artifactId>azure-table-metrics</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>com.yammer.collections</groupId>
-            <artifactId>yammer-collections</artifactId>
-            <version>${yammer.collections.version}</version>
+        <dependency> 
+            <groupId>com.yammer.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>${metrics.version}</version>
         </dependency>
     </dependencies>
 </project>

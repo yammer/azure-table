@@ -1,4 +1,4 @@
-package com.yammer.collections.guava.azure.metrics;
+package com.yammer.collections.metrics;
 
 import com.google.common.collect.Table;
 import com.yammer.metrics.Metrics;
