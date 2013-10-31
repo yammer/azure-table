@@ -18,7 +18,7 @@ import java.util.Date;
  * - this class is not concurrency safe.
  */
 public class BackupService {
-    private final Function<Table.Cell<String, Date, Backup.BackupStatus>, Backup> CREATE_BACKUP_ENTRY = new Function<Table.Cell<String, Date, Backup.BackupStatus>, Backup>() {
+    private final Function<Table.Cell<String, Date, Backup.BackupStatus>, Backup> createBackupEntry = new Function<Table.Cell<String, Date, Backup.BackupStatus>, Backup>() {
         @Override
         public Backup apply(Table.Cell<String, Date, Backup.BackupStatus> input) {
             return Backup.fromTableCell(input);
@@ -41,6 +41,7 @@ public class BackupService {
         backupListTable = backupTableFactory.getBackupListTable();
     }
 
+    @SuppressWarnings("OverlyBroadCatchBlock")
     public BackupResult backup() {
         Backup backup = Backup.startBackup(tableName);
         try {
@@ -52,8 +53,8 @@ public class BackupService {
         }
     }
 
-    private void performBackup(Backup backup) throws Exception {
-        final Date backupDate = backup.getDate();
+    private void performBackup(Backup backup) throws TableCopyException {
+        Date backupDate = backup.getDate();
         setBackupStarted(backupDate);
         tableCopy.perform(
                 sourceTableFactory.getSourceTable(),
@@ -84,7 +85,7 @@ public class BackupService {
 
         Collection<Table.Cell<String, Date, Backup.BackupStatus>>
                 notEarlierThanThresholdDate = Collections2.filter(backupListTable.cellSet(), thresholdDatePredicate);
-        return Collections2.transform(notEarlierThanThresholdDate, CREATE_BACKUP_ENTRY);
+        return Collections2.transform(notEarlierThanThresholdDate, createBackupEntry);
     }
 
     public void removeBackup(Backup backup) {
@@ -114,7 +115,7 @@ public class BackupService {
         Collection<Table.Cell<String, Date, Backup.BackupStatus>>
                 notLaterThanThresholdDate = Collections2.filter(backupListTable.cellSet(), thresholdDatePredicate);
         Collection<Backup>
-                backupsToBeDeleted = Lists.newArrayList(Collections2.transform(notLaterThanThresholdDate, CREATE_BACKUP_ENTRY));
+                backupsToBeDeleted = Lists.newArrayList(Collections2.transform(notLaterThanThresholdDate, createBackupEntry));
 
         for (Backup backup : backupsToBeDeleted) {
             removeBackup(backup);
@@ -122,7 +123,7 @@ public class BackupService {
     }
 
     public void restore(Backup backupToBeRestored) throws TableCopyException {
-        final Backup freshBackupToBeRestored = findBackup(backupToBeRestored.getName(), backupToBeRestored.getDate()).get();
+        Backup freshBackupToBeRestored = findBackup(backupToBeRestored.getName(), backupToBeRestored.getDate()).get();
         assertBackupCompleted(freshBackupToBeRestored);
         sourceTableFactory.clearSourceTable();
         tableCopy.perform(
@@ -130,7 +131,7 @@ public class BackupService {
                 sourceTableFactory.getSourceTable());
     }
 
-    private void assertBackupCompleted(Backup backupToBeRestored) {
+    private static void assertBackupCompleted(Backup backupToBeRestored) {
         if (backupToBeRestored.getStatus() != Backup.BackupStatus.COMPLETED) {
             throw new IllegalArgumentException(
                     "Expected backup in status: " +

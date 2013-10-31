@@ -9,6 +9,8 @@ import com.microsoft.windowsazure.services.table.client.TableServiceException;
 import com.yammer.collections.guava.azure.BaseAzureTable;
 import com.yammer.collections.guava.azure.backup.lib.SourceTableFactory;
 
+import java.net.URISyntaxException;
+
 public class AzureSourceTableFactory implements SourceTableFactory {
     // http://msdn.microsoft.com/en-us/library/windowsazure/dd179387.aspx
     // table deletion takes at least 40s. We are quite pesymistic here
@@ -30,7 +32,7 @@ public class AzureSourceTableFactory implements SourceTableFactory {
             CloudTable table = cloudTableClient.getTableReference(tableName);
             table.createIfNotExist();
             return new BaseAzureTable(tableName, cloudTableClient);
-        } catch (Exception e) {
+        } catch (StorageException | URISyntaxException e) {
             throw Throwables.propagate(e);
         }
     }
@@ -43,15 +45,16 @@ public class AzureSourceTableFactory implements SourceTableFactory {
     @Override
     public void clearSourceTable() {
         try { // there is no single clear operation on azure table, so we implement this using drop and create :(
-            final CloudTable tableToBeCleared = cloudTableClient.getTableReference(tableName);
+             CloudTable tableToBeCleared = cloudTableClient.getTableReference(tableName);
             tableToBeCleared.deleteIfExists();
             tryCreateAfterDelete(tableToBeCleared);
-        } catch (Exception e) {
+        } catch (StorageException | URISyntaxException e) {
             throw Throwables.propagate(e);
         }
     }
 
-    private void tryCreateAfterDelete(CloudTable tableToBeRecreated) throws StorageException {
+    @SuppressWarnings("OverlyBroadThrowsClause")
+    private static void tryCreateAfterDelete(CloudTable tableToBeRecreated) throws StorageException {
         boolean failure = true;
         int count = 0;
         while (failure && count++ < MAX_NUMBER_OF_RETRIES) {
@@ -71,7 +74,7 @@ public class AzureSourceTableFactory implements SourceTableFactory {
         }
     }
 
-    private void sleep() {
+    private static void sleep() {
         try {
             Thread.sleep(RECREATE_RETRY);
         } catch (InterruptedException e) {

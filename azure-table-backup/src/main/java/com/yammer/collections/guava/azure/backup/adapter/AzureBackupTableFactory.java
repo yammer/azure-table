@@ -23,6 +23,10 @@ public class AzureBackupTableFactory implements BackupTableFactory {
         this.cloudTableClient = cloudTableClient;
     }
 
+    private static String createBackupTableName(Date backupDate, String backupName) {
+        return String.format(BACKUP_TABLE_NAME_TEMPLATE, backupName, backupDate.getTime());
+    }
+
     @Override
     public Table<String, Date, BackupStatus> getBackupListTable() {
         try {
@@ -31,7 +35,7 @@ public class AzureBackupTableFactory implements BackupTableFactory {
                     String.class,
                     Date.class,
                     BackupStatus.class);
-        } catch (Exception e) {
+        } catch (StorageException | URISyntaxException e) {
             throw Throwables.propagate(e);
         }
     }
@@ -39,20 +43,20 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     @Override
     public Table<String, String, String> createBackupTable(Date backupDate, String backupName) {
         try {
-            final String backupTableName = createBackupTableName(backupDate, backupName);
+            String backupTableName = createBackupTableName(backupDate, backupName);
             return getOrCreateTable(backupTableName);
-        } catch (Exception e) {
+        } catch (StorageException | URISyntaxException e) {
             throw Throwables.propagate(e);
         }
     }
 
     @Override
     public void removeTable(Date backupDate, String backupName) {
-        final String backupTableName = createBackupTableName(backupDate, backupName);
+        String backupTableName = createBackupTableName(backupDate, backupName);
         try {
             CloudTable cloudTable = cloudTableClient.getTableReference(backupTableName);
             cloudTable.deleteIfExists();
-        } catch (Exception e) {
+        } catch (StorageException | URISyntaxException e) {
             throw Throwables.propagate(e);
         }
     }
@@ -60,19 +64,15 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     @Override
     public Table<String, String, String> getBackupTable(Date backupDate, String backupName) {
         try {
-            final String backupTableName = createBackupTableName(backupDate, backupName);
+            String backupTableName = createBackupTableName(backupDate, backupName);
             CloudTable cloudTable = cloudTableClient.getTableReference(backupTableName);
             if (cloudTable.exists()) {
                 return new BaseAzureTable(backupTableName, cloudTableClient);
             }
             return null;
-        } catch (Exception e) {
+        } catch (StorageException | URISyntaxException e) {
             throw Throwables.propagate(e);
         }
-    }
-
-    private String createBackupTableName(Date backupDate, String backupName) {
-        return String.format(BACKUP_TABLE_NAME_TEMPLATE, backupName, backupDate.getTime());
     }
 
     private BaseAzureTable getOrCreateTable(String tableName) throws URISyntaxException, StorageException {

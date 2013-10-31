@@ -11,6 +11,7 @@ class DoBackupCommand extends AbstractBackupCommand {
         super(backupService, infoStream, errorStream);
     }
 
+    @SuppressWarnings("ProhibitedExceptionDeclared")
     @Override
     public void unsafeRun() throws Exception {
         BackupService.BackupResult result = getBackupService().backup();

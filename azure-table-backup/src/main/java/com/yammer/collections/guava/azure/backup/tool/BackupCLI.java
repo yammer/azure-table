@@ -6,6 +6,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 public class BackupCLI {
@@ -18,7 +19,8 @@ public class BackupCLI {
         this.backupCliCommandUtil = backupCliCommandUtil;
     }
 
-    public static void main(String args[]) throws Exception {
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
+    public static void main(String args[]) {
         BackupCLICommandUtil backupCliCommandUtil = new BackupCLICommandUtil(
                 new BackupServiceFactory(),
                 System.out,
@@ -29,12 +31,12 @@ public class BackupCLI {
     public static String getJarName() {
         URL location = BackupCLI.class.getProtectionDomain().getCodeSource().getLocation();
         try {
-            final String jar = new File(location.toURI()).getName();
+            String jar = new File(location.toURI()).getName();
             if (jar.endsWith(".jar")) {
                 return jar;
             }
             return "project.jar";
-        } catch (Exception ignored) {
+        } catch (URISyntaxException ignored) {
             return "project.jar";
         }
     }

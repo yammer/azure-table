@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 
 public class BackupServiceFactory {
+    @SuppressWarnings("MethodMayBeStatic")
     private CloudTableClient createCloudTableClient(String connectionString) throws URISyntaxException, InvalidKeyException {
         CloudStorageAccount storageAccount = CloudStorageAccount.parse(connectionString);
         return storageAccount.createCloudTableClient();

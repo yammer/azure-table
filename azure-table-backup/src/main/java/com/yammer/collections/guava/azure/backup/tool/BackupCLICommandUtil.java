@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
+@SuppressWarnings("MethodMayBeStatic")
 public class BackupCLICommandUtil {
     private static final String CONFIG_FILE_OPTION = "cf";
     private static final String LIST_BACKUPS_OPTION = "l";
@@ -32,6 +33,18 @@ public class BackupCLICommandUtil {
         this.backupServiceFactory = backupServiceFactory;
         this.infoStream = infoStream;
         this.errorStream = errorStream;
+    }
+
+    private static boolean hasOption(Namespace namespace, String option) {
+        return namespace.get(option) != null;
+    }
+
+    @SuppressWarnings("OverlyBroadThrowsClause")
+    private static BackupConfiguration getBackupConfiguration(String configPath) throws IOException {
+        File configurationFile = new File(configPath);
+        ObjectMapper configurationObjectMapper = new ObjectMapper(new YAMLFactory());
+        JsonNode node = configurationObjectMapper.readTree(configurationFile);
+        return configurationObjectMapper.readValue(new TreeTraversingParser(node), BackupConfiguration.class);
     }
 
     public void configureParser(ArgumentParser parser) {
@@ -85,19 +98,24 @@ public class BackupCLICommandUtil {
 
             if (hasOption(namespace, BACKUP_OPTION)) {
                 return new DoBackupCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream, errorStream);
-            } else if (hasOption(namespace, LIST_BACKUPS_OPTION)) {
+            }
+            if (hasOption(namespace, LIST_BACKUPS_OPTION)) {
                 return new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
                         errorStream, namespace.getLong(LIST_BACKUPS_OPTION));
-            } else if (hasOption(namespace, LIST_ALL_BACKUPS_OPTION)) {
+            }
+            if (hasOption(namespace, LIST_ALL_BACKUPS_OPTION)) {
                 return new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
                         errorStream, BEGINING_OF_TIME);
-            } else if (hasOption(namespace, DELETE_BACKUP_OPTION)) {
+            }
+            if (hasOption(namespace, DELETE_BACKUP_OPTION)) {
                 return new DeleteBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
                         errorStream, namespace.getLong(DELETE_BACKUP_OPTION));
-            } else if (hasOption(namespace, DELETE_BAD_BACKUPS_OPTION)) {
+            }
+            if (hasOption(namespace, DELETE_BAD_BACKUPS_OPTION)) {
                 return new DeleteBadBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
                         errorStream);
-            } else if (hasOption(namespace, RESTORE_BACKUP_OPTION)) {
+            }
+            if (hasOption(namespace, RESTORE_BACKUP_OPTION)) {
                 return new RestoreFromBackupCommand(
                         backupServiceFactory.createBackupService(backupConfiguration),
                         backupConfiguration.getSourceTableName(),
@@ -107,20 +125,9 @@ public class BackupCLICommandUtil {
             }
 
             throw new IllegalAccessException("Incorrectly configured namespace.");
-        } catch (Exception e) {
+        } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
             throw Throwables.propagate(e);
         }
-    }
-
-    private boolean hasOption(Namespace namespace, String option) {
-        return namespace.get(option) != null;
-    }
-
-    private BackupConfiguration getBackupConfiguration(String configPath) throws IOException {
-        final File configurationFile = new File(configPath);
-        final ObjectMapper configurationObjectMapper = new ObjectMapper(new YAMLFactory());
-        final JsonNode node = configurationObjectMapper.readTree(configurationFile);
-        return configurationObjectMapper.readValue(new TreeTraversingParser(node), BackupConfiguration.class);
     }
 
 }

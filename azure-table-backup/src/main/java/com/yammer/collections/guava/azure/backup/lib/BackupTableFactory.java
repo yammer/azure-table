@@ -6,7 +6,7 @@ import java.util.Date;
 
 public interface BackupTableFactory {
 
-    public Table<String, Date, Backup.BackupStatus> getBackupListTable();
+    Table<String, Date, Backup.BackupStatus> getBackupListTable();
 
     Table<String, String, String> createBackupTable(Date backupDate, String backupName);
 

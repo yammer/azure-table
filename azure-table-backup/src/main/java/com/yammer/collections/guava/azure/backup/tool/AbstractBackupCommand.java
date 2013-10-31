@@ -38,6 +38,7 @@ abstract class AbstractBackupCommand implements BackupCommand {
         }
     }
 
+    @SuppressWarnings("ProhibitedExceptionDeclared")
     protected abstract void unsafeRun() throws Exception;
 
     final void println(String str) {
