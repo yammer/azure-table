@@ -30,7 +30,7 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     @Override
     public Table<String, Date, BackupStatus> getBackupListTable() {
         try {
-            return new JsonSerializingTable<>(
+            return JsonSerializingTable.create(
                     getOrCreateTable(BACKUP_LIST_TABLE_NAME),
                     String.class,
                     Date.class,

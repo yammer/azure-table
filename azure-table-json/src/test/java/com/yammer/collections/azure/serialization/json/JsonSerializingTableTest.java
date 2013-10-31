@@ -21,12 +21,12 @@ public class JsonSerializingTableTest {
     private static final String SERIALIZED_COLUMN = COLUMN.toString();
     private static final String SERIALIZED_VALUE = "{\"name\":\"Michal\",\"numbers\":[29,1,1980]}";
     private Table<String, String, String> backingTable;
-    private JsonSerializingTable<Float, Long, TestValuePojo> jsonSerializingTable;
+    private Table<Float, Long, TestValuePojo> jsonSerializingTable;
 
     @Before
     public void setUp() {
         backingTable = HashBasedTable.create();
-        jsonSerializingTable = new JsonSerializingTable<>(
+        jsonSerializingTable = JsonSerializingTable.create(
                 backingTable, Float.class, Long.class, TestValuePojo.class);
     }
 
