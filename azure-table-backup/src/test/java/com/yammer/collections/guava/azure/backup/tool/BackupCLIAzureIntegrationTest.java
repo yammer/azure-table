@@ -44,6 +44,7 @@ import static org.mockito.Mockito.verify;
  * I know, it isn't ideal but didn't have better idea. Suggestions welcome.
  */
 // TODO: make sure this test passes, it doesn't at the moment
+// TODO: remove warnings
 @Ignore("Ignored as it talks to azure, should be used to integration test changes to this project")
 @RunWith(MockitoJUnitRunner.class)
 public class BackupCLIAzureIntegrationTest {

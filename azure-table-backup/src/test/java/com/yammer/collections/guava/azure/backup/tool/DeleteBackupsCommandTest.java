@@ -12,6 +12,7 @@ import java.util.Date;
 
 import static org.mockito.Mockito.verify;
 
+@SuppressWarnings("InstanceVariableMayNotBeInitialized")
 @RunWith(MockitoJUnitRunner.class)
 public class DeleteBackupsCommandTest {
     private static final long TIME_TILL = 20l;
@@ -30,7 +31,7 @@ public class DeleteBackupsCommandTest {
     }
 
     @Test
-    public void delete_backups_command_deletes_backups_not_older_than() throws Exception {
+    public void delete_backups_command_deletes_backups_not_older_than() {
         deleteBackupsCommand.run();
 
         verify(backupServiceMock).removeBackupsNotOlderThan(new Date(TIME_TILL));

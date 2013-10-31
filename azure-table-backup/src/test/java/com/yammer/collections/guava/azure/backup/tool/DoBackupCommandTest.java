@@ -17,6 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
+@SuppressWarnings("InstanceVariableMayNotBeInitialized")
 @RunWith(MockitoJUnitRunner.class)
 public class DoBackupCommandTest {
     @Mock
@@ -44,7 +45,7 @@ public class DoBackupCommandTest {
     }
 
     @Test
-    public void doBackupCommand_runs_a_backup() throws Exception {
+    public void doBackupCommand_runs_a_backup() {
         when(backupResultMock.getFailureCause()).thenReturn(Optional.<Exception>absent());
 
         doBackupCommand.run();
@@ -52,8 +53,8 @@ public class DoBackupCommandTest {
         verify(backupServiceMock).backup();
     }
 
-    @Test(expected = Exception.class)
-    public void doBackupCommand_rethrows_the_cause_of_backup_failure() throws Exception {
+    @Test(expected = RuntimeException.class)
+    public void doBackupCommand_rethrows_the_cause_of_backup_failure() {
         when(backupResultMock.getFailureCause()).thenReturn(Optional.of(new Exception("test exception")));
 
         doBackupCommand.run();

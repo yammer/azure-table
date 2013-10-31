@@ -13,6 +13,7 @@ import java.util.Date;
 import static org.mockito.Mockito.verify;
 
 
+@SuppressWarnings("InstanceVariableMayNotBeInitialized")
 @RunWith(MockitoJUnitRunner.class)
 public class ListBackupsCommandTest {
     private static final long TIME_SINCE = 20l;
@@ -31,7 +32,7 @@ public class ListBackupsCommandTest {
     }
 
     @Test
-    public void list_backups_command_deletes_list_backups_since() throws Exception {
+    public void list_backups_command_deletes_list_backups_since() {
         listBackupsCommand.run();
 
         verify(backupServiceMock).listAllBackups(new Date(TIME_SINCE));

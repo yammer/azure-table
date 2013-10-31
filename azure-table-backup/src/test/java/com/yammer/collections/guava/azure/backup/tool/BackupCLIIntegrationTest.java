@@ -18,6 +18,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +39,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings({"InstanceVariableMayNotBeInitialized", "JUnitTestMethodWithNoAssertions"})
 @RunWith(MockitoJUnitRunner.class)
 public class BackupCLIIntegrationTest {
     private static final String CONFIG_FILE_PATH = BackupCLIIntegrationTest.class.getResource("testBackupAccountConfiguration.yml").getPath();
@@ -67,8 +70,24 @@ public class BackupCLIIntegrationTest {
     private BackupTableFactory backupTableFactory;
     private BackupCLI backupCLI;
 
+    /**
+     * Requires DoBackupCommand to be run beforehand, it reads the backup data from the commands output
+     * sent to infoPrintStreamMock.
+     */
+    private static Date getJustCreatedBackupDate(PrintStream infoPrintStreamMock) {
+        ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
+        verify(infoPrintStreamMock, times(1)).println(stringCaptor.capture());
+
+        Matcher matcher = BACKUP_CREATED_PATTERN.matcher(stringCaptor.getValue());
+        assertThat(matcher.matches(), is(equalTo(true)));
+        Long backupTimeStamp = Long.parseLong(matcher.group(1));
+        reset(infoPrintStreamMock);
+        return new Date(backupTimeStamp);
+    }
+
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws URISyntaxException, InvalidKeyException {
         sourceTableFactory = new InMemmorySourceTableFactory(SRC_TABLE_NAME);
         backupTableFactory = new InMemmoryBackupTableFactory();
         BackupService backupService = new BackupService(new TableCopy<String, String, String>(), sourceTableFactory, backupTableFactory);
@@ -84,7 +103,7 @@ public class BackupCLIIntegrationTest {
     }
 
     @Test
-    public void do_backup_command_backs_up_correctly() throws Exception {
+    public void do_backup_command_backs_up_correctly() {
         //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
@@ -97,7 +116,7 @@ public class BackupCLIIntegrationTest {
     }
 
     @Test
-    public void restore_command_restores_backedup_state() throws Exception {
+    public void restore_command_restores_backedup_state() {
         // initial table state
         //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
@@ -111,7 +130,7 @@ public class BackupCLIIntegrationTest {
         sourceTable.put(ROW_3, COLUMN_3, VALUE_3);
 
         // restore
-        final String[] restoreCommandLine = {"-cf", CONFIG_FILE_PATH, "-r", String.valueOf(backupDate.getTime())};
+        String[] restoreCommandLine = {"-cf", CONFIG_FILE_PATH, "-r", String.valueOf(backupDate.getTime())};
         backupCLI.execute(restoreCommandLine);
 
         // check state prior to update
@@ -120,7 +139,7 @@ public class BackupCLIIntegrationTest {
     }
 
     @Test
-    public void list_command_lists_all_backups() throws Exception {
+    public void list_command_lists_all_backups() {
         //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
@@ -137,7 +156,7 @@ public class BackupCLIIntegrationTest {
     }
 
     @Test
-    public void delete_command_deletes_backups() throws Exception {
+    public void delete_command_deletes_backups() {
         //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
@@ -154,8 +173,12 @@ public class BackupCLIIntegrationTest {
         assertNoBackupsOnDates(backup1date, backup2date);
     }
 
+    //
+    // helper methods
+    //
+
     @Test
-    public void delete_bad_backups_command_deletes_only_bad_backups() throws Exception {
+    public void delete_bad_backups_command_deletes_only_bad_backups() {
         //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
@@ -178,31 +201,12 @@ public class BackupCLIIntegrationTest {
         assertBackupOnDateContainsCells(backup3date, CELL_1, CELL_2);
     }
 
-    //
-    // helper methods
-    //
-
     /**
      * Requires DoBackupCommand to be run beforehand, it reads the backup data from the commands output
      * sent to infoPrintStreamMock.
      */
     private Table<String, String, String> getJustCreatedBackup(PrintStream infoPrintStreamMock) {
         return backupTableFactory.getBackupTable(getJustCreatedBackupDate(infoPrintStreamMock), SRC_TABLE_NAME);
-    }
-
-    /**
-     * Requires DoBackupCommand to be run beforehand, it reads the backup data from the commands output
-     * sent to infoPrintStreamMock.
-     */
-    private Date getJustCreatedBackupDate(PrintStream infoPrintStreamMock) {
-        ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
-        verify(infoPrintStreamMock, times(1)).println(stringCaptor.capture());
-
-        Matcher matcher = BACKUP_CREATED_PATTERN.matcher(stringCaptor.getValue());
-        assertThat(matcher.matches(), is(equalTo(true)));
-        Long backupTimeStamp = Long.parseLong(matcher.group(1));
-        reset(infoPrintStreamMock);
-        return new Date(backupTimeStamp);
     }
 
     private void assertThatListedBackupsOnDates(Date... backupDates) {
@@ -230,7 +234,8 @@ public class BackupCLIIntegrationTest {
         }
     }
 
-    private void assertBackupOnDateContainsCells(Date backupDate, Table.Cell<String, String, String>... cells) {
+    @SafeVarargs
+    private final void assertBackupOnDateContainsCells(Date backupDate, Table.Cell<String, String, String>... cells) {
         Table<String, Date, Backup.BackupStatus> backupListTable = backupTableFactory.getBackupListTable();
         assertThat(backupListTable.get(SRC_TABLE_NAME, backupDate), is(equalTo(Backup.BackupStatus.COMPLETED)));
         Table<String, String, String> backupTable = backupTableFactory.getBackupTable(backupDate, SRC_TABLE_NAME);
@@ -243,7 +248,8 @@ public class BackupCLIIntegrationTest {
         backupListTable.put(SRC_TABLE_NAME, backupDate, status);
     }
 
-    private void setupSourceTableToContain(Table.Cell<String, String, String>... cells) {
+    @SafeVarargs
+    private final void setupSourceTableToContain(Table.Cell<String, String, String>... cells) {
         Table<String, String, String> sourceTable = sourceTableFactory.getSourceTable();
         for (Table.Cell<String, String, String> cell : cells) {
             sourceTable.put(cell.getRowKey(), cell.getColumnKey(), cell.getValue());

@@ -16,6 +16,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 
+@SuppressWarnings("InstanceVariableMayNotBeInitialized")
 @RunWith(MockitoJUnitRunner.class)
 public class TableCopyTest {
     private static final String ROW_1 = "row1";

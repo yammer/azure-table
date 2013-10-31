@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
+@SuppressWarnings({"InstanceVariableMayNotBeInitialized", "JUnitTestMethodWithNoAssertions", "ClassWithTooManyMethods"})
 @RunWith(MockitoJUnitRunner.class)
 public class BackupServiceTest {
     private static final String TABLE_NAME = "table_name";
@@ -39,7 +40,7 @@ public class BackupServiceTest {
     private TableCopy<String, String, String> tableCopyMock;
     private BackupService secretieBackup;
     // name of backup, date created, status
-    private final Table<String, Date, Backup.BackupStatus> backupListTable = HashBasedTable.create();
+    private Table<String, Date, Backup.BackupStatus> backupListTable = HashBasedTable.create();
     @Mock
     private Table<String, String, String> sourceTableMock;
     @Mock
@@ -84,16 +85,16 @@ public class BackupServiceTest {
 
     @Test
     public void backup_date_corresponds_to_backup_time() {
-        final Date startDate = new Date();
+        Date startDate = new Date();
         Backup backup = secretieBackup.backup().getBackup();
-        final Date endDate = new Date();
+        Date endDate = new Date();
 
         assertThat(backup.getDate(), is(greaterThanOrEqualTo(startDate)));
         assertThat(backup.getDate(), is(lessThanOrEqualTo(endDate)));
     }
 
     @Test
-    public void on_successfull_backup_backup_entry_updated_as_completed_with_correct_date_and_table_name() {
+    public void on_successful_backup_backup_entry_updated_as_completed_with_correct_date_and_table_name() {
         BackupService.BackupResult backupResult = secretieBackup.backup();
 
         verifyThat(backupListTable).
@@ -111,7 +112,7 @@ public class BackupServiceTest {
 
     @Test
     public void on_failed_backup_failure_result_is_returned() throws TableCopyException {
-        final Exception failureCause = new TableCopyException(new RuntimeException());
+        Exception failureCause = new TableCopyException(new RuntimeException());
         doThrow(failureCause).when(tableCopyMock).perform(sourceTableMock, backupTableMock);
 
 
@@ -135,7 +136,7 @@ public class BackupServiceTest {
 
     @Test
     public void backup_list_table_update_fails_backup() {
-        final Exception updateErrorException = new RuntimeException();
+        Exception updateErrorException = new RuntimeException();
         updatingBackupListTable().resultsIn(updateErrorException);
 
         BackupService.BackupResult backupResult = secretieBackup.backup();
@@ -172,7 +173,7 @@ public class BackupServiceTest {
 
         try {
             secretieBackup.removeBackup(backupToBeRemoved);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         Optional<Backup> partiallyDeletedBackup = secretieBackup.findBackup(backupToBeRemoved.getName(), backupToBeRemoved.getDate());
@@ -195,11 +196,11 @@ public class BackupServiceTest {
 
     @Test
     public void when_given_threshold_date_later_backups_not_removed_from_list() throws InterruptedException {
-        final Date startDate = new Date();
+        Date startDate = new Date();
         secretieBackup.backup().getBackup();
         Thread.sleep(1);
         secretieBackup.backup().getBackup();
-        final Date thresholdDate = new Date();
+        Date thresholdDate = new Date();
         Thread.sleep(1);
         Backup backupAfterThresholdDate = secretieBackup.backup().getBackup();
 
@@ -213,7 +214,7 @@ public class BackupServiceTest {
         Backup backup1 = secretieBackup.backup().getBackup();
         Thread.sleep(1);
         Backup backup2 = secretieBackup.backup().getBackup();
-        final Date thresholdDate = new Date();
+        Date thresholdDate = new Date();
         Thread.sleep(1);
         secretieBackup.backup().getBackup();
 
@@ -225,10 +226,10 @@ public class BackupServiceTest {
 
     @Test
     public void listing_of_backups_lists_all_backups_after_specified_date() throws InterruptedException {
-        final Date startDate = new Date();
-        final Backup toEarlyBackup = secretieBackup.backup().getBackup();
+        Date startDate = new Date();
+        Backup toEarlyBackup = secretieBackup.backup().getBackup();
         Thread.sleep(1);
-        final Date afterThresholdDate = new Date();
+        Date afterThresholdDate = new Date();
         Backup backupAfterThresholdDate1 = secretieBackup.backup().getBackup();
         Thread.sleep(1);
         Backup backupAfterThresholdDate2 = secretieBackup.backup().getBackup();
@@ -278,7 +279,7 @@ public class BackupServiceTest {
 
         try {
             secretieBackup.removeBackup(notFullyDeletedBackup);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return notFullyDeletedBackup;
         }
         fail();
@@ -290,13 +291,13 @@ public class BackupServiceTest {
         return new BackupListTableFailureBuilder();
     }
 
-    private BackupTableAssertionBuilder verifyThat(Table<String, Date, Backup.BackupStatus> backupTable) {
+    private static BackupTableAssertionBuilder verifyThat(Table<String, Date, Backup.BackupStatus> backupTable) {
         return new BackupTableAssertionBuilder(backupTable);
     }
 
     private static class BackupTableAssertionBuilder {
 
-        private final Table<String, Date, Backup.BackupStatus> backupTable;
+        private Table<String, Date, Backup.BackupStatus> backupTable;
         private String tableName;
         private Date backupDate;
 

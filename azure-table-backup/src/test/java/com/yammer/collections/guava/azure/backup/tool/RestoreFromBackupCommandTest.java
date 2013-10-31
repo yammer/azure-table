@@ -3,6 +3,7 @@ package com.yammer.collections.guava.azure.backup.tool;
 import com.google.common.base.Optional;
 import com.yammer.collections.guava.azure.backup.lib.Backup;
 import com.yammer.collections.guava.azure.backup.lib.BackupService;
+import com.yammer.collections.guava.azure.backup.lib.TableCopyException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("InstanceVariableMayNotBeInitialized")
 @RunWith(MockitoJUnitRunner.class)
 public class RestoreFromBackupCommandTest {
     private static final String BACKUP_NAME = "backupName";
@@ -43,7 +45,7 @@ public class RestoreFromBackupCommandTest {
     }
 
     @Test
-    public void restoreFromBackupCommand_restores_from_backup_if_it_exists() throws Exception {
+    public void restoreFromBackupCommand_restores_from_backup_if_it_exists() throws TableCopyException {
         when(backupServiceMock.findBackup(BACKUP_NAME, new Date(BACKUP_TIME))).thenReturn(Optional.of(backupMock));
 
         restoreFromBackupCommand.run();
@@ -52,7 +54,7 @@ public class RestoreFromBackupCommandTest {
     }
 
     @Test
-    public void doBackupCommand_does_nothing_if_cannot_find_backup() throws Exception {
+    public void doBackupCommand_does_nothing_if_cannot_find_backup() throws TableCopyException {
         when(backupServiceMock.findBackup(BACKUP_NAME, new Date(BACKUP_TIME))).thenReturn(Optional.<Backup>absent());
 
         restoreFromBackupCommand.run();

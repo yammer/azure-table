@@ -17,6 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
+@SuppressWarnings("InstanceVariableMayNotBeInitialized")
 @RunWith(MockitoJUnitRunner.class)
 public class DeleteBadBackupsCommandTest {
     private static final long BEGINING_OF_TIME = 0;
@@ -46,7 +47,7 @@ public class DeleteBadBackupsCommandTest {
     }
 
     @Test
-    public void delete_bad_backups_command_deletes_bad_backups() throws Exception {
+    public void delete_bad_backups_command_deletes_bad_backups() {
         deleteBadBackupsCommand.run();
 
         verify(backupServiceMock).removeBackup(backupMock1);
@@ -54,7 +55,7 @@ public class DeleteBadBackupsCommandTest {
     }
 
     @Test
-    public void delete_bad_backups_command_does_not_delete_completed_backups() throws Exception {
+    public void delete_bad_backups_command_does_not_delete_completed_backups() {
         deleteBadBackupsCommand.run();
 
         verify(backupServiceMock, never()).removeBackup(backupMock2);

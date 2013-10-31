@@ -14,6 +14,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+@SuppressWarnings("InstanceVariableMayNotBeInitialized")
 @RunWith(MockitoJUnitRunner.class)
 public class BackupCLICommandUtilTest {
     private static final String CONFIG_FILE_PATH = BackupCLICommandUtilTest.class.getResource("testBackupAccountConfiguration.yml").getPath();
@@ -28,6 +29,7 @@ public class BackupCLICommandUtilTest {
     @Mock
     private BackupServiceFactory backupServiceFactoryMock;
 
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     @Before
     public void setUp() {
         backupCLICommandUtil = new BackupCLICommandUtil(backupServiceFactoryMock, System.out, System.err);
