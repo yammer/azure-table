@@ -41,7 +41,7 @@ public class JsonSerializingTableIntegrationTest {
         CloudTableClient cloudTableClient = CloudStorageAccount.parse(CONNECTION_STRING).createCloudTableClient();
         CloudTable table = cloudTableClient.getTableReference(TABLE_NAME);
         table.createIfNotExist();
-        backingTable = new BaseAzureTable(TABLE_NAME, cloudTableClient);
+        backingTable = BaseAzureTable.create(TABLE_NAME, cloudTableClient);
         jsonSerializingTable = JsonSerializingTable.create(
                 backingTable, Float.class, Long.class, TestValuePojo.class);
 

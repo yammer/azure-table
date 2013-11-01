@@ -31,7 +31,7 @@ public class AzureSourceTableFactory implements SourceTableFactory {
         try {
             CloudTable table = cloudTableClient.getTableReference(tableName);
             table.createIfNotExist();
-            return new BaseAzureTable(tableName, cloudTableClient);
+            return BaseAzureTable.create(tableName, cloudTableClient);
         } catch (StorageException | URISyntaxException e) {
             throw Throwables.propagate(e);
         }

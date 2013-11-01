@@ -51,11 +51,6 @@ public class BaseAzureTable implements Table<String, String, String> {
         );
     }
 
-    // TODO remove
-    public BaseAzureTable(String secretieTableName, CloudTableClient tableClient) {
-        this(secretieTableName, new AzureTableCloudClient(tableClient), new AzureTableRequestFactory());
-    }
-
     private static String entityToValue(AzureEntity azureEntity) {
         return azureEntity == null ? null : decode(azureEntity.getValue());
     }

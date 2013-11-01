@@ -67,7 +67,7 @@ public class AzureBackupTableFactory implements BackupTableFactory {
             String backupTableName = createBackupTableName(backupDate, backupName);
             CloudTable cloudTable = cloudTableClient.getTableReference(backupTableName);
             if (cloudTable.exists()) {
-                return new BaseAzureTable(backupTableName, cloudTableClient);
+                return BaseAzureTable.create(backupTableName, cloudTableClient);
             }
             return null;
         } catch (StorageException | URISyntaxException e) {
@@ -75,10 +75,10 @@ public class AzureBackupTableFactory implements BackupTableFactory {
         }
     }
 
-    private BaseAzureTable getOrCreateTable(String tableName) throws URISyntaxException, StorageException {
+    private Table<String,String,String> getOrCreateTable(String tableName) throws URISyntaxException, StorageException {
         CloudTable table = cloudTableClient.getTableReference(tableName);
         table.createIfNotExist();
-        return new BaseAzureTable(tableName, cloudTableClient);
+        return BaseAzureTable.create(tableName, cloudTableClient);
     }
 
 }
