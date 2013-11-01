@@ -73,6 +73,11 @@ public class CellSetMutableViewTest {
     }
 
     @Test
+    public void contains_on_null_returns_false() {
+        assertThat(set.contains(null), is(equalTo(false)));
+    }
+
+    @Test
     public void contains_delegates_to_table() {
         Object o1 = new Object();
         Object o2 = new Object();
@@ -94,6 +99,11 @@ public class CellSetMutableViewTest {
         set.add(CELL_1);
 
         verify(baseAzureTable).put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void add_null_not_allowed() {
+        set.add(null);
     }
 
     @Test
@@ -132,6 +142,11 @@ public class CellSetMutableViewTest {
     }
 
     @Test
+    public void when_remove_null_then_false_returned() {
+        assertThat(set.remove(null), is(equalTo(false)));
+    }
+
+    @Test
     public void when_object_to_be_removed_is_not_a_table_cell_then_remove_returns_false() {
         assertThat(set.remove(new Object()), is(equalTo(false)));
     }
@@ -141,7 +156,6 @@ public class CellSetMutableViewTest {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(set.containsAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(true)));
-
     }
 
     @Test
@@ -151,12 +165,22 @@ public class CellSetMutableViewTest {
         assertThat(set.containsAll(Arrays.asList(CELL_1, CELL_2)), is(equalTo(false)));
     }
 
+    @Test(expected = NullPointerException.class)
+    public void containAll_with_null_argument_not_allowed() {
+        set.containsAll(null);
+    }
+
     @Test
     public void add_all_adds_to_table() {
         set.addAll(Arrays.asList(CELL_1, CELL_2));
 
         verify(baseAzureTable).put(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
         verify(baseAzureTable).put(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void addAll_with_null_argument_not_allowed() {
+        set.addAll(null);
     }
 
     @Test
@@ -179,6 +203,11 @@ public class CellSetMutableViewTest {
 
         verify(baseAzureTable).remove(ROW_KEY_1, COLUMN_KEY_1);
         verify(baseAzureTable).remove(ROW_KEY_2, COLUMN_KEY_2);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void remove_all_with_null_argument_not_allowed() {
+        set.removeAll(null);
     }
 
     @Test

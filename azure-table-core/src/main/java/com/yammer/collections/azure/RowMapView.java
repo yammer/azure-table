@@ -8,12 +8,15 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/* package */
 class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
     private final Table<R, C, V> backingTable;
     private final Function<R, Map<C, V>> valueCreator;
     private final Function<R, Entry<R, Map<C, V>>> entryCreator;
 
-    public RowMapView(final Table<R, C, V> backingTable) {
+    RowMapView(final Table<R, C, V> backingTable) {
         this.backingTable = backingTable;
         valueCreator = new Function<R, Map<C, V>>() {
             @Override
@@ -62,6 +65,9 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
 
     @Override
     public Map<C, V> get(Object key) {
+        if(key == null) {
+            return null;
+        }
         try {
             Map<C, V> mapForRow = backingTable.row((R) key);
             return mapForRow.isEmpty() ? null : mapForRow;
@@ -77,6 +83,8 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
      */
     @Override
     public Map<C, V> put(R key, Map<C, V> value) {
+        checkNotNull(key);
+        checkNotNull(value);
         Map<C, V> oldValue = get(key);
         oldValue.clear();
         if (!value.isEmpty()) {
@@ -92,6 +100,10 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
      */
     @Override
     public Map<C, V> remove(Object key) {
+        if(key == null) {
+            return null;
+        }
+
         Map<C, V> oldValue = get(key);
         oldValue.clear();
         return oldValue;
@@ -100,6 +112,7 @@ class RowMapView<R, C, V> implements Map<R, Map<C, V>> {
     @SuppressWarnings("NullableProblems")
     @Override
     public void putAll(Map<? extends R, ? extends Map<C, V>> m) {
+        checkNotNull(m);
         for (Entry<? extends R, ? extends Map<C, V>> entry : m.entrySet()) {
             backingTable.row(entry.getKey()).putAll(entry.getValue());
         }

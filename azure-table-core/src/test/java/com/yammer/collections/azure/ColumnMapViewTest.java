@@ -69,6 +69,11 @@ public class ColumnMapViewTest {
     }
 
     @Test
+    public void when_containsValue_with_null_then_false_returned() {
+        assertThat(columnMapView.containsValue(null), is(equalTo(false)));
+    }
+
+    @Test
     public void when_contains_value_on_entry_with_badly_typed_key_than_false() {
         assertThat(columnMapView.containsValue(new TestEntry<>("ala", "ma")), is(equalTo(false)));
     }
@@ -89,6 +94,11 @@ public class ColumnMapViewTest {
     }
 
     @Test
+    public void get_null_returns_null() {
+        assertThat(columnMapView.get(null), is(nullValue()));
+    }
+
+    @Test
     public void when_get_on_key_of_correct_type_then_delegates() {
         when(backingTableMock.column(2L)).thenReturn(rowMock);
 
@@ -102,6 +112,17 @@ public class ColumnMapViewTest {
         columnMapView.put(1L, new HashMap<Integer, String>());
 
         verify(rowMock).clear();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void put_with_null_key_not_allowed() {
+        columnMapView.put(null, ImmutableMap.of(1, "ala"));
+    }
+
+
+    @Test(expected = NullPointerException.class)
+    public void put_with_null_value_not_allowed() {
+        columnMapView.put(1L, null);
     }
 
     @Test
@@ -134,6 +155,11 @@ public class ColumnMapViewTest {
     }
 
     @Test
+    public void remove_on_null_value_returns_null() {
+        assertThat(columnMapView.remove(null), is(nullValue()));
+    }
+
+    @Test
     public void putAll_puts_every_map() {
         Map<Integer, String> map1 = ImmutableMap.of(3, "ala");
         Map<Integer, String> map2 = ImmutableMap.of(4, "ma");
@@ -149,6 +175,11 @@ public class ColumnMapViewTest {
 
         verify(rowMock).putAll(map1);
         verify(rowMock2).putAll(map2);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void putAll_on_null_argument_not_allowed() {
+        columnMapView.putAll(null);
     }
 
     @Test

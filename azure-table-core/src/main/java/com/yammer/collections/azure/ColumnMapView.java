@@ -8,12 +8,15 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/* package */
+class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
     private final Table<R, C, V> backingTable;
     private final Function<C, Map<R, V>> valueCreator;
     private final Function<C, Entry<C, Map<R, V>>> entryConstructor;
 
-    public ColumnMapView(final Table<R, C, V> backingTable) {
+    ColumnMapView(final Table<R, C, V> backingTable) {
         this.backingTable = backingTable;
         valueCreator = new Function<C, Map<R, V>>() {
             @Override
@@ -62,6 +65,9 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
 
     @Override
     public Map<R, V> get(Object key) {
+        if(key == null) {
+            return null;
+        }
         try {
             Map<R, V> mapForRow = backingTable.column((C) key);
             return mapForRow.isEmpty() ? null : mapForRow;
@@ -77,6 +83,8 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
      */
     @Override
     public Map<R, V> put(C key, Map<R, V> value) {
+        checkNotNull(key);
+        checkNotNull(value);
         Map<R, V> oldValue = get(key);
         oldValue.clear();
         if (!value.isEmpty()) {
@@ -92,6 +100,10 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
      */
     @Override
     public Map<R, V> remove(Object key) {
+        if(key == null) {
+            return null;
+        }
+
         Map<R, V> oldValue = get(key);
         oldValue.clear();
         return oldValue;
@@ -100,6 +112,7 @@ public class ColumnMapView<R, C, V> implements Map<C, Map<R, V>> {
     @SuppressWarnings("NullableProblems")
     @Override
     public void putAll(Map<? extends C, ? extends Map<R, V>> m) {
+        checkNotNull(m);
         for (Entry<? extends C, ? extends Map<R, V>> entry : m.entrySet()) {
             backingTable.column(entry.getKey()).putAll(entry.getValue());
         }

@@ -11,11 +11,13 @@ import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.yammer.collections.azure.AzureEntityUtil.decode;
 
 /**
  * This class implements the set interface, however it does not enforce it as it only a view.
  */
+/* package */
 class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>> {
     private static final Function<AzureEntity, Table.Cell<String, String, String>> TABLE_CELL_CREATOR =
             new Function<AzureEntity, Table.Cell<String, String, String>>() {
@@ -72,20 +74,9 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
                 TABLE_CELL_CREATOR).iterator();
     }
 
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public Object[] toArray() {
-        throw new UnsupportedOperationException();
-    }
-
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public <T> T[] toArray(T[] a) {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public boolean add(Table.Cell<String, String, String> cell) {
+        checkNotNull(cell);
         return baseAzureTable.put(
                 cell.getRowKey(),
                 cell.getColumnKey(),
@@ -109,6 +100,7 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
 
     @Override
     public boolean containsAll(Collection<?> c) {
+        checkNotNull(c);
         for (Object o : c) {
             if (!contains(o)) {
                 return false;
@@ -120,6 +112,7 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
 
     @Override
     public boolean addAll(Collection<? extends Table.Cell<String, String, String>> c) {
+        checkNotNull(c);
         boolean change = false;
         for (Table.Cell<String, String, String> cell : c) {
             if (add(cell)) {
@@ -131,12 +124,8 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public boolean removeAll(Collection<?> c) {
+        checkNotNull(c);
         boolean change = false;
         for (Object o : c) {
             if (remove(o)) {
