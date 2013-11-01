@@ -20,6 +20,11 @@
             <artifactId>yammer-collections</artifactId>
             <version>${yammer.collections.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.yammer.collections.azure</groupId>
+            <artifactId>azure-table-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
 
