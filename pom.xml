@@ -27,7 +27,7 @@
         <jackson.version>2.2.3</jackson.version>
         <slf4j.simple.version>1.7.5</slf4j.simple.version>
         <argparse4j.version>0.4.1</argparse4j.version>
-        <yammer.collections.version>0.0.1</yammer.collections.version>
+        <yammer.collections.version>0.0.3</yammer.collections.version>
     </properties>
 
     <parent>
