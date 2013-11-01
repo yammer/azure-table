@@ -69,17 +69,22 @@ public class AbstractCollectionViewTest {
     }
 
     @Test
-    public void is_returns_false_on_non_empty_collection() throws StorageException {
+    public void isEmpty_returns_false_on_non_empty_collection() throws StorageException {
         setAzureTableToContain(CELL_1);
 
         assertThat(abstractCollectionView.isEmpty(), is(equalTo(false)));
     }
 
     @Test
-    public void is_returns_true_on_empty_collection() throws StorageException {
+    public void isEmpty_returns_true_on_empty_collection() throws StorageException {
         setAzureTableToContain();
 
         assertThat(abstractCollectionView.isEmpty(), is(equalTo(true)));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void contains_null_not_allowed() {
+        abstractCollectionView.contains(null);
     }
 
     @Test
