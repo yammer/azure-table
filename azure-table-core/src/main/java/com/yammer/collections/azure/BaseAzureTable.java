@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.yammer.collections.azure.AzureEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.azure.AzureEntityUtil.decode;
 import static com.yammer.collections.azure.AzureEntityUtil.encode;
@@ -35,13 +36,22 @@ public class BaseAzureTable implements Table<String, String, String> {
     private final AzureTableCloudClient stringCloudTableClient;
     private final AzureTableRequestFactory azureTableRequestFactory;
 
-    // test only
+    // internal and test use only
     BaseAzureTable(String tableName, AzureTableCloudClient stringCloudTableClient, AzureTableRequestFactory azureTableRequestFactory) {
         this.tableName = tableName;
         this.stringCloudTableClient = stringCloudTableClient;
         this.azureTableRequestFactory = azureTableRequestFactory;
     }
 
+    public static Table<String,String,String> create(String tableName, CloudTableClient cloudTableClient) {
+        return new BaseAzureTable(
+                checkNotNull(tableName),
+                new AzureTableCloudClient(checkNotNull(cloudTableClient)),
+                new AzureTableRequestFactory()
+        );
+    }
+
+    // TODO remove
     public BaseAzureTable(String secretieTableName, CloudTableClient tableClient) {
         this(secretieTableName, new AzureTableCloudClient(tableClient), new AzureTableRequestFactory());
     }
@@ -121,6 +131,9 @@ public class BaseAzureTable implements Table<String, String, String> {
 
     @Override
     public String put(String rowString, String columnString, String value) {
+        checkNotNull(rowString);
+        checkNotNull(columnString);
+        checkNotNull(value);
         TableOperation putStringieOperation = azureTableRequestFactory.put(encode(rowString), encode(columnString), encode(value));
 
         try {
@@ -132,6 +145,7 @@ public class BaseAzureTable implements Table<String, String, String> {
 
     @Override
     public void putAll(Table<? extends String, ? extends String, ? extends String> table) {
+        checkNotNull(table);
         for (Cell<? extends String, ? extends String, ? extends String> cell : table.cellSet()) {
             put(cell.getRowKey(), cell.getColumnKey(), cell.getValue());
         }
@@ -159,11 +173,13 @@ public class BaseAzureTable implements Table<String, String, String> {
 
     @Override
     public Map<String, String> row(String rowString) {
+        checkNotNull(rowString);
         return new ColumnView(this, rowString, stringCloudTableClient, azureTableRequestFactory);
     }
 
     @Override
     public Map<String, String> column(String columnString) {
+        checkNotNull(columnString);
         return new RowView(this, columnString, stringCloudTableClient, azureTableRequestFactory);
     }
 

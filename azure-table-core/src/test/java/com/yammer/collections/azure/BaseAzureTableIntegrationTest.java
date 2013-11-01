@@ -50,7 +50,7 @@ public class BaseAzureTableIntegrationTest {
         CloudTableClient cloudTableClient = CloudStorageAccount.parse(CONNECTION_STRING).createCloudTableClient();
         CloudTable table = cloudTableClient.getTableReference(TABLE_NAME);
         table.createIfNotExist();
-        baseAzureTable = new BaseAzureTable(TABLE_NAME, cloudTableClient);
+        baseAzureTable = BaseAzureTable.create(TABLE_NAME, cloudTableClient);
 
         baseAzureTable.clear();
     }

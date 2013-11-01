@@ -60,7 +60,6 @@ public class AbstractCollectionViewTest {
         };
     }
 
-    // rename test names
     @Test
     public void size_returns_correct_value() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
@@ -82,9 +81,9 @@ public class AbstractCollectionViewTest {
         assertThat(abstractCollectionView.isEmpty(), is(equalTo(true)));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void contains_null_not_allowed() {
-        abstractCollectionView.contains(null);
+    @Test
+    public void contains_null_returns_false() {
+        assertThat(abstractCollectionView.contains(null), is(equalTo(false)));
     }
 
     @Test

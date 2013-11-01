@@ -4,6 +4,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
+import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableOperation;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,9 +47,23 @@ public class BaseAzureTableTest {
     private AzureTableRequestFactory azureTableRequestFactoryMock;
     private BaseAzureTable baseAzureTable;
 
+    private static String encode(String stringToBeEncoded) {
+        return AzureTestUtil.encode(stringToBeEncoded);
+    }
+
     @Before
     public void setUp() throws IOException {
         baseAzureTable = new BaseAzureTable(TABLE_NAME, azureTableCloudClientMock, azureTableRequestFactoryMock);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void tableNameCannotBeNull() throws URISyntaxException {
+        BaseAzureTable.create(null, new CloudTableClient(new URI("http://localhost/"), null));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void cloudTableClientCannotBeNull() {
+        BaseAzureTable.create(TABLE_NAME, null);
     }
 
     @Test
@@ -85,6 +102,20 @@ public class BaseAzureTableTest {
     }
 
     @Test
+    public void get_on_null_rowKey_returns_null() throws StorageException {
+        setAzureTableToContain(CELL_1);
+
+        assertThat(baseAzureTable.get(null, COLUMN_KEY_1), is(nullValue()));
+    }
+
+    @Test
+    public void get_on_null_columnKey_returns_null() throws StorageException {
+        setAzureTableToContain(CELL_1);
+
+        assertThat(baseAzureTable.get(ROW_KEY_1, null), is(nullValue()));
+    }
+
+    @Test
     public void get_of_non_existing_entry_returns_null() throws StorageException {
         //noinspection unchecked
         setAzureTableToContain(CELL_1);
@@ -112,6 +143,21 @@ public class BaseAzureTableTest {
         verify(azureTableCloudClientMock).execute(TABLE_NAME, putTableOperationMock);
     }
 
+    @Test(expected = NullPointerException.class)
+    public void when_put_null_row_key_then_error() {
+        baseAzureTable.put(null, COLUMN_KEY_1, VALUE_1);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void when_put_null_column_key_then_error() {
+        baseAzureTable.put(ROW_KEY_1, null, VALUE_1);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void when_put_null_value_then_error() {
+        baseAzureTable.put(ROW_KEY_1, COLUMN_KEY_1, null);
+    }
+
     @Test(expected = RuntimeException.class)
     public void when_table_client_throws_storage_exception_during_put_then_exception_rethrown() throws StorageException {
         TableOperation putTableOperationMock = mockPutTableOperation(CELL_1);
@@ -132,8 +178,18 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_key_does_not_exist_then_delete_return_null() throws StorageException {
+    public void when_key_does_not_exist_then_delete_return_null() {
         assertThat(baseAzureTable.remove(ROW_KEY_1, NON_EXISTENT_COLUMN_KEY), is(equalTo(null)));
+    }
+
+    @Test
+    public void when_remove_null_row_key_then_delete_return_null() {
+        assertThat(baseAzureTable.remove(null, COLUMN_KEY_1), is(equalTo(null)));
+    }
+
+    @Test
+    public void when_remove_null_column_key_then_delete_return_null() {
+        assertThat(baseAzureTable.remove(ROW_KEY_1, null), is(equalTo(null)));
     }
 
     @Test(expected = RuntimeException.class)
@@ -165,8 +221,18 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_does_not_contain_value_for_row_and_key_then_returns_false() throws StorageException {
+    public void when_does_not_contain_value_for_row_and_key_then_returns_false() {
         assertThat(baseAzureTable.contains(ROW_KEY_1, COLUMN_KEY_1), is(equalTo(false)));
+    }
+
+    @Test
+    public void when_contain_value_for_null_row_key_and_then_returns_false() {
+        assertThat(baseAzureTable.contains(null, COLUMN_KEY_1), is(equalTo(false)));
+    }
+
+    @Test
+    public void when_contain_value_for_null_column_key_and_then_returns_false() {
+        assertThat(baseAzureTable.contains(ROW_KEY_1, null), is(equalTo(false)));
     }
 
     @Test
@@ -177,6 +243,11 @@ public class BaseAzureTableTest {
 
         assertThat(columnMap.containsKey(COLUMN_KEY_1), is(equalTo(true)));
         assertThat(columnMap.containsKey(COLUMN_KEY_2), is(equalTo(false)));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void row_cannot_be_called_with_null_argument() throws StorageException {
+        baseAzureTable.row(null);
     }
 
     @Test
@@ -191,6 +262,11 @@ public class BaseAzureTableTest {
         setAzureTableToContain(CELL_1, CELL_2);
 
         assertThat(baseAzureTable.containsRow(new Object()), is(equalTo(false)));
+    }
+
+    @Test
+    public void containsRow_for_null_returns_false() {
+        assertThat(baseAzureTable.containsRow(null), is(equalTo(false)));
     }
 
     @Test
@@ -222,6 +298,11 @@ public class BaseAzureTableTest {
     }
 
     @Test
+    public void contains_value_returns_false_if_called_with_null_argument() {
+        assertThat(baseAzureTable.containsValue(null), is(equalTo(false)));
+    }
+
+    @Test
     public void contains_value_returns_false_if_object_not_string() throws StorageException {
         setAzureTableToContain(CELL_2);
 
@@ -229,7 +310,7 @@ public class BaseAzureTableTest {
     }
 
     @Test
-    public void when_contains_values_the_is_empty_returns_false() throws StorageException {
+    public void when_contains_values_iSempty_returns_false() throws StorageException {
         setAzureTableToContain(CELL_2);
 
         assertThat(baseAzureTable.isEmpty(), is(equalTo(false)));
@@ -275,6 +356,11 @@ public class BaseAzureTableTest {
         verify(azureTableCloudClientMock).execute(TABLE_NAME, putTableOperationMock2);
     }
 
+    @Test(expected = NullPointerException.class)
+    public void putAll_cannot_be_called_with_null_argument() throws StorageException {
+        baseAzureTable.putAll(null);
+    }
+
     @Test
     public void column_returns_row_map_with_appropriate_contents() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
@@ -283,6 +369,11 @@ public class BaseAzureTableTest {
 
         assertThat(columnMap.containsKey(ROW_KEY_1), is(equalTo(true)));
         assertThat(columnMap.containsKey(ROW_KEY_2), is(equalTo(false)));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void column_cannot_be_called_with_null_argument() throws StorageException {
+        baseAzureTable.column(null);
     }
 
     @Test
@@ -323,6 +414,10 @@ public class BaseAzureTableTest {
         assertThat(rowKey2Map.get(COLUMN_KEY_2), is(equalTo(VALUE_2)));
     }
 
+    //
+    // Utility methods
+    //
+
     @Test
     public void columnMap_returns_correct_map() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
@@ -338,14 +433,6 @@ public class BaseAzureTableTest {
         Map<String, String> columnKeyMap2 = columnMap.get(COLUMN_KEY_2);
         assertThat(columnKeyMap2.size(), is(equalTo(1)));
         assertThat(columnKeyMap2.get(ROW_KEY_2), is(equalTo(VALUE_2)));
-    }
-
-    //
-    // Utility methods
-    //
-
-    private static String encode(String stringToBeEncoded) {
-        return AzureTestUtil.encode(stringToBeEncoded);
     }
 
     @SafeVarargs

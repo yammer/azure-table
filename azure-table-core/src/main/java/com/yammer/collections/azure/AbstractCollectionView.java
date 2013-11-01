@@ -27,9 +27,10 @@ abstract class AbstractCollectionView<E> extends AbstractCollection<E> {
 
     @Override
     public boolean contains(Object o) {
-        return Iterables.contains(
-                Iterables.transform(getBackingIterable(), typeExtractor),
-                o);
+        return o != null &&
+                Iterables.contains(
+                        Iterables.transform(getBackingIterable(), typeExtractor),
+                        o);
     }
 
     protected abstract Iterable<AzureEntity> getBackingIterable();
