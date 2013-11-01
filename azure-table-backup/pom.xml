@@ -21,13 +21,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.yammer.collections.azure</groupId>
-            <artifactId>azure-table-json</artifactId>
-            <!-- TODO should require single dep -->
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>net.sourceforge.argparse4j</groupId>
             <artifactId>argparse4j</artifactId>
             <version>${argparse4j.version}</version>

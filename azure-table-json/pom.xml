@@ -14,7 +14,7 @@
 
     <artifactId>azure-table-json</artifactId>
 
-    <dependencies>  <!-- TODO we should make it trivial to use -->
+    <dependencies>
         <dependency>
             <groupId>com.yammer.collections</groupId>
             <artifactId>yammer-collections</artifactId>

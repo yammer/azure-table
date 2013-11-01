@@ -43,9 +43,8 @@ import static org.mockito.Mockito.verify;
  * This test runs the commandline tool, for that reason it is fragile, as it relies on the tools output to verify assertions.
  * I know, it isn't ideal but didn't have better idea. Suggestions welcome.
  */
-// TODO: make sure this test passes, it doesn't at the moment
-// TODO: remove warnings
 @Ignore("Ignored as it talks to azure, should be used to integration test changes to this project")
+@SuppressWarnings({"InstanceVariableMayNotBeInitialized", "JUnitTestMethodWithNoAssertions", "UseOfSystemOutOrSystemErr"})
 @RunWith(MockitoJUnitRunner.class)
 public class BackupCLIAzureIntegrationTest {
     private static final String CONFIG_FILE_PATH = BackupCLIAzureIntegrationTest.class.getResource("testBackupAccountConfiguration.yml").getPath();
@@ -132,7 +131,7 @@ public class BackupCLIAzureIntegrationTest {
         sourceTable.put(ROW_3, COLUMN_3, VALUE_3);
 
         // restore
-        final String[] restoreCommandLine = {"-cf", CONFIG_FILE_PATH, "-r", String.valueOf(backupDate.getTime())};
+        String[] restoreCommandLine = {"-cf", CONFIG_FILE_PATH, "-r", String.valueOf(backupDate.getTime())};
         backupCLI.execute(restoreCommandLine);
 
         // check state prior to update
@@ -235,7 +234,7 @@ public class BackupCLIAzureIntegrationTest {
      * Requires DoBackupCommand to be run beforehand, it reads the backup data from the commands output
      * sent to infoPrintStreamMock.
      */
-    private Date getJustCreatedBackupDate(PrintStream infoPrintStreamMock) {
+    private static Date getJustCreatedBackupDate(PrintStream infoPrintStreamMock) {
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
         verify(infoPrintStreamMock, times(1)).println(stringCaptor.capture());
 
@@ -271,7 +270,8 @@ public class BackupCLIAzureIntegrationTest {
         }
     }
 
-    private void assertBackupOnDateContainsCells(Date backupDate, Table.Cell<String, String, String>... cells) {
+    @SafeVarargs
+    private final void assertBackupOnDateContainsCells(Date backupDate, Table.Cell<String, String, String>... cells) {
         Table<String, Date, Backup.BackupStatus> backupListTable = backupTableFactory.getBackupListTable();
         assertThat(backupListTable.get(SRC_TABLE_NAME, backupDate), is(equalTo(Backup.BackupStatus.COMPLETED)));
         Table<String, String, String> backupTable = backupTableFactory.getBackupTable(backupDate, SRC_TABLE_NAME);
@@ -284,7 +284,8 @@ public class BackupCLIAzureIntegrationTest {
         backupListTable.put(SRC_TABLE_NAME, backupDate, status);
     }
 
-    private void setupSourceTableToContain(Table.Cell<String, String, String>... cells) {
+    @SafeVarargs
+    private final void setupSourceTableToContain(Table.Cell<String, String, String>... cells) {
         Table<String, String, String> sourceTable = sourceTableFactory.getSourceTable();
         for (Table.Cell<String, String, String> cell : cells) {
             sourceTable.put(cell.getRowKey(), cell.getColumnKey(), cell.getValue());
