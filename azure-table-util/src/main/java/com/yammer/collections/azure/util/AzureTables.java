@@ -25,6 +25,11 @@ public final class AzureTables {
         return new AzureTableClientBuilder(accountName, accountKey);
     }
 
+    public static TableWithClientBuilder tableWithName(String name) {
+        return new TableWithClientBuilder(name);
+    }
+
+    // account builder
     public static class AzureTableClientBuilder {
         private final CloudTableClient cloudTableClient;
 
@@ -58,8 +63,13 @@ public final class AzureTables {
         public TableRef tableWithName(String name) {
             return new TableRef(name, cloudTableClient);
         }
+
+        public CloudTableClient build() {
+            return cloudTableClient;
+        }
     }
 
+    // table ref
     public static class TableRef {
         private final String name;
         private final CloudTableClient tableClient;
@@ -129,12 +139,18 @@ public final class AzureTables {
                 Function<V, String> valueSerializingFunction,
                 Function<String, V> valueDeserializingFunction
         ) {
-            return TransformingTable.create(
-                    backingTable,
-                    rowSerializingFunction, rowDeserializingFunction,
-                    columnSerializingFunction, columnDeserializingFunction,
-                    valueSerializingFunction, valueDeserializingFunction
+            return addMetricsIfChosen(
+                    TransformingTable.create(
+                            backingTable,
+                            rowSerializingFunction, rowDeserializingFunction,
+                            columnSerializingFunction, columnDeserializingFunction,
+                            valueSerializingFunction, valueDeserializingFunction
+                    )
             );
+        }
+
+        public Table<String, String, String> buildWithNoSerialization() {
+            return addMetricsIfChosen(backingTable);
         }
 
         private <R, C, V> Table<R, C, V> addMetricsIfChosen(Table<R, C, V> table) {
@@ -143,9 +159,18 @@ public final class AzureTables {
             }
             return table;
         }
-
-
     }
 
+    // table with client builder
+    private static class TableWithClientBuilder {
+        private final String name;
 
+        private TableWithClientBuilder(String name) {
+            this.name = name;
+        }
+
+        public TableRef using(CloudTableClient client) {
+            return new TableRef(name, client);
+        }
+    }
 }
