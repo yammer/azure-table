@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verify;
  * This test runs the commandline tool, for that reason it is fragile, as it relies on the tools output to verify assertions.
  * I know, it isn't ideal but didn't have better idea. Suggestions welcome.
  */
-//@Ignore("Ignored as it talks to azure, should be used to integration test changes to this project")
+@Ignore("Ignored as it talks to azure, should be used to integration test changes to this project")
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized", "JUnitTestMethodWithNoAssertions", "UseOfSystemOutOrSystemErr"})
 @RunWith(MockitoJUnitRunner.class)
 public class BackupCLIAzureIntegrationTest {
