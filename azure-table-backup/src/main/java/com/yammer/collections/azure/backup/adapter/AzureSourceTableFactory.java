@@ -46,7 +46,6 @@ public class AzureSourceTableFactory implements SourceTableFactory {
         return tableName;
     }
 
-    // TODO use factory to create the client as well!
     @Override
     public void clearSourceTable() {
         try { // there is no single clear operation on azure table, so we implement this using drop and create :(
