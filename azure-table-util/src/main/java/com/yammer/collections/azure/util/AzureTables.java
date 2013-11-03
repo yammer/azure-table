@@ -1,6 +1,7 @@
 package com.yammer.collections.azure.util;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.core.storage.CloudStorageAccount;
@@ -16,6 +17,8 @@ import com.yammer.collections.transforming.TransformingTable;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @SuppressWarnings("UnusedDeclaration")
 public final class AzureTables {
     private AzureTables() {
@@ -23,6 +26,28 @@ public final class AzureTables {
 
     public static AzureTableClientBuilder clientForAccount(String accountName, String accountKey) {
         return new AzureTableClientBuilder(accountName, accountKey);
+    }
+
+    public static TableRefBuilder clientForConfiguration(AzureTableConfiguration configuration) {
+        AzureTableClientBuilder tableClientBuilder = clientForAccount(
+                checkNotNull(configuration.getAccountName()),
+                checkNotNull(configuration.getAccountKey()));
+
+        // timeout if specified
+        if(configuration.getConnectionTimeout() != null) {
+            tableClientBuilder.withTimeoutInMs(configuration.getConnectionTimeout());
+        }
+
+        // retry policy if specified
+        if(configuration.getRetryAttempts() != null && configuration.getRetryInterval() != null) {
+            tableClientBuilder.withLinearReplyPolicy(
+                    configuration.getRetryInterval(),
+                    configuration.getRetryAttempts());
+        } else if(configuration.getRetryAttempts() != null && configuration.getRetryInterval() != null) {
+            throw new IllegalArgumentException("You need to specify both: retryAttempts and retryInterval, or neither");
+        }
+
+        return tableClientBuilder.tableWithName(checkNotNull(configuration.getTableName()));
     }
 
     public static TableWithClientBuilder tableWithName(String name) {
@@ -60,8 +85,8 @@ public final class AzureTables {
             return this;
         }
 
-        public TableRef tableWithName(String name) {
-            return new TableRef(name, cloudTableClient);
+        public TableRefBuilder tableWithName(String name) {
+            return new TableRefBuilder(name, cloudTableClient);
         }
 
         public CloudTableClient build() {
@@ -70,11 +95,11 @@ public final class AzureTables {
     }
 
     // table ref
-    public static class TableRef {
+    public static class TableRefBuilder {
         private final String name;
         private final CloudTableClient tableClient;
 
-        private TableRef(String name, CloudTableClient tableClient) {
+        private TableRefBuilder(String name, CloudTableClient tableClient) {
             this.name = name;
             this.tableClient = tableClient;
         }
@@ -103,6 +128,13 @@ public final class AzureTables {
         public TableBuilder createIfDoesNotExist() throws StorageException {
             cloudTable().createIfNotExist();
             return new TableBuilder(name, tableClient);
+        }
+
+        public Optional<TableBuilder> ifExists() throws StorageException {
+            if (cloudTable().exists()) {
+                return Optional.of(new TableBuilder(name, tableClient));
+            }
+            return Optional.absent();
         }
     }
 
@@ -162,15 +194,15 @@ public final class AzureTables {
     }
 
     // table with client builder
-    private static class TableWithClientBuilder {
+    public static class TableWithClientBuilder {
         private final String name;
 
         private TableWithClientBuilder(String name) {
             this.name = name;
         }
 
-        public TableRef using(CloudTableClient client) {
-            return new TableRef(name, client);
+        public TableRefBuilder using(CloudTableClient client) {
+            return new TableRefBuilder(name, client);
         }
     }
 }

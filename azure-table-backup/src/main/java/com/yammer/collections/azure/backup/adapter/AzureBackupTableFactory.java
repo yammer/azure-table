@@ -2,19 +2,18 @@ package com.yammer.collections.azure.backup.adapter;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Table;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
-import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
-import com.yammer.collections.azure.BaseAzureTable;
 import com.yammer.collections.azure.backup.lib.BackupTableFactory;
-import com.yammer.collections.transforming.TransformingTable;
+import com.yammer.collections.azure.util.AzureTables;
 
-import java.net.URISyntaxException;
 import java.util.Date;
 
 import static com.yammer.collections.azure.backup.lib.Backup.BackupStatus;
+import static com.yammer.collections.azure.util.AzureTables.tableWithName;
 
 public class AzureBackupTableFactory implements BackupTableFactory {
     private static final String BACKUP_LIST_TABLE_NAME = "comYammerAzureTableBackupListTable";
@@ -58,13 +57,14 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     @Override
     public Table<String, Date, BackupStatus> getBackupListTable() {
         try {
-            return TransformingTable.create(
-                    getOrCreateTable(BACKUP_LIST_TABLE_NAME),
-                    Functions.<String>identity(), Functions.<String>identity(),
-                    DATE_SERIALIZER_FUNCTION, DATE_DESERIALIZER_FUNCTION,
-                    BACKUP_STATUS_SERIALIZER_FUNCTION, BACKUP_STATUS_DESERIALIZER_FUNCTION
-            );
-        } catch (StorageException | URISyntaxException e) {
+            return tableWithName(BACKUP_LIST_TABLE_NAME).
+                    using(cloudTableClient).
+                    createIfDoesNotExist().
+                    buildUsingCustomSerialization(
+                            Functions.<String>identity(), Functions.<String>identity(),
+                            DATE_SERIALIZER_FUNCTION, DATE_DESERIALIZER_FUNCTION,
+                            BACKUP_STATUS_SERIALIZER_FUNCTION, BACKUP_STATUS_DESERIALIZER_FUNCTION);
+        } catch (StorageException e) {
             throw Throwables.propagate(e);
         }
     }
@@ -72,20 +72,22 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     @Override
     public Table<String, String, String> createBackupTable(Date backupDate, String backupName) {
         try {
-            String backupTableName = createBackupTableName(backupDate, backupName);
-            return getOrCreateTable(backupTableName);
-        } catch (StorageException | URISyntaxException e) {
+            return tableWithName(createBackupTableName(backupDate, backupName)).
+                    using(cloudTableClient).
+                    createIfDoesNotExist().
+                    buildWithNoSerialization();
+        } catch (StorageException e) {
             throw Throwables.propagate(e);
         }
     }
 
     @Override
     public void removeTable(Date backupDate, String backupName) {
-        String backupTableName = createBackupTableName(backupDate, backupName);
         try {
-            CloudTable cloudTable = cloudTableClient.getTableReference(backupTableName);
-            cloudTable.deleteIfExists();
-        } catch (StorageException | URISyntaxException e) {
+            tableWithName(createBackupTableName(backupDate, backupName)).
+                    using(cloudTableClient).
+                    deleteIfExists();
+        } catch (StorageException e) {
             throw Throwables.propagate(e);
         }
     }
@@ -93,21 +95,17 @@ public class AzureBackupTableFactory implements BackupTableFactory {
     @Override
     public Table<String, String, String> getBackupTable(Date backupDate, String backupName) {
         try {
-            String backupTableName = createBackupTableName(backupDate, backupName);
-            CloudTable cloudTable = cloudTableClient.getTableReference(backupTableName);
-            if (cloudTable.exists()) {
-                return BaseAzureTable.create(backupTableName, cloudTableClient);
+            Optional<AzureTables.TableBuilder> tableBuilder =
+                    tableWithName(createBackupTableName(backupDate, backupName)).
+                            using(cloudTableClient).
+                            ifExists();
+            if (tableBuilder.isPresent()) {
+                return tableBuilder.get().buildWithNoSerialization();
             }
             return null;
-        } catch (StorageException | URISyntaxException e) {
+        } catch (StorageException e) {
             throw Throwables.propagate(e);
         }
-    }
-
-    private Table<String, String, String> getOrCreateTable(String tableName) throws URISyntaxException, StorageException {
-        CloudTable table = cloudTableClient.getTableReference(tableName);
-        table.createIfNotExist();
-        return BaseAzureTable.create(tableName, cloudTableClient);
     }
 
 }

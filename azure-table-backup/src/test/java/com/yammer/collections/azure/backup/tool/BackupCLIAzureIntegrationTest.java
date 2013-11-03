@@ -3,8 +3,6 @@ package com.yammer.collections.azure.backup.tool;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
-import com.microsoft.windowsazure.services.core.storage.CloudStorageAccount;
-import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.yammer.collections.azure.backup.adapter.AzureBackupTableFactory;
 import com.yammer.collections.azure.backup.adapter.AzureSourceTableFactory;
 import com.yammer.collections.azure.backup.lib.Backup;
@@ -26,6 +24,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.yammer.collections.azure.util.AzureTables.clientForAccount;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -43,7 +42,7 @@ import static org.mockito.Mockito.verify;
  * This test runs the commandline tool, for that reason it is fragile, as it relies on the tools output to verify assertions.
  * I know, it isn't ideal but didn't have better idea. Suggestions welcome.
  */
-@Ignore("Ignored as it talks to azure, should be used to integration test changes to this project")
+//@Ignore("Ignored as it talks to azure, should be used to integration test changes to this project")
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized", "JUnitTestMethodWithNoAssertions", "UseOfSystemOutOrSystemErr"})
 @RunWith(MockitoJUnitRunner.class)
 public class BackupCLIAzureIntegrationTest {
@@ -86,12 +85,35 @@ public class BackupCLIAzureIntegrationTest {
         );
     }
 
+    /**
+     * Requires DoBackupCommand to be run beforehand, it reads the backup data from the commands output
+     * sent to infoPrintStreamMock.
+     */
+    private static Date getJustCreatedBackupDate(PrintStream infoPrintStreamMock) {
+        ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
+        verify(infoPrintStreamMock, times(1)).println(stringCaptor.capture());
+
+        Matcher matcher = BACKUP_CREATED_PATTERN.matcher(stringCaptor.getValue());
+        assertThat(matcher.matches(), is(equalTo(true)));
+        Long backupTimeStamp = Long.parseLong(matcher.group(1));
+        reset(infoPrintStreamMock);
+        return new Date(backupTimeStamp);
+    }
+
     @Before
     public void setAzure() throws URISyntaxException, InvalidKeyException {
-        CloudTableClient sourceTableClient = CloudStorageAccount.parse(BACKUP_CONFIGURATION.getSourceConnectionString()).createCloudTableClient();
-        sourceTableFactory = new AzureSourceTableFactory(sourceTableClient, BACKUP_CONFIGURATION.getSourceTableName());
-        CloudTableClient backupTableClient = CloudStorageAccount.parse(BACKUP_CONFIGURATION.getBackupConnectionString()).createCloudTableClient();
-        backupTableFactory = new AzureBackupTableFactory(backupTableClient);
+        sourceTableFactory = new AzureSourceTableFactory(
+                clientForAccount(
+                        BACKUP_CONFIGURATION.getSourceAccountName(),
+                        BACKUP_CONFIGURATION.getSourceAccountKey()).build(),
+                BACKUP_CONFIGURATION.getSourceTableName());
+
+
+        backupTableFactory = new AzureBackupTableFactory(
+                clientForAccount(
+                        BACKUP_CONFIGURATION.getBackupAccountName(),
+                        BACKUP_CONFIGURATION.getBackupAccountKey()).build()
+        );
 
         clearDB();
 
@@ -174,6 +196,10 @@ public class BackupCLIAzureIntegrationTest {
         assertNoBackupsOnDates(backup1date, backup2date);
     }
 
+    //
+    // helper methods
+    //
+
     @Test
     public void delete_bad_backups_command_deletes_only_bad_backups() {
         //noinspection unchecked
@@ -197,10 +223,6 @@ public class BackupCLIAzureIntegrationTest {
         //noinspection unchecked
         assertBackupOnDateContainsCells(backup3date, CELL_1, CELL_2);
     }
-
-    //
-    // helper methods
-    //
 
     private void assertNoBackups() {
         createBackupCLI().execute(LIST_ALL_BACKUPS_COMMAND_LINE);
@@ -228,21 +250,6 @@ public class BackupCLIAzureIntegrationTest {
      */
     private Table<String, String, String> getJustCreatedBackup(PrintStream infoPrintStreamMock) {
         return backupTableFactory.getBackupTable(getJustCreatedBackupDate(infoPrintStreamMock), BACKUP_CONFIGURATION.getSourceTableName());
-    }
-
-    /**
-     * Requires DoBackupCommand to be run beforehand, it reads the backup data from the commands output
-     * sent to infoPrintStreamMock.
-     */
-    private static Date getJustCreatedBackupDate(PrintStream infoPrintStreamMock) {
-        ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
-        verify(infoPrintStreamMock, times(1)).println(stringCaptor.capture());
-
-        Matcher matcher = BACKUP_CREATED_PATTERN.matcher(stringCaptor.getValue());
-        assertThat(matcher.matches(), is(equalTo(true)));
-        Long backupTimeStamp = Long.parseLong(matcher.group(1));
-        reset(infoPrintStreamMock);
-        return new Date(backupTimeStamp);
     }
 
     private void assertThatListedBackupsOnDates(Date... backupDates) {

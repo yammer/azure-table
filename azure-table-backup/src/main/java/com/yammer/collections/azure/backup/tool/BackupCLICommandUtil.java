@@ -39,12 +39,15 @@ public class BackupCLICommandUtil {
         return namespace.get(option) != null;
     }
 
-    @SuppressWarnings("OverlyBroadThrowsClause")
-    private static BackupConfiguration getBackupConfiguration(String configPath) throws IOException {
+    private static BackupConfiguration getBackupConfiguration(String configPath) {
         File configurationFile = new File(configPath);
         ObjectMapper configurationObjectMapper = new ObjectMapper(new YAMLFactory());
-        JsonNode node = configurationObjectMapper.readTree(configurationFile);
-        return configurationObjectMapper.readValue(new TreeTraversingParser(node), BackupConfiguration.class);
+        try {
+            JsonNode node = configurationObjectMapper.readTree(configurationFile);
+            return configurationObjectMapper.readValue(new TreeTraversingParser(node), BackupConfiguration.class);
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
     }
 
     public void configureParser(ArgumentParser parser) {
@@ -92,42 +95,38 @@ public class BackupCLICommandUtil {
      * @return backup command that can be executed
      */
     public BackupCommand constructBackupCommand(Namespace namespace) {
-        try {
+        BackupConfiguration backupConfiguration = getBackupConfiguration(namespace.getString(CONFIG_FILE_OPTION));
 
-            BackupConfiguration backupConfiguration = getBackupConfiguration(namespace.getString(CONFIG_FILE_OPTION));
-
-            if (hasOption(namespace, BACKUP_OPTION)) {
-                return new DoBackupCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream, errorStream);
-            }
-            if (hasOption(namespace, LIST_BACKUPS_OPTION)) {
-                return new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
-                        errorStream, namespace.getLong(LIST_BACKUPS_OPTION));
-            }
-            if (hasOption(namespace, LIST_ALL_BACKUPS_OPTION)) {
-                return new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
-                        errorStream, BEGINING_OF_TIME);
-            }
-            if (hasOption(namespace, DELETE_BACKUP_OPTION)) {
-                return new DeleteBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
-                        errorStream, namespace.getLong(DELETE_BACKUP_OPTION));
-            }
-            if (hasOption(namespace, DELETE_BAD_BACKUPS_OPTION)) {
-                return new DeleteBadBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
-                        errorStream);
-            }
-            if (hasOption(namespace, RESTORE_BACKUP_OPTION)) {
-                return new RestoreFromBackupCommand(
-                        backupServiceFactory.createBackupService(backupConfiguration),
-                        backupConfiguration.getSourceTableName(),
-                        infoStream,
-                        errorStream,
-                        namespace.getLong(RESTORE_BACKUP_OPTION));
-            }
-
-            throw new IllegalAccessException("Incorrectly configured namespace.");
-        } catch (@SuppressWarnings("OverlyBroadCatchBlock") Exception e) {
-            throw Throwables.propagate(e);
+        if (hasOption(namespace, BACKUP_OPTION)) {
+            return new DoBackupCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream, errorStream);
         }
+        if (hasOption(namespace, LIST_BACKUPS_OPTION)) {
+            return new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
+                    errorStream, namespace.getLong(LIST_BACKUPS_OPTION));
+        }
+        if (hasOption(namespace, LIST_ALL_BACKUPS_OPTION)) {
+            return new ListBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
+                    errorStream, BEGINING_OF_TIME);
+        }
+        if (hasOption(namespace, DELETE_BACKUP_OPTION)) {
+            return new DeleteBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
+                    errorStream, namespace.getLong(DELETE_BACKUP_OPTION));
+        }
+        if (hasOption(namespace, DELETE_BAD_BACKUPS_OPTION)) {
+            return new DeleteBadBackupsCommand(backupServiceFactory.createBackupService(backupConfiguration), infoStream,
+                    errorStream);
+        }
+        if (hasOption(namespace, RESTORE_BACKUP_OPTION)) {
+            return new RestoreFromBackupCommand(
+                    backupServiceFactory.createBackupService(backupConfiguration),
+                    backupConfiguration.getSourceTableName(),
+                    infoStream,
+                    errorStream,
+                    namespace.getLong(RESTORE_BACKUP_OPTION));
+        }
+
+        throw new IllegalArgumentException("Incorrectly configured namespace.");
     }
+
 
 }

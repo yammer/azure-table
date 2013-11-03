@@ -8,8 +8,11 @@ import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableServiceException;
 import com.yammer.collections.azure.BaseAzureTable;
 import com.yammer.collections.azure.backup.lib.SourceTableFactory;
+import com.yammer.collections.azure.util.AzureTables;
 
 import java.net.URISyntaxException;
+
+import static com.yammer.collections.azure.util.AzureTables.tableWithName;
 
 public class AzureSourceTableFactory implements SourceTableFactory {
     // http://msdn.microsoft.com/en-us/library/windowsazure/dd179387.aspx
@@ -29,10 +32,11 @@ public class AzureSourceTableFactory implements SourceTableFactory {
     @Override
     public Table<String, String, String> getSourceTable() {
         try {
-            CloudTable table = cloudTableClient.getTableReference(tableName);
-            table.createIfNotExist();
-            return BaseAzureTable.create(tableName, cloudTableClient);
-        } catch (StorageException | URISyntaxException e) {
+            return tableWithName(tableName).
+                    using(cloudTableClient).
+                    createIfDoesNotExist().
+                    buildWithNoSerialization();
+        } catch (StorageException e) {
             throw Throwables.propagate(e);
         }
     }
@@ -42,6 +46,7 @@ public class AzureSourceTableFactory implements SourceTableFactory {
         return tableName;
     }
 
+    // TODO use factory to create the client as well!
     @Override
     public void clearSourceTable() {
         try { // there is no single clear operation on azure table, so we implement this using drop and create :(

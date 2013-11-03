@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>com.yammer.collections.azure</groupId>
-            <artifactId>azure-table-core</artifactId>
+            <artifactId>azure-table-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
