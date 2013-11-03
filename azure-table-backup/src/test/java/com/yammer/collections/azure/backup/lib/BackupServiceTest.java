@@ -40,7 +40,7 @@ public class BackupServiceTest {
     private TableCopy<String, String, String> tableCopyMock;
     private BackupService secretieBackup;
     // name of backup, date created, status
-    private Table<String, Date, Backup.BackupStatus> backupListTable = HashBasedTable.create();
+    private Table<String, Date, Backup.BackupStatus> backupListTable;
     @Mock
     private Table<String, String, String> sourceTableMock;
     @Mock
@@ -54,6 +54,7 @@ public class BackupServiceTest {
 
     @Before
     public void setUp() {
+        backupListTable = HashBasedTable.create();
         when(backupTableFactoryMock.getBackupListTable()).thenReturn(backupListTable);
         when(backupTableFactoryMock.createBackupTable(any(Date.class), eq(TABLE_NAME))).thenReturn(backupTableMock);
         when(sourceTableFactoryMock.getSourceTable()).thenReturn(sourceTableMock);
@@ -297,7 +298,7 @@ public class BackupServiceTest {
 
     private static class BackupTableAssertionBuilder {
 
-        private Table<String, Date, Backup.BackupStatus> backupTable;
+        private final Table<String, Date, Backup.BackupStatus> backupTable;
         private String tableName;
         private Date backupDate;
 

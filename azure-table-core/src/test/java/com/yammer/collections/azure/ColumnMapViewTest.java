@@ -25,7 +25,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings({"InstanceVariableMayNotBeInitialized", "SuspiciousMethodCalls"})
+@SuppressWarnings("ALL")
 @RunWith(MockitoJUnitRunner.class)
 public class ColumnMapViewTest {
 

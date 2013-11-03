@@ -17,8 +17,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -101,7 +99,7 @@ public class BackupCLIAzureIntegrationTest {
     }
 
     @Before
-    public void setAzure() throws URISyntaxException, InvalidKeyException {
+    public void setAzure() {
         sourceTableFactory = new AzureSourceTableFactory(
                 clientForAccount(
                         BACKUP_CONFIGURATION.getSourceAccountName(),
@@ -127,7 +125,6 @@ public class BackupCLIAzureIntegrationTest {
 
     @Test
     public void do_backup_command_backs_up_correctly() {
-        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         backupCLI.execute(DO_BACKUP_COMMAND_LINE);
@@ -141,7 +138,6 @@ public class BackupCLIAzureIntegrationTest {
     @Test
     public void restore_command_restores_backedup_state() {
         // initial table state
-        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // backup creation
@@ -163,7 +159,6 @@ public class BackupCLIAzureIntegrationTest {
 
     @Test
     public void list_command_lists_all_backups() {
-        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // create backups
@@ -180,7 +175,6 @@ public class BackupCLIAzureIntegrationTest {
 
     @Test
     public void delete_command_deletes_backups() {
-        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // create backups
@@ -202,7 +196,6 @@ public class BackupCLIAzureIntegrationTest {
 
     @Test
     public void delete_bad_backups_command_deletes_only_bad_backups() {
-        //noinspection unchecked
         setupSourceTableToContain(CELL_1, CELL_2);
 
         // create backups
@@ -220,7 +213,6 @@ public class BackupCLIAzureIntegrationTest {
 
         // deleted backups
         assertNoBackupsOnDates(backup1date, backup2date);
-        //noinspection unchecked
         assertBackupOnDateContainsCells(backup3date, CELL_1, CELL_2);
     }
 

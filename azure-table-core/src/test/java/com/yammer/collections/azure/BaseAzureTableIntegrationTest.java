@@ -62,7 +62,6 @@ public class BaseAzureTableIntegrationTest {
 
     @Test
     public void when_columnKeySet_requested_then_all_keys_returned() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
         Set<String> columnKeySet = baseAzureTable.columnKeySet();
@@ -72,7 +71,6 @@ public class BaseAzureTableIntegrationTest {
 
     @Test
     public void when_rowKeySet_requested_then_all_keys_returned() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
         Set<String> rowKeySet = baseAzureTable.rowKeySet();
@@ -82,7 +80,6 @@ public class BaseAzureTableIntegrationTest {
 
     @Test
     public void get_of_an_existing_value_returns_result_from_azure_table_returned() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1);
 
         String value = baseAzureTable.get(ROW_KEY_1, COLUMN_KEY_1);
@@ -92,7 +89,6 @@ public class BaseAzureTableIntegrationTest {
 
     @Test
     public void get_of_non_existing_entry_returns_null() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1);
 
         String value = baseAzureTable.get(ROW_KEY_2, COLUMN_KEY_2);
@@ -110,7 +106,6 @@ public class BaseAzureTableIntegrationTest {
 
     @Test
     public void when_delete_then_deleted_in_azure() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1);
 
         baseAzureTable.remove(ROW_KEY_1, COLUMN_KEY_1);
@@ -125,7 +120,6 @@ public class BaseAzureTableIntegrationTest {
 
     @Test
     public void cellSet_returns_all_table_cells() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
         Set<Table.Cell<String, String, String>> cellSet = baseAzureTable.cellSet();

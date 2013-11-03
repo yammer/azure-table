@@ -39,11 +39,13 @@ public final class AzureTables {
         }
 
         // retry policy if specified
-        if(configuration.getRetryAttempts() != null && configuration.getRetryInterval() != null) {
+        Integer retryAttempts = configuration.getRetryAttempts();
+        Integer retryInterval = configuration.getRetryInterval();
+        if(retryAttempts != null && retryInterval != null) {
             tableClientBuilder.withLinearReplyPolicy(
                     configuration.getRetryInterval(),
                     configuration.getRetryAttempts());
-        } else if(configuration.getRetryAttempts() != null && configuration.getRetryInterval() != null) {
+        } else if(retryAttempts != null || retryInterval != null) {
             throw new IllegalArgumentException("You need to specify both: retryAttempts and retryInterval, or neither");
         }
 

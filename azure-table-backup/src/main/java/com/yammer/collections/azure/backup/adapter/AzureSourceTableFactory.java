@@ -6,9 +6,7 @@ import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableServiceException;
-import com.yammer.collections.azure.BaseAzureTable;
 import com.yammer.collections.azure.backup.lib.SourceTableFactory;
-import com.yammer.collections.azure.util.AzureTables;
 
 import java.net.URISyntaxException;
 
@@ -27,34 +25,6 @@ public class AzureSourceTableFactory implements SourceTableFactory {
     public AzureSourceTableFactory(CloudTableClient cloudTableClient, String tableName) {
         this.cloudTableClient = cloudTableClient;
         this.tableName = tableName;
-    }
-
-    @Override
-    public Table<String, String, String> getSourceTable() {
-        try {
-            return tableWithName(tableName).
-                    using(cloudTableClient).
-                    createIfDoesNotExist().
-                    buildWithNoSerialization();
-        } catch (StorageException e) {
-            throw Throwables.propagate(e);
-        }
-    }
-
-    @Override
-    public String getTableName() {
-        return tableName;
-    }
-
-    @Override
-    public void clearSourceTable() {
-        try { // there is no single clear operation on azure table, so we implement this using drop and create :(
-            CloudTable tableToBeCleared = cloudTableClient.getTableReference(tableName);
-            tableToBeCleared.deleteIfExists();
-            tryCreateAfterDelete(tableToBeCleared);
-        } catch (StorageException | URISyntaxException e) {
-            throw Throwables.propagate(e);
-        }
     }
 
     @SuppressWarnings("OverlyBroadThrowsClause")
@@ -82,6 +52,34 @@ public class AzureSourceTableFactory implements SourceTableFactory {
         try {
             Thread.sleep(RECREATE_RETRY);
         } catch (InterruptedException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    @Override
+    public Table<String, String, String> getSourceTable() {
+        try {
+            return tableWithName(tableName).
+                    using(cloudTableClient).
+                    createIfDoesNotExist().
+                    buildWithNoSerialization();
+        } catch (StorageException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    @Override
+    public String getTableName() {
+        return tableName;
+    }
+
+    @Override
+    public void clearSourceTable() {
+        try { // there is no single clear operation on azure table, so we implement this using drop and create :(
+            CloudTable tableToBeCleared = cloudTableClient.getTableReference(tableName);
+            tableToBeCleared.deleteIfExists();
+            tryCreateAfterDelete(tableToBeCleared);
+        } catch (StorageException | URISyntaxException e) {
             throw Throwables.propagate(e);
         }
     }

@@ -11,7 +11,7 @@ import java.util.Iterator;
 abstract class AbstractCollectionView<E> extends AbstractCollection<E> {
     private final Function<AzureEntity, E> typeExtractor;
 
-    protected AbstractCollectionView(Function<AzureEntity, E> typeExtractor) {
+    AbstractCollectionView(Function<AzureEntity, E> typeExtractor) {
         this.typeExtractor = typeExtractor;
     }
 

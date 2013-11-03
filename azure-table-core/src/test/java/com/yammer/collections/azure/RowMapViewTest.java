@@ -26,7 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings({"InstanceVariableMayNotBeInitialized", "SuspiciousMethodCalls"})
+@SuppressWarnings({"InstanceVariableMayNotBeInitialized", "SuspiciousMethodCalls", "ClassWithTooManyMethods"})
 @RunWith(MockitoJUnitRunner.class)
 public class RowMapViewTest {
 

@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThat;
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized", "ConstantNamingConvention"})
 @Ignore("This talks directly to azure so ignored by default")
 public class JsonSerializingTableIntegrationTest {
-    @SuppressWarnings("ConstantNamingConvention")
     private static final String ACCOUNT_NAME = "secretietest";
     private static final String ACCOUNT_KEY = "e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==";
     private static final String CONNECTION_STRING = String.format("DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s", ACCOUNT_NAME, ACCOUNT_KEY);

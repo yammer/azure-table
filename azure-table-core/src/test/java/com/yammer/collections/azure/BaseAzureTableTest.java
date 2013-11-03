@@ -28,7 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@SuppressWarnings({"ClassWithTooManyMethods", "InstanceVariableMayNotBeInitialized", "JUnitTestMethodWithNoAssertions"})
+@SuppressWarnings({"ClassWithTooManyMethods", "InstanceVariableMayNotBeInitialized"})
 @RunWith(MockitoJUnitRunner.class)
 public class BaseAzureTableTest {
     private static final String ROW_KEY_1 = "rown_name_1";
@@ -73,7 +73,6 @@ public class BaseAzureTableTest {
 
     @Test
     public void when_columnKeySet_requested_then_all_keys_returned() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
         Set<String> columnKeySet = baseAzureTable.columnKeySet();
@@ -83,7 +82,6 @@ public class BaseAzureTableTest {
 
     @Test
     public void when_rowKeySet_requested_then_all_keys_returned() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
         Set<String> rowKeySet = baseAzureTable.rowKeySet();
@@ -93,7 +91,6 @@ public class BaseAzureTableTest {
 
     @Test
     public void get_of_an_existing_value_returns_result_from_azure_table_returned() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1);
 
         String value = baseAzureTable.get(ROW_KEY_1, COLUMN_KEY_1);
@@ -117,7 +114,6 @@ public class BaseAzureTableTest {
 
     @Test
     public void get_of_non_existing_entry_returns_null() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1);
 
         String value = baseAzureTable.get(ROW_KEY_2, COLUMN_KEY_2);
@@ -127,7 +123,6 @@ public class BaseAzureTableTest {
 
     @Test(expected = RuntimeException.class)
     public void when_table_client_throws_storage_exception_during_get_then_exception_rethrown() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1);
         setToThrowStorageExceptionOnRetrievalOf(CELL_1);
 
@@ -168,7 +163,6 @@ public class BaseAzureTableTest {
 
     @Test
     public void when_delete_then_deleted_in_azure() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1);
         TableOperation deleteTableOperationMock = mockDeleteTableOperation(CELL_1);
 
@@ -194,7 +188,6 @@ public class BaseAzureTableTest {
 
     @Test(expected = RuntimeException.class)
     public void when_table_client_throws_storage_exception_during_delete_then_exception_rethrown() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1);
         TableOperation deleteTableOperationMock = mockDeleteTableOperation(CELL_1);
         setupThrowStorageExceptionOnTableOperation(deleteTableOperationMock);
@@ -204,7 +197,6 @@ public class BaseAzureTableTest {
 
     @Test
     public void cellSet_returns_all_table_cells() throws StorageException {
-        //noinspection unchecked
         setAzureTableToContain(CELL_1, CELL_2);
 
         Set<Table.Cell<String, String, String>> cellSet = baseAzureTable.cellSet();
