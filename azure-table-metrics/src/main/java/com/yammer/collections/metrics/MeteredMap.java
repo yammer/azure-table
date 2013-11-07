@@ -9,10 +9,10 @@ import static com.yammer.collections.metrics.Timers.GET_TIMER;
 import static com.yammer.collections.metrics.Timers.PUT_TIMER;
 import static com.yammer.collections.metrics.Timers.REMOVE_TIMER;
 
-public class MeteredMap<K, V> extends ForwardingMap<K, V> {
+class MeteredMap<K, V> extends ForwardingMap<K, V> {
     private final Map<K, V> backingMap;
 
-    public MeteredMap(Map<K, V> backingMap) {
+    MeteredMap(Map<K, V> backingMap) {
         this.backingMap = backingMap;
     }
 

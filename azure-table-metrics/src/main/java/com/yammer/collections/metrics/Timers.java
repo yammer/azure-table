@@ -7,8 +7,6 @@ class Timers {
     static final Timer GET_TIMER = createTimerFor("get");
     static final Timer PUT_TIMER = createTimerFor("put");
     static final Timer REMOVE_TIMER = createTimerFor("remove");
-    static final Timer SIZE_TIMER = createTimerFor("size");
-    static final Timer CLEAR_TIMER = createTimerFor("clear");
 
     private static Timer createTimerFor(String name) {
         return Metrics.newTimer(MeteredTable.class, name);

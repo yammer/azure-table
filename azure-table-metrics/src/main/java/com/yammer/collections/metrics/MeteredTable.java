@@ -1,18 +1,15 @@
 package com.yammer.collections.metrics;
 
+import com.google.common.collect.ForwardingTable;
 import com.google.common.collect.Table;
 import com.yammer.metrics.core.TimerContext;
 
-import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.yammer.collections.metrics.Timers.CLEAR_TIMER;
 import static com.yammer.collections.metrics.Timers.GET_TIMER;
 import static com.yammer.collections.metrics.Timers.PUT_TIMER;
 import static com.yammer.collections.metrics.Timers.REMOVE_TIMER;
-import static com.yammer.collections.metrics.Timers.SIZE_TIMER;
 
 /**
  * Provides metrics for the core operations, but not for the collections view operations.
@@ -23,7 +20,7 @@ import static com.yammer.collections.metrics.Timers.SIZE_TIMER;
  * @param <V>
  */
 @SuppressWarnings("ClassWithTooManyMethods")
-public class MeteredTable<R, C, V> implements Table<R, C, V> {
+public class MeteredTable<R, C, V> extends ForwardingTable<R, C, V> {
     private final Table<R, C, V> backingTable;
 
     private MeteredTable(Table<R, C, V> backingTable) {
@@ -32,26 +29,6 @@ public class MeteredTable<R, C, V> implements Table<R, C, V> {
 
     public static <R, C, V> Table<R, C, V> create(Table<R, C, V> backingTable) {
         return new MeteredTable<>(backingTable);
-    }
-
-    @Override
-    public boolean contains(Object o, Object o2) {
-        return backingTable.contains(o, o2);
-    }
-
-    @Override
-    public boolean containsRow(Object o) {
-        return backingTable.containsRow(o);
-    }
-
-    @Override
-    public boolean containsColumn(Object o) {
-        return backingTable.containsColumn(o);
-    }
-
-    @Override
-    public boolean containsValue(Object o) {
-        return backingTable.containsValue(o);
     }
 
     @Override
@@ -65,31 +42,6 @@ public class MeteredTable<R, C, V> implements Table<R, C, V> {
     }
 
     @Override
-    public boolean isEmpty() {
-        return backingTable.isEmpty();
-    }
-
-    @Override
-    public int size() {
-        TimerContext ctx = SIZE_TIMER.time();
-        try {
-            return backingTable.size();
-        } finally {
-            ctx.stop();
-        }
-    }
-
-    @Override
-    public void clear() {
-        TimerContext ctx = CLEAR_TIMER.time();
-        try {
-            backingTable.clear();
-        } finally {
-            ctx.stop();
-        }
-    }
-
-    @Override
     public V put(R r, C c, V v) {
         TimerContext ctx = PUT_TIMER.time();
         try {
@@ -97,11 +49,6 @@ public class MeteredTable<R, C, V> implements Table<R, C, V> {
         } finally {
             ctx.stop();
         }
-    }
-
-    @Override
-    public void putAll(Table<? extends R, ? extends C, ? extends V> table) {
-        backingTable.putAll(table);
     }
 
     @Override
@@ -125,32 +72,7 @@ public class MeteredTable<R, C, V> implements Table<R, C, V> {
     }
 
     @Override
-    public Set<Cell<R, C, V>> cellSet() {
-        return backingTable.cellSet();
-    }
-
-    @Override
-    public Set<R> rowKeySet() {
-        return backingTable.rowKeySet();
-    }
-
-    @Override
-    public Set<C> columnKeySet() {
-        return backingTable.columnKeySet();
-    }
-
-    @Override
-    public Collection<V> values() {
-        return backingTable.values();
-    }
-
-    @Override
-    public Map<R, Map<C, V>> rowMap() {
-        return backingTable.rowMap();
-    }
-
-    @Override
-    public Map<C, Map<R, V>> columnMap() {
-        return backingTable.columnMap();
+    protected Table<R, C, V> delegate() {
+        return backingTable;
     }
 }
