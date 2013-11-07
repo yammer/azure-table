@@ -1,8 +1,6 @@
 package com.yammer.collections.metrics;
 
 import com.google.common.collect.Table;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
 
 import java.util.Collection;
@@ -10,6 +8,11 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.yammer.collections.metrics.Timers.CLEAR_TIMER;
+import static com.yammer.collections.metrics.Timers.GET_TIMER;
+import static com.yammer.collections.metrics.Timers.PUT_TIMER;
+import static com.yammer.collections.metrics.Timers.REMOVE_TIMER;
+import static com.yammer.collections.metrics.Timers.SIZE_TIMER;
 
 /**
  * Provides metrics for the core operations, but not for the collections view operations.
@@ -21,19 +24,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 @SuppressWarnings("ClassWithTooManyMethods")
 public class MeteredTable<R, C, V> implements Table<R, C, V> {
-    private static final Timer GET_TIMER = createTimerFor("get");
-    private static final Timer PUT_TIMER = createTimerFor("put");
-    private static final Timer REMOVE_TIMER = createTimerFor("remove");
-    private static final Timer SIZE_TIMER = createTimerFor("size");
-    private static final Timer CLEAR_TIMER = createTimerFor("clear");
     private final Table<R, C, V> backingTable;
 
     private MeteredTable(Table<R, C, V> backingTable) {
         this.backingTable = checkNotNull(backingTable);
-    }
-
-    private static Timer createTimerFor(String name) {
-        return Metrics.newTimer(MeteredTable.class, name);
     }
 
     public static <R, C, V> Table<R, C, V> create(Table<R, C, V> backingTable) {
@@ -122,12 +116,12 @@ public class MeteredTable<R, C, V> implements Table<R, C, V> {
 
     @Override
     public Map<C, V> row(R r) {
-        return backingTable.row(r);
+        return new MeteredMap<>(backingTable.row(r));
     }
 
     @Override
     public Map<R, V> column(C c) {
-        return backingTable.column(c);
+        return new MeteredMap<>(backingTable.column(c));
     }
 
     @Override
