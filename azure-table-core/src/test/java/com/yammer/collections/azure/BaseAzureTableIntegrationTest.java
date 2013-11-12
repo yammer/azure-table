@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -220,13 +221,13 @@ public class BaseAzureTableIntegrationTest {
         assertThat(column.containsValue(VALUE_2), is(equalTo(false)));
     }
 
-    // TODO: investigate, and report bug or correct code
-    @Ignore("Azure SDK throws a null pointer internally, potentially a bug, ignored till investigated")
     @Test
     public void columnView_contains_correct_entries() {
         setAzureTableToContain(CELL_1, CELL_2);
 
         Iterator<Map.Entry<String, String>> entries = baseAzureTable.column(COLUMN_KEY_1).entrySet().iterator();
+
+        entries.hasNext(); // needed to initialize the iterator, due to a bug in the azure sdk
 
         Map.Entry<String, String> entry = entries.next();
         assertThat(entries.hasNext(), is(equalTo(false)));
@@ -244,13 +245,13 @@ public class BaseAzureTableIntegrationTest {
         assertThat(column.containsValue(VALUE_2), is(equalTo(false)));
     }
 
-    // TODO: investigate, and report bug or correct code
-    @Ignore("Azure SDK throws a null pointer internally, potentially a bug, ignored till investigated")
     @Test
     public void rowView_contains_correct_entries() {
         setAzureTableToContain(CELL_1, CELL_2);
 
         Iterator<Map.Entry<String, String>> entries = baseAzureTable.row(ROW_KEY_1).entrySet().iterator();
+
+        entries.hasNext(); // needed to initialize the iterator, due to a bug in the azure sdk
 
         Map.Entry<String, String> entry = entries.next();
         assertThat(entries.hasNext(), is(equalTo(false)));
