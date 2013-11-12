@@ -1,14 +1,9 @@
 package com.yammer.collections.azure.serialization.json;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collection;
 
-/**
-* User: mrutkowski
-* Date: 10/31/13
-* Time: 9:20 PM
-*/
 @SuppressWarnings("UnusedDeclaration")
 public class TestValuePojo {
     private final String name;

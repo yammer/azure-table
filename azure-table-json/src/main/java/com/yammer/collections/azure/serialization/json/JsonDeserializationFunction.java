@@ -1,8 +1,8 @@
 package com.yammer.collections.azure.serialization.json;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 
