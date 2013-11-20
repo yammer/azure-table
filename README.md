@@ -40,7 +40,33 @@ To start using the json serialization library you simply need to include the fol
     
 This library provides a serialization layer which forms a bridge between guava `Table` instances that use arbitrary types for row, column and value objects and those that use only the `String` type.
 The serialization layer is backed by jackson for automated json serialization and the yammer transforming collections library, which provides live read-write transforming views of other collections.
+This functionality is provided via the `JsonSerializingTable`, which is a decorator around a `Table<String,String,String>` instance.
 
 **IMPORTANT** You are strongly advised to use immutable data types when working with this library. As it is a view of a remote data store, mutable objects do not behave as they would have for in-memory collections.
 First of all, using mutable values for the row and column keys is not a good idea in general. Second of all, when you get a value from the table and modify it, that modification
 has to be explicitly pushed back to the table, by doing a put. This wouldn't be the case if it were a in-memory collection.
+
+azure-table-metrics
+-------------------
+To start using the yammer metrics library integration you simply need to include the following dependency.
+
+    <dependency>
+      <groupId>com.yammer.collections.azure</groupId>
+      <artifactId>azure-table-metrics</artifactId>
+      <version>1.1.3</version>
+    </dependency>
+    
+The key class is `MeteredTable` which is a decorotor around a `Table` instance.
+
+This library provides metrics purely around the following operations: *get*, *put* and *remove*.
+
+azure-table-util
+----------------
+To start using the util library you simply need to include the following dependency.
+
+    <dependency>
+      <groupId>com.yammer.collections.azure</groupId>
+      <artifactId>azure-table-util</artifactId>
+      <version>1.1.3</version>
+    </dependency>
+
