@@ -27,7 +27,7 @@ import static com.yammer.collections.azure.AzureEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.azure.AzureEntityUtil.decode;
 import static com.yammer.collections.azure.AzureEntityUtil.encode;
 
-public class RowView implements Map<String, String> {
+class RowView implements Map<String, String> {
     private static final Function<AzureEntity, String> EXTRACT_ROW_KEY = new Function<AzureEntity, String>() {
         @Override
         public String apply(AzureEntity input) {
@@ -40,7 +40,7 @@ public class RowView implements Map<String, String> {
     private final AzureTableRequestFactory azureTableRequestFactory;
     private final Function<AzureEntity, Entry<String, String>> extractEntry;
 
-    public RowView(
+    RowView(
             final BaseAzureTable baseAzureTable,
             final String columnKey,
             AzureTableCloudClient azureTableCloudClient,
@@ -117,8 +117,8 @@ public class RowView implements Map<String, String> {
     @Override
     public Set<String> keySet() {
         return SetView.fromSetCollectionView(
-                        new RowMapSetView<>(baseAzureTable, columnKey, EXTRACT_ROW_KEY, azureTableCloudClient, azureTableRequestFactory)
-                );
+                new RowMapSetView<>(baseAzureTable, columnKey, EXTRACT_ROW_KEY, azureTableCloudClient, azureTableRequestFactory)
+        );
     }
 
     @SuppressWarnings("NullableProblems")

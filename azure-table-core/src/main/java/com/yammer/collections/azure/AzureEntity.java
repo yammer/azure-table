@@ -17,6 +17,10 @@ package com.yammer.collections.azure;
 
 import com.microsoft.windowsazure.services.table.client.TableServiceEntity;
 
+/**
+ * Internal class, not to be used outside. Requires to be public with a public constructor due to the Azure library using reflection for
+ * serialization/deserialization,
+ */
 public class AzureEntity extends TableServiceEntity {
     public static final String VALUE = "Value";
     @SuppressWarnings("InstanceVariableMayNotBeInitialized")

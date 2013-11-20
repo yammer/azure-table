@@ -24,18 +24,18 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public class SetView<E> extends AbstractSet<E> {
+class SetView<E> extends AbstractSet<E> {
     private final Collection<E> collectionView;
 
     private SetView(Collection<E> collectionView) {
         this.collectionView = collectionView;
     }
 
-    public static <E> SetView<E> fromSetCollectionView(Collection<E> collection) {
+    static <E> SetView<E> fromSetCollectionView(Collection<E> collection) {
         return new SetView<>(collection);
     }
 
-    public static <E> SetView<E> fromCollectionView(Collection<E> collection) {
+    static <E> SetView<E> fromCollectionView(Collection<E> collection) {
         return new NonSetCollectionBasedSetView<>(collection);
     }
 
