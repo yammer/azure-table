@@ -70,3 +70,41 @@ To start using the util library you simply need to include the following depende
       <version>1.1.3</version>
     </dependency>
 
+Provides fluent utility class for constructing `CloudTableClient` and an instance azure `Table`.
+
+Examples:
+
+1. Construct just the client:
+
+    AzureTables.clientForAccount(accountName, accountKey).
+               .withLinearRetryPolicy(retryInterval, numberOfAttempts). // optional
+               .withTimeoutInMillis(timeout) // optional
+               .build();
+   
+2. Get a table reference
+
+    AzureTables.clientForAccount(accountName, accountKey)
+               .tableWithName("tableName")
+               .cloudTable();
+   
+3. Construct an azure table with metrics and using json serialization based on the configuration stored in `AzureTableConfiguration`, which can be loaded from a json or yaml file:
+    
+    AzureTables.clientForConfiguration(configuration)
+               .createIfDoesNotExist()
+               .andAddMetrics(). // optional
+               .buildWithJsonSerialization(rowClass, columnClass, valueClass);
+
+4. Construct an azure table with custom serializaiton, without metrics, and creating regardless:
+
+    AzureTables.clientForAccount((accountName, accountKey)
+               .tableWithName("tableName)
+               .create()
+               .buildUsingCustomSerialization(<serialization functions>);
+               
+5. Do something only if the table exists:
+
+    Optional<AzureTables.clientForAccount((accountName, accountKey)
+               .tableWithName("tableName)
+               .create()
+   
+        
