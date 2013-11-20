@@ -23,7 +23,7 @@ To start using the core library you simply need to include the following depende
 This is a bare-bones integration. It requires you to provide the table name and an instance of `CloudTableClient` as provided by the Azure Java SDK: https://github.com/WindowsAzure/azure-sdk-for-java
 It is your responsibility to ensure that the physical table exists beforhand. Also, no serialization mechanism is provided, row, columns and values need to be provided as `String` instances.
 
-**IMPORTANT** because the provided `BaseAzureTable` class is nothing but a view on a remote collection, in some aspects it breaks the guava `Table` interface. Namely, the *rowMap* and *columnMap* views,
+**IMPORTANT** Because the provided `BaseAzureTable` class is nothing but a view on a remote collection, in some aspects it breaks the guava `Table` interface. Namely, the *rowMap* and *columnMap* views,
 don't behave like in-memmory maps. For example, if you were to remove a row from the *rowMap* in the in-memmory implementation you would expect to get the deleted row to be returned, but here this is not possible, 
 as it is being physically deleted from the database. The only way to achieve such a behaviour would be to materialize (retrive) the whole row in memmory prior to deletion, however, 
 given that Azure Table is meant to serve as a large distributed key-value store, such an approach is impractical.
@@ -38,4 +38,9 @@ To start using the json serialization library you simply need to include the fol
       <version>1.1.3</version>
     </dependency>
     
-This library provides an automated serialization layer between     
+This library provides a serialization layer which forms a bridge between guava `Table` instances that use arbitrary types for row, column and value objects and those that use only the `String` type.
+The serialization layer is backed by jackson for automated json serialization and the yammer transforming collections library, which provides live read-write transforming views of other collections.
+
+**IMPORTANT** You are strongly advised to use immutable data types when working with this library. As it is a view of a remote data store, mutable objects do not behave as they would have for in-memory collections.
+First of all, using mutable values for the row and column keys is not a good idea in general. Second of all, when you get a value from the table and modify it, that modification
+has to be explicitly pushed back to the table, by doing a put. This wouldn't be the case if it were a in-memory collection.
