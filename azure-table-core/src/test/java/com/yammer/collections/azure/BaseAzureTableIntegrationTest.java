@@ -45,7 +45,7 @@ import static org.junit.Assert.assertThat;
  */
 @Ignore("talks to azure directly, switched off by default")
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized", "ClassWithTooManyMethods"})
-public class BaseAzureTableIntegrationTest {
+public class BaseAzureTableIntegrationTest {  // TODO remove these credentials, as they are no longer valid and provide a cleaner way to enable testing
     private static final String ACCOUNT_NAME = "secretietest";
     private static final String ACCOUNT_KEY = "e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==";
     private static final String CONNECTION_STRING = String.format("DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s", ACCOUNT_NAME, ACCOUNT_KEY);
