@@ -17,20 +17,18 @@ package com.yammer.collections.azure;
 
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
-import com.microsoft.windowsazure.services.core.storage.CloudStorageAccount;
 import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -43,12 +41,8 @@ import static org.junit.Assert.assertThat;
  * This test uses a persistent database. This has its consequences in that if a test fails, the cleanup process
  * can be affected and influence other tests.
  */
-@Ignore("talks to azure directly, switched off by default")
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized", "ClassWithTooManyMethods"})
-public class BaseAzureTableIntegrationTest {  // TODO remove these credentials, as they are no longer valid and provide a cleaner way to enable testing
-    private static final String ACCOUNT_NAME = "secretietest";
-    private static final String ACCOUNT_KEY = "e5LnQoZei2cFH+56TFxDmO6AhnzMKill1NyVUs1M3R7OFNfCLnIGe17TLUex0mYYGQFjNvmArsLa8Iq3b0FNAg==";
-    private static final String CONNECTION_STRING = String.format("DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s", ACCOUNT_NAME, ACCOUNT_KEY);
+public class BaseAzureTableIntegrationTest {
     private static final String TABLE_NAME = "baseTableIntegrationTest";
     private static final String ROW_KEY_1 = "rown_name_1";
     private static final String ROW_KEY_2 = "row_name_2";
@@ -62,12 +56,11 @@ public class BaseAzureTableIntegrationTest {  // TODO remove these credentials, 
     private Table<String, String, String> baseAzureTable;
 
     @Before
-    public void setUp() throws URISyntaxException, InvalidKeyException, StorageException {
-        CloudTableClient cloudTableClient = CloudStorageAccount.parse(CONNECTION_STRING).createCloudTableClient();
+    public void setUp() throws URISyntaxException, StorageException {
+        CloudTableClient cloudTableClient = AzureTestCloudTableClientFactory.create();
         CloudTable table = cloudTableClient.getTableReference(TABLE_NAME);
         table.createIfNotExist();
         baseAzureTable = BaseAzureTable.create(TABLE_NAME, cloudTableClient);
-
         baseAzureTable.clear();
     }
 

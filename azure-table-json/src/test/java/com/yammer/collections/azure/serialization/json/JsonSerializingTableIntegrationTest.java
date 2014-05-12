@@ -43,10 +43,10 @@ public class JsonSerializingTableIntegrationTest {
     private static final String TABLE_NAME = "jsonTableIntegrationTest";
     private static final Float ROW = 11.34f;
     private static final Long COLUMN = 123l;
-    private static final TestValuePojo VALUE = new TestValuePojo("Michal", Arrays.asList(29, 1, 1980));
+    private static final TestValuePojo VALUE = new TestValuePojo("Ala", Arrays.asList(15, 1, 1690));
     private static final String SERIALIED_ROW = ROW.toString();
     private static final String SERIALIZED_COLUMN = COLUMN.toString();
-    private static final String SERIALIZED_VALUE = "{\"name\":\"Michal\",\"numbers\":[29,1,1980]}";
+    private static final String SERIALIZED_VALUE = "{\"name\":\"Ala\",\"numbers\":[15,1,1690]}";
     private Table<String, String, String> backingTable;
     private Table<Float, Long, TestValuePojo> jsonSerializingTable;
 
