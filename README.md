@@ -38,6 +38,8 @@ The file should contain the following entries:
     account.name=<account name>
     account.key=<account key>
 
+You can also choose not to run the integration tests. This can be achieved by passing the `-P noazure` option to your maven command line.
+
 azure-table-json
 ----------------
 To start using the json serialization library you simply need to include the following dependency.
@@ -86,35 +88,44 @@ Examples:
 
 1. Construct just the client:
 
+```
     AzureTables.clientForAccount(accountName, accountKey).
                .withLinearRetryPolicy(retryInterval, numberOfAttempts). // optional
                .withTimeoutInMillis(timeout) // optional
                .build();
-   
+```
+
 2. Get a table reference
 
+```
     AzureTables.clientForAccount(accountName, accountKey)
                .tableWithName("tableName")
                .cloudTable();
-   
+```
+
 3. Construct an azure table with metrics and using json serialization based on the configuration stored in `AzureTableConfiguration`, which can be loaded from a json or yaml file:
-    
+
+```
     AzureTables.clientForConfiguration(configuration)
                .createIfDoesNotExist()
                .andAddMetrics(). // optional
                .buildWithJsonSerialization(rowClass, columnClass, valueClass);
+```
 
 4. Construct an azure table with custom serializaiton, without metrics, and creating regardless:
 
+```
     AzureTables.clientForAccount((accountName, accountKey)
                .tableWithName("tableName)
                .create()
                .buildUsingCustomSerialization(<serialization functions>);
-               
+```
+
 5. Do something only if the table exists:
 
+```
     Optional<AzureTables.clientForAccount((accountName, accountKey)
                .tableWithName("tableName)
                .create()
-   
+```
         
