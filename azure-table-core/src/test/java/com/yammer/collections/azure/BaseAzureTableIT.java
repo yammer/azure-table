@@ -42,7 +42,7 @@ import static org.junit.Assert.assertThat;
  * can be affected and influence other tests.
  */
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized", "ClassWithTooManyMethods"})
-public class BaseAzureTableIntegrationTest {
+public class BaseAzureTableIT {
     private static final String TABLE_NAME = "baseTableIntegrationTest";
     private static final String ROW_KEY_1 = "rown_name_1";
     private static final String ROW_KEY_2 = "row_name_2";

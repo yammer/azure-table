@@ -33,7 +33,7 @@ public class AzureTestCloudTableClientFactory {
 
         try {
             Properties azureTableTestAccountConnectionProperties = new Properties();
-            try (FileInputStream fis = new FileInputStream(BaseAzureTableIntegrationTest.class.getResource(PROPERTIES_FILE).getPath())) {
+            try (FileInputStream fis = new FileInputStream(BaseAzureTableIT.class.getResource(PROPERTIES_FILE).getPath())) {
                 azureTableTestAccountConnectionProperties.load(fis);
 
             }

@@ -27,6 +27,17 @@ don't behave like in-memmory maps. For example, if you were to remove a row from
 as it is being physically deleted from the database. The only way to achieve such a behaviour would be to materialize (retrive) the whole row in memmory prior to deletion, however, 
 given that Azure Table is meant to serve as a large distributed key-value store, such an approach is impractical.
 
+**Testing**
+This module contains both unit and integration tests. The latter are contained in `BaseAzureTableIT` and are run against an actual azure account that requires
+credentials to be setup in a properties file located (you'll need to create the file) at the following path:
+
+`azure-table-core/src/test/resources/com/yammer/collections/azure/azure-table-test-connection.properties`
+
+The file should contain the following entries:
+
+    account.name=<account name>
+    account.key=<account key>
+
 azure-table-json
 ----------------
 To start using the json serialization library you simply need to include the following dependency.
