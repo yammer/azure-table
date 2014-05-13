@@ -19,6 +19,11 @@
             <artifactId>yammer-collections</artifactId>
             <version>${yammer.collections.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.microsoft.windowsazure</groupId>
+            <artifactId>microsoft-windowsazure-api</artifactId>
+            <version>${windows.azure.api.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>

@@ -17,12 +17,9 @@ package com.yammer.collections.azure.serialization.json;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import com.microsoft.windowsazure.services.core.storage.StorageException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 import java.util.Arrays;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -41,7 +38,7 @@ public class JsonSerializingTableIntegrationTest {
     private Table<Float, Long, TestValuePojo> jsonSerializingTable;
 
     @Before
-    public void setUp() throws URISyntaxException, InvalidKeyException, StorageException {
+    public void setUp() {
         backingTable = HashBasedTable.create();
         jsonSerializingTable = JsonSerializingTable.create(
                 backingTable, Float.class, Long.class, TestValuePojo.class);
