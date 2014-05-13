@@ -1,0 +1,12 @@
+language: java
+jdk:
+- oraclejdk7
+branches:
+  only:
+  - master
+after_success:
+- mvn clean deploy --settings settings.xml
+env:
+  global:
+  - secure: ctNcC7VYskT1eLfoNX1q5hNNGbTEi6LgfQKty2W+wFO0mQxwHax22KPVR3ZT1QWGSevEkA0Vm7ZcmT3+nmxLEXPgUlDIq7GzEYnTyA+06QFgjHMCqyJqS6Y/sUslQbTxu70t91+5FsvaCswsmhNpgyqh85kfSPNl+0xJ6Vs513Y=
+  - secure: eKqCMR974lHuHUFOsoTvUm9RNaIm2ANQVfR+ihWprIjGzBO8sQ/9F8yIS5I7YrW1zdriDhnSu7CbZRfE/XghcYN7GezeCde2Wz6rgZxwfC+3FxblHTKdroM0WnFA3wrk4IDkwSolfqytOYIlu17e3XXPYJ3oqGz8FIg5RqSNv58=

@@ -1,3 +1,5 @@
+Azure Table [![Build Status](https://travis-ci.org/yammer/azure-table.png)](https://travis-ci.org/yammer/azure-table)
+
 azure-table
 ===========
 
