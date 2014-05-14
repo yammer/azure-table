@@ -18,7 +18,7 @@ To start using the core library you simply need to include the following depende
     <dependency>
       <groupId>com.yammer.collections.azure</groupId>
       <artifactId>azure-table-core</artifactId>
-      <version>1.1.3</version>
+      <version>${project.version}</version>
     </dependency>
     
 This is a bare-bones integration. It requires you to provide the table name and an instance of `CloudTableClient` as provided by the Azure Java SDK: https://github.com/WindowsAzure/azure-sdk-for-java
@@ -49,7 +49,7 @@ To start using the json serialization library you simply need to include the fol
     <dependency>
       <groupId>com.yammer.collections.azure</groupId>
       <artifactId>azure-table-core</artifactId>
-      <version>1.1.3</version>
+      <version>${project.version}</version>
     </dependency>
     
 This library provides a serialization layer which forms a bridge between guava `Table` instances that use arbitrary types for row, column and value objects and those that use only the `String` type.
@@ -67,7 +67,7 @@ To start using the yammer metrics library integration you simply need to include
     <dependency>
       <groupId>com.yammer.collections.azure</groupId>
       <artifactId>azure-table-metrics</artifactId>
-      <version>1.1.3</version>
+      <version>${project.version}</version>
     </dependency>
     
 The key class is `MeteredTable` which is a decorotor around a `Table` instance.
@@ -81,7 +81,7 @@ To start using the util library you simply need to include the following depende
     <dependency>
       <groupId>com.yammer.collections.azure</groupId>
       <artifactId>azure-table-util</artifactId>
-      <version>1.1.3</version>
+      <version>${project.version}</version>
     </dependency>
 
 Provides fluent utility class for constructing `CloudTableClient` and an instance azure `Table`.
