@@ -27,31 +27,31 @@ import static com.yammer.collections.azure.AzureEntityUtil.EXTRACT_VALUE;
 import static com.yammer.collections.azure.AzureEntityUtil.decode;
 import static com.yammer.collections.azure.AzureEntityUtil.encode;
 
-class RowView implements Map<String, String> {
-    private static final Function<AzureEntity, String> EXTRACT_ROW_KEY = new Function<AzureEntity, String>() {
+class RowView implements Map<byte[], byte[]> {
+    private static final Function<AzureEntity, byte[]> EXTRACT_ROW_KEY = new Function<AzureEntity, byte[]>() {
         @Override
-        public String apply(AzureEntity input) {
+        public byte[] apply(AzureEntity input) {
             return decode(input.getPartitionKey());
         }
     };
     private final BaseAzureTable baseAzureTable;
-    private final String columnKey;
+    private final byte[] columnKey;
     private final AzureTableCloudClient azureTableCloudClient;
     private final AzureTableRequestFactory azureTableRequestFactory;
-    private final Function<AzureEntity, Entry<String, String>> extractEntry;
+    private final Function<AzureEntity, Entry<byte[], byte[]>> extractEntry;
 
     RowView(
             final BaseAzureTable baseAzureTable,
-            final String columnKey,
+            final byte[] columnKey,
             AzureTableCloudClient azureTableCloudClient,
             AzureTableRequestFactory azureTableRequestFactory) {
         this.baseAzureTable = baseAzureTable;
         this.columnKey = columnKey;
         this.azureTableCloudClient = azureTableCloudClient;
         this.azureTableRequestFactory = azureTableRequestFactory;
-        extractEntry = new Function<AzureEntity, Entry<String, String>>() {
+        extractEntry = new Function<AzureEntity, Entry<byte[], byte[]>>() {
             @Override
-            public Entry<String, String> apply(AzureEntity input) {
+            public Entry<byte[], byte[]> apply(AzureEntity input) {
                 return new RowMapEntry(decode(input.getPartitionKey()), columnKey, baseAzureTable);
             }
         };
@@ -74,48 +74,48 @@ class RowView implements Map<String, String> {
 
     @Override
     public boolean containsValue(Object value) {
-        if (!(value instanceof String)) {
+        if (!(value instanceof byte[])) {
             return false;
         }
 
         TableQuery<AzureEntity> valueQuery = azureTableRequestFactory.containsValueForColumnQuery(baseAzureTable.getTableName(), encode(columnKey),
-                encode((String) value));
+                encode((byte[]) value));
         return azureTableCloudClient.execute(valueQuery).iterator().hasNext();
     }
 
     @Override
-    public String get(Object key) {
+    public byte[] get(Object key) {
         return baseAzureTable.get(key, columnKey);
     }
 
     @Override
-    public String put(String key, String value) {
+    public byte[] put(byte[] key, byte[] value) {
         return baseAzureTable.put(key, columnKey, value);
     }
 
     @Override
-    public String remove(Object key) {
+    public byte[] remove(Object key) {
         return baseAzureTable.remove(key, columnKey);
     }
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public void putAll(Map<? extends String, ? extends String> m) {
-        for (Entry<? extends String, ? extends String> entry : m.entrySet()) {
+    public void putAll(Map<? extends byte[], ? extends byte[]> m) {
+        for (Entry<? extends byte[], ? extends byte[]> entry : m.entrySet()) {
             put(entry.getKey(), entry.getValue());
         }
     }
 
     @Override
     public void clear() {
-        for (String rowKey : keySet()) {
+        for (byte[] rowKey : keySet()) {
             remove(rowKey);
         }
     }
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public Set<String> keySet() {
+    public Set<byte[]> keySet() {
         return SetView.fromSetCollectionView(
                 new RowMapSetView<>(baseAzureTable, columnKey, EXTRACT_ROW_KEY, azureTableCloudClient, azureTableRequestFactory)
         );
@@ -123,54 +123,54 @@ class RowView implements Map<String, String> {
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public Collection<String> values() {
+    public Collection<byte[]> values() {
         return new RowMapSetView<>(baseAzureTable, columnKey, EXTRACT_VALUE, azureTableCloudClient, azureTableRequestFactory);
     }
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public Set<Entry<String, String>> entrySet() {
+    public Set<Entry<byte[], byte[]>> entrySet() {
         return SetView.fromSetCollectionView(
                 new RowMapSetView<>(baseAzureTable, columnKey, extractEntry, azureTableCloudClient, azureTableRequestFactory)
         );
     }
 
-    private static class RowMapEntry implements Entry<String, String> {
-        private final String columnKey;
-        private final String rowKey;
+    private static class RowMapEntry implements Entry<byte[], byte[]> {
+        private final byte[] columnKey;
+        private final byte[] rowKey;
         private final BaseAzureTable azureTable;
 
-        private RowMapEntry(String rowKey, String columnKey, BaseAzureTable azureTable) {
+        private RowMapEntry(byte[] rowKey, byte[] columnKey, BaseAzureTable azureTable) {
             this.rowKey = rowKey;
             this.columnKey = columnKey;
             this.azureTable = azureTable;
         }
 
         @Override
-        public String getKey() {
+        public byte[] getKey() {
             return rowKey;
         }
 
         @Override
-        public String getValue() {
+        public byte[] getValue() {
             return azureTable.get(rowKey, columnKey);
         }
 
         @Override
-        public String setValue(String value) {
+        public byte[] setValue(byte[] value) {
             return azureTable.put(rowKey, columnKey, value);
         }
     }
 
     private static class RowMapSetView<E> extends AbstractCollectionView<E> {
         private final BaseAzureTable baseAzureTable;
-        private final String columnKey;
+        private final byte[] columnKey;
         private final AzureTableCloudClient azureTableCloudClient;
         private final AzureTableRequestFactory azureTableRequestFactory;
 
         public RowMapSetView(
                 BaseAzureTable baseAzureTable,
-                String columnKey,
+                byte[] columnKey,
                 Function<AzureEntity, E> typeExtractor,
                 AzureTableCloudClient azureTableCloudClient,
                 AzureTableRequestFactory azureTableRequestFactory) {

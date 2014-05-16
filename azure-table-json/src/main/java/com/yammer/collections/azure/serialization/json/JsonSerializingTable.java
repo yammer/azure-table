@@ -23,14 +23,14 @@ public final class JsonSerializingTable {
     private JsonSerializingTable() {
     }
 
-    public static <R, C, V> Table<R, C, V> create(Table<String, String, String> backingTable,
+    public static <R, C, V> Table<R, C, V> create(Table<byte[], byte[], byte[]> backingTable,
                                                   Class<R> rowClass, Class<C> columnClass, Class<V> valueClass) {
-        Function<R, String> toRowFunction = new JsonSerializationFunction<>();
-        Function<String, R> fromRowFunction = new JsonDeserializationFunction<>(rowClass);
-        Function<C, String> toColumnFunction = new JsonSerializationFunction<>();
-        Function<String, C> fromColumnFunction = new JsonDeserializationFunction<>(columnClass);
-        Function<V, String> toValueFunction = new JsonSerializationFunction<>();
-        Function<String, V> fromValueFunction = new JsonDeserializationFunction<>(valueClass);
+        Function<R, byte[]> toRowFunction = new JsonSerializationFunction<>();
+        Function<byte[], R> fromRowFunction = new JsonDeserializationFunction<>(rowClass);
+        Function<C, byte[]> toColumnFunction = new JsonSerializationFunction<>();
+        Function<byte[], C> fromColumnFunction = new JsonDeserializationFunction<>(columnClass);
+        Function<V, byte[]> toValueFunction = new JsonSerializationFunction<>();
+        Function<byte[], V> fromValueFunction = new JsonDeserializationFunction<>(valueClass);
 
         return TransformingTable.create(backingTable,
                 toRowFunction, fromRowFunction,

@@ -27,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -39,19 +40,19 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized", "SuspiciousMethodCalls"})
 @RunWith(MockitoJUnitRunner.class)
 public class RowViewTest {
-    private static final String COLUMN_KEY = "columnKey";
-    private static final String ROW_KEY_1 = "rowKey1";
-    private static final String ROW_KEY_2 = "rowKey2";
-    private static final String VALUE_1 = "value1";
-    private static final String VALUE_2 = "value2";
-    private static final String RET_VALUE = "ret_value";
-    private static final String OTHER_ROW_KEY = "otherRow";
-    private static final String OTHER_COLUMN_KEY = "otherKey";
-    private static final String OTHER_VALUE = "otherValue";
-    private static final String TABLE_NAME = "secretie_table";
-    private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY, VALUE_1);
-    private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY, VALUE_2);
-    private static final Table.Cell<String, String, String> CELL_WITH_OTHER_COLUMN_KEY = Tables.immutableCell(OTHER_ROW_KEY, OTHER_COLUMN_KEY, OTHER_VALUE);
+    private static final byte[] COLUMN_KEY = "columnKey".getBytes();
+    private static final byte[] ROW_KEY_1 = "rowKey1".getBytes();
+    private static final byte[] ROW_KEY_2 = "rowKey2".getBytes();
+    private static final byte[] VALUE_1 = "value1".getBytes();
+    private static final byte[] VALUE_2 = "value2".getBytes();
+    private static final byte[] RET_VALUE = "ret_value".getBytes();
+    private static final byte[] OTHER_ROW_KEY = "otherRow".getBytes();
+    private static final byte[] OTHER_COLUMN_KEY = "otherKey".getBytes();
+    private static final byte[] OTHER_VALUE = "otherValue".getBytes();
+    private static final String TABLE_NAME = "table";
+    private static final Table.Cell<byte[], byte[], byte[]> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY, VALUE_1);
+    private static final Table.Cell<byte[], byte[], byte[]> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY, VALUE_2);
+    private static final Table.Cell<byte[], byte[], byte[]> CELL_WITH_OTHER_COLUMN_KEY = Tables.immutableCell(OTHER_ROW_KEY, OTHER_COLUMN_KEY, OTHER_VALUE);
     private static final Function<Map.Entry, TestMapEntry> MAP_TO_ENTRIES = new Function<Map.Entry, TestMapEntry>() {
         @SuppressWarnings("ClassEscapesDefinedScope")
         @Override
@@ -145,7 +146,7 @@ public class RowViewTest {
         when(baseAzureTable.put(ROW_KEY_1, COLUMN_KEY, OTHER_VALUE)).thenReturn(RET_VALUE);
         when(baseAzureTable.put(ROW_KEY_2, COLUMN_KEY, OTHER_VALUE)).thenReturn(RET_VALUE);
 
-        Map.Entry<String, String> someEntry = rowView.entrySet().iterator().next();
+        Map.Entry<byte[], byte[]> someEntry = rowView.entrySet().iterator().next();
 
         assertThat(someEntry.setValue(OTHER_VALUE), is(equalTo(RET_VALUE)));
         verify(baseAzureTable).put(someEntry.getKey(), COLUMN_KEY, OTHER_VALUE);
@@ -209,38 +210,38 @@ public class RowViewTest {
     //----------------------
 
     @SafeVarargs
-    private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws StorageException {
-        for (Table.Cell<String, String, String> cell : cells) {
+    private final void setAzureTableToContain(Table.Cell<byte[], byte[], byte[]>... cells) throws StorageException {
+        for (Table.Cell<byte[], byte[], byte[]> cell : cells) {
             when(baseAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
         }
         AzureTestUtil.setAzureTableToContain(TABLE_NAME, azureTableRequestFactoryMock, azureTableCloudClientMock, cells);
     }
 
-    private static class TestMapEntry implements Map.Entry<String, String> {
-        private final String key;
-        private final String value;
+    private static class TestMapEntry implements Map.Entry<byte[], byte[]> {
+        private final byte[] key;
+        private final byte[] value;
 
-        public TestMapEntry(Map.Entry<String, String> entry) {
+        public TestMapEntry(Map.Entry<byte[], byte[]> entry) {
             this(entry.getKey(), entry.getValue());
         }
 
-        public TestMapEntry(String key, String value) {
+        public TestMapEntry(byte[] key, byte[] value) {
             this.key = key;
             this.value = value;
         }
 
         @Override
-        public String getKey() {
+        public byte[] getKey() {
             return key;
         }
 
         @Override
-        public String getValue() {
+        public byte[] getValue() {
             return value;
         }
 
         @Override
-        public String setValue(String value) {
+        public byte[] setValue(byte[] value) {
             throw new UnsupportedOperationException();
         }
 
@@ -251,22 +252,22 @@ public class RowViewTest {
 
             TestMapEntry that = (TestMapEntry) o;
 
-            if (key != null ? !key.equals(that.key) : that.key != null) return false;
-            if (value != null ? !value.equals(that.value) : that.value != null) return false;
+            if (key != null ? !Arrays.equals(key, that.key) : that.key != null) return false;
+            if (value != null ? !Arrays.equals(value, that.value) : that.value != null) return false;
 
             return true;
         }
 
         @Override
         public int hashCode() {
-            int result = key != null ? key.hashCode() : 0;
-            result = 31 * result + (value != null ? value.hashCode() : 0);
+            int result = key != null ? Arrays.hashCode(key) : 0;
+            result = 31 * result + (value != null ? Arrays.hashCode(value) : 0);
             return result;
         }
 
         @Override
         public String toString() {
-            return "[" + key + "," + value + "]";
+            return "[" + Arrays.toString(key) + "," + Arrays.toString(value) + "]";
         }
     }
 

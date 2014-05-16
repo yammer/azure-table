@@ -32,6 +32,14 @@ public class TestValuePojo {
         this.numbers = numbers;
     }
 
+    @Override
+    public String toString() {
+        return "TestValuePojo{" +
+                "name='" + name + '\'' +
+                ", numbers=" + numbers +
+                '}';
+    }
+
     public String getName() {
         return name;
     }

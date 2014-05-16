@@ -26,11 +26,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
+import static com.yammer.collections.azure.ContainsCellsInAnyOrderMatcher.containsCellsInAnyOrder;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,15 +39,15 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings({"ClassWithTooManyMethods", "InstanceVariableMayNotBeInitialized", "SuspiciousMethodCalls"})
 @RunWith(MockitoJUnitRunner.class)
 public class CellSetMutableViewTest {
-    private static final String ROW_KEY_1 = "rown_name_1";
-    private static final String ROW_KEY_2 = "row_name_2";
-    private static final String COLUMN_KEY_1 = "column_key_1";
-    private static final String COLUMN_KEY_2 = "column_key_2";
-    private static final String VALUE_1 = "value1";
-    private static final String VALUE_2 = "value3";
+    private static final byte[] ROW_KEY_1 = "rown_name_1".getBytes();
+    private static final byte[] ROW_KEY_2 = "row_name_2".getBytes();
+    private static final byte[] COLUMN_KEY_1 = "column_key_1".getBytes();
+    private static final byte[] COLUMN_KEY_2 = "column_key_2".getBytes();
+    private static final byte[] VALUE_1 = "value1".getBytes();
+    private static final byte[] VALUE_2 = "value3".getBytes();
     private static final String TABLE_NAME = "secretie_table";
-    private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
-    private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
+    private static final Table.Cell<byte[], byte[], byte[]> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
+    private static final Table.Cell<byte[], byte[], byte[]> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
     @Mock
     private BaseAzureTable baseAzureTable;
     @Mock
@@ -106,7 +107,7 @@ public class CellSetMutableViewTest {
     public void iterator_contains_contained_entities() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
-        assertThat(set, containsInAnyOrder(CELL_1, CELL_2));
+        assertThat(set, containsCellsInAnyOrder(CELL_1, CELL_2));
     }
 
     @Test
@@ -254,11 +255,11 @@ public class CellSetMutableViewTest {
     //----------------------
 
     @SafeVarargs
-    private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) throws StorageException {
-        for (Table.Cell<String, String, String> cell : cells) {
+    private final void setAzureTableToContain(Table.Cell<byte[], byte[], byte[]>... cells) throws StorageException {
+        for (Table.Cell<byte[], byte[], byte[]> cell : cells) {
             when(baseAzureTable.get(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
             when(baseAzureTable.contains(cell.getRowKey(), cell.getColumnKey())).thenReturn(true);
-            when(baseAzureTable.put(eq(cell.getRowKey()), eq(cell.getColumnKey()), anyString())).thenReturn(cell.getValue());
+            when(baseAzureTable.put(eq(cell.getRowKey()), eq(cell.getColumnKey()), any(byte[].class))).thenReturn(cell.getValue());
             when(baseAzureTable.remove(cell.getRowKey(), cell.getColumnKey())).thenReturn(cell.getValue());
 
         }

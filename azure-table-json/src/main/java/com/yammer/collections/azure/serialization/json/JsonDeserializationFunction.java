@@ -21,7 +21,7 @@ import com.google.common.base.Throwables;
 
 import java.io.IOException;
 
-public class JsonDeserializationFunction<T> implements Function<String, T> {
+public class JsonDeserializationFunction<T> implements Function<byte[], T> {
     private final ObjectMapper objectMapper;
     private final Class<T> deserializedClass;
 
@@ -31,7 +31,7 @@ public class JsonDeserializationFunction<T> implements Function<String, T> {
     }
 
     @Override
-    public T apply(String input) {
+    public T apply(byte[] input) {
         try {
             return objectMapper.readValue(input, deserializedClass);
         } catch (@SuppressWarnings("OverlyBroadCatchBlock") IOException e) {

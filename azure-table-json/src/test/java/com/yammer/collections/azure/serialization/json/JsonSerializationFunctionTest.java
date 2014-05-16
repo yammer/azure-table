@@ -26,9 +26,10 @@ import static org.junit.Assert.assertThat;
 
 public class JsonSerializationFunctionTest {
     private static final Long PRIMITIVE_VALUE = 123l;
-    private static final TestValuePojo POJO_VALUE = new TestValuePojo("Michal", Arrays.asList(29, 1, 1980));
-    private static final String SERIALIZED_PRIMITIVE_VALUE = PRIMITIVE_VALUE.toString();
-    private static final String SERIALIZED_POJO_VALUE = "{\"name\":\"Michal\",\"numbers\":[29,1,1980]}";
+
+    private static final TestValuePojo POJO_VALUE = new TestValuePojo("John Doe", Arrays.asList(1, 2, 1900));
+    private static final byte[] SERIALIZED_PRIMITIVE_VALUE = PRIMITIVE_VALUE.toString().getBytes();
+    private static final byte[] SERIALIZED_POJO_VALUE = "{\"name\":\"John Doe\",\"numbers\":[1,2,1900]}".getBytes();
 
 
     @Test

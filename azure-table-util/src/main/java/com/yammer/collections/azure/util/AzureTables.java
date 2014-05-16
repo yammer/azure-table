@@ -156,7 +156,7 @@ public final class AzureTables {
     }
 
     public static class TableBuilder {
-        private final Table<String, String, String> backingTable;
+        private final Table<byte[], byte[], byte[]> backingTable;
         @SuppressWarnings("InstanceVariableMayNotBeInitialized")
         private boolean metrics;
 
@@ -181,12 +181,12 @@ public final class AzureTables {
         }
 
         public <R, C, V> Table<R, C, V> buildUsingCustomSerialization(
-                Function<R, String> rowSerializingFunction,
-                Function<String, R> rowDeserializingFunction,
-                Function<C, String> columnSerializingFunction,
-                Function<String, C> columnDeserializingFunction,
-                Function<V, String> valueSerializingFunction,
-                Function<String, V> valueDeserializingFunction
+                Function<R, byte[]> rowSerializingFunction,
+                Function<byte[], R> rowDeserializingFunction,
+                Function<C, byte[]> columnSerializingFunction,
+                Function<byte[], C> columnDeserializingFunction,
+                Function<V, byte[]> valueSerializingFunction,
+                Function<byte[], V> valueDeserializingFunction
         ) {
             return addMetricsIfChosen(
                     TransformingTable.create(
@@ -198,7 +198,7 @@ public final class AzureTables {
             );
         }
 
-        public Table<String, String, String> buildWithNoSerialization() {
+        public Table<byte[], byte[], byte[]> buildWithNoSerialization() {
             return addMetricsIfChosen(backingTable);
         }
 

@@ -33,11 +33,11 @@ import static com.yammer.collections.azure.AzureEntityUtil.decode;
  * This class implements the set interface, however it does not enforce it as it only a view.
  */
 /* package */
-class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>> {
-    private static final Function<AzureEntity, Table.Cell<String, String, String>> TABLE_CELL_CREATOR =
-            new Function<AzureEntity, Table.Cell<String, String, String>>() {
+class CellSetMutableView extends AbstractSet<Table.Cell<byte[], byte[], byte[]>> {
+    private static final Function<AzureEntity, Table.Cell<byte[], byte[], byte[]>> TABLE_CELL_CREATOR =
+            new Function<AzureEntity, Table.Cell<byte[], byte[], byte[]>>() {
                 @Override
-                public Table.Cell<String, String, String> apply(AzureEntity input) {
+                public Table.Cell<byte[], byte[], byte[]> apply(AzureEntity input) {
                     return Tables.immutableCell(
                             decode(input.getPartitionKey()),
                             decode(input.getRowKey()),
@@ -83,14 +83,14 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public Iterator<Table.Cell<String, String, String>> iterator() {
+    public Iterator<Table.Cell<byte[], byte[], byte[]>> iterator() {
         return Iterables.transform(
                 getBackingIterable(),
                 TABLE_CELL_CREATOR).iterator();
     }
 
     @Override
-    public boolean add(Table.Cell<String, String, String> cell) {
+    public boolean add(Table.Cell<byte[], byte[], byte[]> cell) {
         checkNotNull(cell);
         return baseAzureTable.put(
                 cell.getRowKey(),
@@ -113,6 +113,7 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
         ) != null;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean containsAll(Collection<?> c) {
         checkNotNull(c);
@@ -125,11 +126,12 @@ class CellSetMutableView extends AbstractSet<Table.Cell<String, String, String>>
         return true;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
-    public boolean addAll(Collection<? extends Table.Cell<String, String, String>> c) {
+    public boolean addAll(Collection<? extends Table.Cell<byte[], byte[], byte[]>> c) {
         checkNotNull(c);
         boolean change = false;
-        for (Table.Cell<String, String, String> cell : c) {
+        for (Table.Cell<byte[], byte[], byte[]> cell : c) {
             if (add(cell)) {
                 change = true;
             }

@@ -24,9 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -44,16 +42,16 @@ import static org.junit.Assert.assertThat;
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized", "ClassWithTooManyMethods"})
 public class BaseAzureTableIT {
     private static final String TABLE_NAME = "baseTableIntegrationTest";
-    private static final String ROW_KEY_1 = "rown_name_1";
-    private static final String ROW_KEY_2 = "row_name_2";
-    private static final String COLUMN_KEY_1 = "column_key_1";
-    private static final String COLUMN_KEY_2 = "column_key_2";
-    private static final String NON_EXISTENT_COLUMN_KEY = "non_existent_column_key";
-    private static final String VALUE_1 = "value1";
-    private static final String VALUE_2 = "value3";
-    private static final Table.Cell<String, String, String> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
-    private static final Table.Cell<String, String, String> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
-    private Table<String, String, String> baseAzureTable;
+    private static final byte[] ROW_KEY_1 = "rown_name_1".getBytes();
+    private static final byte[] ROW_KEY_2 = "row_name_2".getBytes();
+    private static final byte[] COLUMN_KEY_1 = "column_key_1".getBytes();
+    private static final byte[] COLUMN_KEY_2 = "column_key_2".getBytes();
+    private static final byte[] NON_EXISTENT_COLUMN_KEY = "non_existent_column_key".getBytes();
+    private static final byte[] VALUE_1 = "value1".getBytes();
+    private static final byte[] VALUE_2 = "value3".getBytes();
+    private static final Table.Cell<byte[], byte[], byte[]> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
+    private static final Table.Cell<byte[], byte[], byte[]> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
+    private Table<byte[], byte[], byte[]> baseAzureTable;
 
     @Before
     public void setUp() throws URISyntaxException, StorageException {
@@ -73,7 +71,7 @@ public class BaseAzureTableIT {
     public void when_columnKeySet_requested_then_all_keys_returned() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
-        Set<String> columnKeySet = baseAzureTable.columnKeySet();
+        Set<byte[]> columnKeySet = baseAzureTable.columnKeySet();
 
         assertThat(columnKeySet, containsInAnyOrder(COLUMN_KEY_1, COLUMN_KEY_2));
     }
@@ -82,7 +80,7 @@ public class BaseAzureTableIT {
     public void when_rowKeySet_requested_then_all_keys_returned() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
-        Set<String> rowKeySet = baseAzureTable.rowKeySet();
+        Set<byte[]> rowKeySet = baseAzureTable.rowKeySet();
 
         assertThat(rowKeySet, containsInAnyOrder(ROW_KEY_1, ROW_KEY_2));
     }
@@ -91,7 +89,7 @@ public class BaseAzureTableIT {
     public void get_of_an_existing_value_returns_result_from_azure_table_returned() throws StorageException {
         setAzureTableToContain(CELL_1);
 
-        String value = baseAzureTable.get(ROW_KEY_1, COLUMN_KEY_1);
+        byte[] value = baseAzureTable.get(ROW_KEY_1, COLUMN_KEY_1);
 
         assertThat(value, is(equalTo(VALUE_1)));
     }
@@ -100,7 +98,7 @@ public class BaseAzureTableIT {
     public void get_of_non_existing_entry_returns_null() throws StorageException {
         setAzureTableToContain(CELL_1);
 
-        String value = baseAzureTable.get(ROW_KEY_2, COLUMN_KEY_2);
+        byte[] value = baseAzureTable.get(ROW_KEY_2, COLUMN_KEY_2);
 
         assertThat(value, is(nullValue()));
     }
@@ -131,7 +129,7 @@ public class BaseAzureTableIT {
     public void cellSet_returns_all_table_cells() throws StorageException {
         setAzureTableToContain(CELL_1, CELL_2);
 
-        Set<Table.Cell<String, String, String>> cellSet = baseAzureTable.cellSet();
+        Set<Table.Cell<byte[], byte[], byte[]>> cellSet = baseAzureTable.cellSet();
 
         //noinspection unchecked
         assertThat(cellSet, containsInAnyOrder(CELL_1, CELL_2));
@@ -223,7 +221,7 @@ public class BaseAzureTableIT {
     public void columnView_contains_correct_values() {
         setAzureTableToContain(CELL_1, CELL_2);
 
-        Map<String, String> column = baseAzureTable.column(COLUMN_KEY_1);
+        Map<byte[], byte[]> column = baseAzureTable.column(COLUMN_KEY_1);
 
         assertThat(column.containsValue(VALUE_1), is(equalTo(true)));
         assertThat(column.containsValue(VALUE_2), is(equalTo(false)));
@@ -233,11 +231,11 @@ public class BaseAzureTableIT {
     public void columnView_contains_correct_entries() {
         setAzureTableToContain(CELL_1, CELL_2);
 
-        Iterator<Map.Entry<String, String>> entries = baseAzureTable.column(COLUMN_KEY_1).entrySet().iterator();
+        Iterator<Map.Entry<byte[], byte[]>> entries = baseAzureTable.column(COLUMN_KEY_1).entrySet().iterator();
 
         entries.hasNext(); // needed to initialize the iterator, due to a bug in the azure sdk
 
-        Map.Entry<String, String> entry = entries.next();
+        Map.Entry<byte[], byte[]> entry = entries.next();
         assertThat(entries.hasNext(), is(equalTo(false)));
         assertThat(entry.getKey(), is(equalTo(ROW_KEY_1)));
         assertThat(entry.getValue(), is(equalTo(VALUE_1)));
@@ -247,7 +245,7 @@ public class BaseAzureTableIT {
     public void rowView_contains_correct_values() {
         setAzureTableToContain(CELL_1, CELL_2);
 
-        Map<String, String> column = baseAzureTable.row(ROW_KEY_1);
+        Map<byte[], byte[]> column = baseAzureTable.row(ROW_KEY_1);
 
         assertThat(column.containsValue(VALUE_1), is(equalTo(true)));
         assertThat(column.containsValue(VALUE_2), is(equalTo(false)));
@@ -257,19 +255,19 @@ public class BaseAzureTableIT {
     public void rowView_contains_correct_entries() {
         setAzureTableToContain(CELL_1, CELL_2);
 
-        Iterator<Map.Entry<String, String>> entries = baseAzureTable.row(ROW_KEY_1).entrySet().iterator();
+        Iterator<Map.Entry<byte[], byte[]>> entries = baseAzureTable.row(ROW_KEY_1).entrySet().iterator();
 
         entries.hasNext(); // needed to initialize the iterator, due to a bug in the azure sdk
 
-        Map.Entry<String, String> entry = entries.next();
+        Map.Entry<byte[], byte[]> entry = entries.next();
         assertThat(entries.hasNext(), is(equalTo(false)));
         assertThat(entry.getKey(), is(equalTo(COLUMN_KEY_1)));
         assertThat(entry.getValue(), is(equalTo(VALUE_1)));
     }
 
     @SafeVarargs
-    private final void setAzureTableToContain(Table.Cell<String, String, String>... cells) {
-        for (Table.Cell<String, String, String> cell : cells) {
+    private final void setAzureTableToContain(Table.Cell<byte[], byte[], byte[]>... cells) {
+        for (Table.Cell<byte[], byte[], byte[]> cell : cells) {
             baseAzureTable.put(cell.getRowKey(), cell.getColumnKey(), cell.getValue());
         }
     }

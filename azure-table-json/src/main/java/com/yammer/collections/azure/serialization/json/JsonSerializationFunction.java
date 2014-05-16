@@ -21,7 +21,7 @@ import com.google.common.base.Throwables;
 
 import java.io.IOException;
 
-public class JsonSerializationFunction<T> implements Function<T, String> {
+public class JsonSerializationFunction<T> implements Function<T, byte[]> {
     private final ObjectMapper objectMapper;
 
     public JsonSerializationFunction() {
@@ -29,9 +29,9 @@ public class JsonSerializationFunction<T> implements Function<T, String> {
     }
 
     @Override
-    public String apply(T input) {
+    public byte[] apply(T input) {
         try {
-            return objectMapper.writeValueAsString(input);
+            return objectMapper.writeValueAsBytes(input);
         } catch (@SuppressWarnings("OverlyBroadCatchBlock") IOException e) {
             throw Throwables.propagate(e);
         }

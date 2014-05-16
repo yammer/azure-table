@@ -23,16 +23,21 @@ import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import java.io.FileInputStream;
 import java.util.Properties;
 
-public class AzureTestCloudTableClientFactory {
+public final class AzureTestCloudTableClientFactory {
     private static final String PROPERTIES_FILE = "azure-table-test-connection.properties";
     private static final String ACCOUNT_NAME = "account.name";
     private static final String ACCOUNT_KEY = "account.key";
     private static final String CONNECTION_STRING = "DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s";
 
+    private AzureTestCloudTableClientFactory() {
+    }
+
     public static CloudTableClient create() {
 
+        //noinspection OverlyBroadCatchBlock
         try {
             Properties azureTableTestAccountConnectionProperties = new Properties();
+            //noinspection NestedTryStatement
             try (FileInputStream fis = new FileInputStream(BaseAzureTableIT.class.getResource(PROPERTIES_FILE).getPath())) {
                 azureTableTestAccountConnectionProperties.load(fis);
 
