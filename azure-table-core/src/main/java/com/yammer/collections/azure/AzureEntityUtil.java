@@ -19,9 +19,9 @@ import com.google.common.base.Function;
 import com.microsoft.windowsazure.services.core.storage.utils.Base64;
 
 final class AzureEntityUtil {
-    static final Function<AzureEntity, byte[]> EXTRACT_VALUE = new Function<AzureEntity, byte[]>() {
+    static final Function<AzureEntity, Bytes> EXTRACT_VALUE = new Function<AzureEntity, Bytes>() {
         @Override
-        public byte[] apply(AzureEntity input) {
+        public Bytes apply(AzureEntity input) {
             return decode(input.getValue());
         }
     };
@@ -29,12 +29,12 @@ final class AzureEntityUtil {
     private AzureEntityUtil() {
     }
 
-    static String encode(byte[] bytesToBeEncoded) {
-        return Base64.encode(bytesToBeEncoded);
+    static String encode(Bytes bytesToBeEncoded) {
+        return Base64.encode(bytesToBeEncoded.getBytes());
     }
 
-    static byte[] decode(String stringToBeDecoded) {
-        return Base64.decode(stringToBeDecoded);
+    static Bytes decode(String stringToBeDecoded) {
+        return new Bytes(Base64.decode(stringToBeDecoded));
     }
 
 }

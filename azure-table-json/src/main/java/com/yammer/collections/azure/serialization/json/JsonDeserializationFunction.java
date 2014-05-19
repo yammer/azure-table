@@ -18,10 +18,11 @@ package com.yammer.collections.azure.serialization.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
+import com.yammer.collections.azure.Bytes;
 
 import java.io.IOException;
 
-public class JsonDeserializationFunction<T> implements Function<byte[], T> {
+public class JsonDeserializationFunction<T> implements Function<Bytes, T> {
     private final ObjectMapper objectMapper;
     private final Class<T> deserializedClass;
 
@@ -31,9 +32,9 @@ public class JsonDeserializationFunction<T> implements Function<byte[], T> {
     }
 
     @Override
-    public T apply(byte[] input) {
+    public T apply(Bytes input) {
         try {
-            return objectMapper.readValue(input, deserializedClass);
+            return objectMapper.readValue(input.getBytes(), deserializedClass);
         } catch (@SuppressWarnings("OverlyBroadCatchBlock") IOException e) {
             throw Throwables.propagate(e);
         }

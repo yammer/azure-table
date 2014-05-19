@@ -33,11 +33,11 @@ import static com.yammer.collections.azure.AzureEntityUtil.decode;
  * This class implements the set interface, however it does not enforce it as it only a view.
  */
 /* package */
-class CellSetMutableView extends AbstractSet<Table.Cell<byte[], byte[], byte[]>> {
-    private static final Function<AzureEntity, Table.Cell<byte[], byte[], byte[]>> TABLE_CELL_CREATOR =
-            new Function<AzureEntity, Table.Cell<byte[], byte[], byte[]>>() {
+class CellSetMutableView extends AbstractSet<Table.Cell<Bytes, Bytes, Bytes>> {
+    private static final Function<AzureEntity, Table.Cell<Bytes, Bytes, Bytes>> TABLE_CELL_CREATOR =
+            new Function<AzureEntity, Table.Cell<Bytes, Bytes, Bytes>>() {
                 @Override
-                public Table.Cell<byte[], byte[], byte[]> apply(AzureEntity input) {
+                public Table.Cell<Bytes, Bytes, Bytes> apply(AzureEntity input) {
                     return Tables.immutableCell(
                             decode(input.getPartitionKey()),
                             decode(input.getRowKey()),
@@ -83,14 +83,14 @@ class CellSetMutableView extends AbstractSet<Table.Cell<byte[], byte[], byte[]>>
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public Iterator<Table.Cell<byte[], byte[], byte[]>> iterator() {
+    public Iterator<Table.Cell<Bytes, Bytes, Bytes>> iterator() {
         return Iterables.transform(
                 getBackingIterable(),
                 TABLE_CELL_CREATOR).iterator();
     }
 
     @Override
-    public boolean add(Table.Cell<byte[], byte[], byte[]> cell) {
+    public boolean add(Table.Cell<Bytes, Bytes, Bytes> cell) {
         checkNotNull(cell);
         return baseAzureTable.put(
                 cell.getRowKey(),
@@ -128,10 +128,10 @@ class CellSetMutableView extends AbstractSet<Table.Cell<byte[], byte[], byte[]>>
 
     @SuppressWarnings("NullableProblems")
     @Override
-    public boolean addAll(Collection<? extends Table.Cell<byte[], byte[], byte[]>> c) {
+    public boolean addAll(Collection<? extends Table.Cell<Bytes, Bytes, Bytes>> c) {
         checkNotNull(c);
         boolean change = false;
-        for (Table.Cell<byte[], byte[], byte[]> cell : c) {
+        for (Table.Cell<Bytes, Bytes, Bytes> cell : c) {
             if (add(cell)) {
                 change = true;
             }

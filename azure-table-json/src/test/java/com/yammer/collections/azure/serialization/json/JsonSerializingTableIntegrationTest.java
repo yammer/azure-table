@@ -15,50 +15,46 @@
  */
 package com.yammer.collections.azure.serialization.json;
 
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import com.yammer.collections.azure.Bytes;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized", "ConstantNamingConvention"})
-@RunWith(MockitoJUnitRunner.class)
 public class JsonSerializingTableIntegrationTest {
     private static final Float ROW = 11.34f;
     private static final Long COLUMN = 123l;
     private static final TestValuePojo VALUE = new TestValuePojo("Ala", Arrays.asList(15, 1, 1690));
-    private static final byte[] SERIALIED_ROW = ROW.toString().getBytes();
-    private static final byte[] SERIALIZED_COLUMN = COLUMN.toString().getBytes();
-    private static final byte[] SERIALIZED_VALUE = "{\"name\":\"Ala\",\"numbers\":[15,1,1690]}".getBytes();
-    @Mock
-    private Table<byte[], byte[], byte[]> backingTableMock;
+    private static final Bytes SERIALIED_ROW = new Bytes(ROW.toString().getBytes());
+    private static final Bytes SERIALIZED_COLUMN = new Bytes(COLUMN.toString().getBytes());
+    private static final Bytes SERIALIZED_VALUE = new Bytes("{\"name\":\"Ala\",\"numbers\":[15,1,1690]}".getBytes());
+    private Table<Bytes, Bytes, Bytes> backingTable;
     private Table<Float, Long, TestValuePojo> jsonSerializingTable;
 
     @Before
     public void setUp() {
+        backingTable = HashBasedTable.create();
         jsonSerializingTable = JsonSerializingTable.create(
-                backingTableMock, Float.class, Long.class, TestValuePojo.class);
+                backingTable, Float.class, Long.class, TestValuePojo.class);
     }
 
     @Test
     public void put_correctly_serializes() {
         jsonSerializingTable.put(ROW, COLUMN, VALUE);
 
-        verify(backingTableMock).put(SERIALIED_ROW, SERIALIZED_COLUMN, SERIALIZED_VALUE);
+        assertThat(backingTable.get(SERIALIED_ROW, SERIALIZED_COLUMN), is(equalTo(SERIALIZED_VALUE)));
     }
 
     @Test
     public void get_correctly_deserializes() {
-        when(backingTableMock.get(SERIALIED_ROW, SERIALIZED_COLUMN)).thenReturn(SERIALIZED_VALUE);
+        backingTable.put(SERIALIED_ROW, SERIALIZED_COLUMN, SERIALIZED_VALUE);
 
         assertThat(jsonSerializingTable.get(ROW, COLUMN), is(equalTo(VALUE)));
     }

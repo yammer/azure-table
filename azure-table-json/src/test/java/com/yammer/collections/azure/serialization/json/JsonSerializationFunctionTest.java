@@ -16,6 +16,7 @@
 package com.yammer.collections.azure.serialization.json;
 
 
+import com.yammer.collections.azure.Bytes;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -28,8 +29,8 @@ public class JsonSerializationFunctionTest {
     private static final Long PRIMITIVE_VALUE = 123l;
 
     private static final TestValuePojo POJO_VALUE = new TestValuePojo("John Doe", Arrays.asList(1, 2, 1900));
-    private static final byte[] SERIALIZED_PRIMITIVE_VALUE = PRIMITIVE_VALUE.toString().getBytes();
-    private static final byte[] SERIALIZED_POJO_VALUE = "{\"name\":\"John Doe\",\"numbers\":[1,2,1900]}".getBytes();
+    private static final Bytes SERIALIZED_PRIMITIVE_VALUE = new Bytes(PRIMITIVE_VALUE.toString().getBytes());
+    private static final Bytes SERIALIZED_POJO_VALUE = new Bytes("{\"name\":\"John Doe\",\"numbers\":[1,2,1900]}".getBytes());
 
 
     @Test

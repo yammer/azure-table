@@ -17,20 +17,21 @@ package com.yammer.collections.azure.serialization.json;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Table;
+import com.yammer.collections.azure.Bytes;
 import com.yammer.collections.transforming.TransformingTable;
 
 public final class JsonSerializingTable {
     private JsonSerializingTable() {
     }
 
-    public static <R, C, V> Table<R, C, V> create(Table<byte[], byte[], byte[]> backingTable,
+    public static <R, C, V> Table<R, C, V> create(Table<Bytes, Bytes, Bytes> backingTable,
                                                   Class<R> rowClass, Class<C> columnClass, Class<V> valueClass) {
-        Function<R, byte[]> toRowFunction = new JsonSerializationFunction<>();
-        Function<byte[], R> fromRowFunction = new JsonDeserializationFunction<>(rowClass);
-        Function<C, byte[]> toColumnFunction = new JsonSerializationFunction<>();
-        Function<byte[], C> fromColumnFunction = new JsonDeserializationFunction<>(columnClass);
-        Function<V, byte[]> toValueFunction = new JsonSerializationFunction<>();
-        Function<byte[], V> fromValueFunction = new JsonDeserializationFunction<>(valueClass);
+        Function<R, Bytes> toRowFunction = new JsonSerializationFunction<>();
+        Function<Bytes, R> fromRowFunction = new JsonDeserializationFunction<>(rowClass);
+        Function<C, Bytes> toColumnFunction = new JsonSerializationFunction<>();
+        Function<Bytes, C> fromColumnFunction = new JsonDeserializationFunction<>(columnClass);
+        Function<V, Bytes> toValueFunction = new JsonSerializationFunction<>();
+        Function<Bytes, V> fromValueFunction = new JsonDeserializationFunction<>(valueClass);
 
         return TransformingTable.create(backingTable,
                 toRowFunction, fromRowFunction,

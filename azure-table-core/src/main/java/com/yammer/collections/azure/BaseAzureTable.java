@@ -34,16 +34,16 @@ import static com.yammer.collections.azure.AzureEntityUtil.decode;
 import static com.yammer.collections.azure.AzureEntityUtil.encode;
 
 @SuppressWarnings("ClassWithTooManyMethods")
-public class BaseAzureTable implements Table<byte[], byte[], byte[]> {
-    private static final Function<AzureEntity, byte[]> COLUMN_KEY_EXTRACTOR = new Function<AzureEntity, byte[]>() {
+public class BaseAzureTable implements Table<Bytes, Bytes, Bytes> {
+    private static final Function<AzureEntity, Bytes> COLUMN_KEY_EXTRACTOR = new Function<AzureEntity, Bytes>() {
         @Override
-        public byte[] apply(AzureEntity input) {
+        public Bytes apply(AzureEntity input) {
             return decode(input.getRowKey());
         }
     };
-    private static final Function<AzureEntity, byte[]> ROW_KEY_EXTRACTOR = new Function<AzureEntity, byte[]>() {
+    private static final Function<AzureEntity, Bytes> ROW_KEY_EXTRACTOR = new Function<AzureEntity, Bytes>() {
         @Override
-        public byte[] apply(AzureEntity input) {
+        public Bytes apply(AzureEntity input) {
             return decode(input.getPartitionKey());
         }
     };
@@ -58,7 +58,7 @@ public class BaseAzureTable implements Table<byte[], byte[], byte[]> {
         this.azureTableRequestFactory = azureTableRequestFactory;
     }
 
-    public static Table<byte[], byte[], byte[]> create(String tableName, CloudTableClient cloudTableClient) {
+    public static Table<Bytes, Bytes, Bytes> create(String tableName, CloudTableClient cloudTableClient) {
         return new BaseAzureTable(
                 checkNotNull(tableName),
                 new AzureTableCloudClient(checkNotNull(cloudTableClient)),
@@ -66,7 +66,7 @@ public class BaseAzureTable implements Table<byte[], byte[], byte[]> {
         );
     }
 
-    private static byte[] entityToValue(AzureEntity azureEntity) {
+    private static Bytes entityToValue(AzureEntity azureEntity) {
         return azureEntity == null ? null : decode(azureEntity.getValue());
     }
 
@@ -82,36 +82,36 @@ public class BaseAzureTable implements Table<byte[], byte[], byte[]> {
 
     @Override
     public boolean containsRow(Object row) {
-        return row instanceof byte[] && !row((byte[]) row).isEmpty();
+        return row instanceof Bytes && !row((Bytes) row).isEmpty();
     }
 
     @Override
     public boolean containsColumn(Object column) {
-        return column instanceof byte[] && !column((byte[]) column).isEmpty();
+        return column instanceof Bytes && !column((Bytes) column).isEmpty();
     }
 
     @Override
     public boolean containsValue(Object value) {
-        if (!(value instanceof byte[])) {
+        if (!(value instanceof Bytes)) {
             return false;
         }
 
-        TableQuery<AzureEntity> valueQuery = azureTableRequestFactory.containsValueQuery(tableName, encode((byte[]) value));
+        TableQuery<AzureEntity> valueQuery = azureTableRequestFactory.containsValueQuery(tableName, encode((Bytes) value));
         return azureTableCloudClient.execute(valueQuery).iterator().hasNext();
     }
 
     @Override
-    public byte[] get(Object row, Object column) {
+    public Bytes get(Object row, Object column) {
         return entityToValue(rawGet(row, column));
     }
 
     private AzureEntity rawGet(Object row, Object column) {
-        if (!(row instanceof byte[] && column instanceof byte[])) {
+        if (!(row instanceof Bytes && column instanceof Bytes)) {
             return null;
         }
 
-        String rowAsString = encode((byte[]) row);
-        String columnAsString = encode((byte[]) column);
+        String rowAsString = encode((Bytes) row);
+        String columnAsString = encode((Bytes) column);
 
         TableOperation retrieveEntityOperation = azureTableRequestFactory.retrieve(rowAsString, columnAsString);
 
@@ -134,13 +134,13 @@ public class BaseAzureTable implements Table<byte[], byte[], byte[]> {
 
     @Override
     public void clear() {
-        for (Cell<byte[], byte[], byte[]> cell : cellSet()) {
+        for (Cell<Bytes, Bytes, Bytes> cell : cellSet()) {
             remove(cell.getRowKey(), cell.getColumnKey());
         }
     }
 
     @Override
-    public byte[] put(byte[] row, byte[] column, byte[] value) {
+    public Bytes put(Bytes row, Bytes column, Bytes value) {
         checkNotNull(row);
         checkNotNull(column);
         checkNotNull(value);
@@ -154,15 +154,15 @@ public class BaseAzureTable implements Table<byte[], byte[], byte[]> {
     }
 
     @Override
-    public void putAll(Table<? extends byte[], ? extends byte[], ? extends byte[]> table) {
+    public void putAll(Table<? extends Bytes, ? extends Bytes, ? extends Bytes> table) {
         checkNotNull(table);
-        for (Cell<? extends byte[], ? extends byte[], ? extends byte[]> cell : table.cellSet()) {
+        for (Cell<? extends Bytes, ? extends Bytes, ? extends Bytes> cell : table.cellSet()) {
             put(cell.getRowKey(), cell.getColumnKey(), cell.getValue());
         }
     }
 
     @Override
-    public byte[] remove(Object row, Object column) {
+    public Bytes remove(Object row, Object column) {
         AzureEntity entityToBeDeleted = rawGet(row, column);
 
         if (entityToBeDeleted == null) {
@@ -182,48 +182,48 @@ public class BaseAzureTable implements Table<byte[], byte[], byte[]> {
     }
 
     @Override
-    public Map<byte[], byte[]> row(byte[] row) {
+    public Map<Bytes, Bytes> row(Bytes row) {
         checkNotNull(row);
         return new ColumnView(this, row, azureTableCloudClient, azureTableRequestFactory);
     }
 
     @Override
-    public Map<byte[], byte[]> column(byte[] column) {
+    public Map<Bytes, Bytes> column(Bytes column) {
         checkNotNull(column);
         return new RowView(this, column, azureTableCloudClient, azureTableRequestFactory);
     }
 
     @Override
-    public Set<Cell<byte[], byte[], byte[]>> cellSet() {
+    public Set<Cell<Bytes, Bytes, Bytes>> cellSet() {
         return new CellSetMutableView(this, azureTableCloudClient, azureTableRequestFactory);
     }
 
     @Override
-    public Set<byte[]> rowKeySet() {
+    public Set<Bytes> rowKeySet() {
         return SetView.fromCollectionView(
                 new TableCollectionView<>(this, ROW_KEY_EXTRACTOR, azureTableCloudClient, azureTableRequestFactory)
         );
     }
 
     @Override
-    public Set<byte[]> columnKeySet() {
+    public Set<Bytes> columnKeySet() {
         return SetView.fromCollectionView(
                 new TableCollectionView<>(this, COLUMN_KEY_EXTRACTOR, azureTableCloudClient, azureTableRequestFactory)
         );
     }
 
     @Override
-    public Collection<byte[]> values() {
+    public Collection<Bytes> values() {
         return new TableCollectionView<>(this, EXTRACT_VALUE, azureTableCloudClient, azureTableRequestFactory);
     }
 
     @Override
-    public Map<byte[], Map<byte[], byte[]>> rowMap() {
+    public Map<Bytes, Map<Bytes, Bytes>> rowMap() {
         return new RowMapView(this);
     }
 
     @Override
-    public Map<byte[], Map<byte[], byte[]>> columnMap() {
+    public Map<Bytes, Map<Bytes, Bytes>> columnMap() {
         return new ColumnMapView<>(this);
     }
 

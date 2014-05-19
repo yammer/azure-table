@@ -65,6 +65,7 @@ class SetView<E> extends AbstractSet<E> {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean containsAll(Collection<?> c) {
         return collectionView.containsAll(c);

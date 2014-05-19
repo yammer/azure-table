@@ -37,9 +37,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public final class AzureTestUtil {
-    static final Function<Table.Cell<byte[], byte[], byte[]>, AzureEntity> ENCODE_CELL = new Function<Table.Cell<byte[], byte[], byte[]>, AzureEntity>() {
+    static final Function<Table.Cell<Bytes, Bytes, Bytes>, AzureEntity> ENCODE_CELL = new Function<Table.Cell<Bytes, Bytes, Bytes>, AzureEntity>() {
         @Override
-        public AzureEntity apply(Table.Cell<byte[], byte[], byte[]> input) {
+        public AzureEntity apply(Table.Cell<Bytes, Bytes, Bytes> input) {
             return encodedEntity(input);
         }
     };
@@ -51,7 +51,7 @@ public final class AzureTestUtil {
     static void setAzureTableToContain(String tableName,
                                        AzureTableRequestFactory azureTableRequestFactoryMock,
                                        AzureTableCloudClient azureTableCloudClientMock,
-                                       Table.Cell<byte[], byte[], byte[]>... cells) throws StorageException {
+                                       Table.Cell<Bytes, Bytes, Bytes>... cells) throws StorageException {
         // retrieve setup in general
         TableOperation blanketRetrieveOperationMock = mock(TableOperation.class);
         when(azureTableRequestFactoryMock.retrieve(any(String.class), any(String.class))).thenReturn(blanketRetrieveOperationMock);
@@ -62,7 +62,7 @@ public final class AzureTestUtil {
         when(azureTableRequestFactoryMock.containsValueQuery(anyString(), anyString())).thenReturn(emptyQuery);
         when(azureTableCloudClientMock.execute(emptyQuery)).thenReturn(Collections.<AzureEntity>emptyList());
         Collection<AzureEntity> encodedStringEntities = Lists.newArrayList();
-        for (Table.Cell<byte[], byte[], byte[]> cell : cells) {
+        for (Table.Cell<Bytes, Bytes, Bytes> cell : cells) {
             encodedStringEntities.add(encodedEntity(cell));
             setAzureTableToRetrieve(tableName, azureTableRequestFactoryMock, azureTableCloudClientMock, cell);
 
@@ -80,11 +80,11 @@ public final class AzureTestUtil {
         setupColumnQueries(tableName, azureTableRequestFactoryMock, azureTableCloudClientMock, cells);
     }
 
-    static String encode(byte[] bytesToBeEncoded) {
-        return Base64.encode(bytesToBeEncoded);
+    static String encode(Bytes bytesToBeEncoded) {
+        return Base64.encode(bytesToBeEncoded.getBytes());
     }
 
-    static AzureEntity encodedEntity(Table.Cell<byte[], byte[], byte[]> unEncodedcell) {
+    static AzureEntity encodedEntity(Table.Cell<Bytes, Bytes, Bytes> unEncodedcell) {
         return new AzureEntity(encode(unEncodedcell.getRowKey()), encode(unEncodedcell.getColumnKey()), encode(unEncodedcell.getValue()));
     }
 
@@ -92,7 +92,7 @@ public final class AzureTestUtil {
             String tableName,
             AzureTableRequestFactory azureTableRequestFactoryMock,
             AzureTableCloudClient azureTableCloudClientMock,
-            Table.Cell<byte[], byte[], byte[]> cell) throws StorageException {
+            Table.Cell<Bytes, Bytes, Bytes> cell) throws StorageException {
         TableOperation retriveTableOperationMock = mock(TableOperation.class);
         when(azureTableRequestFactoryMock.retrieve(encode(cell.getRowKey()), encode(cell.getColumnKey()))).thenReturn(retriveTableOperationMock);
         when(azureTableCloudClientMock.execute(tableName, retriveTableOperationMock)).thenReturn(encodedEntity(cell));
@@ -102,15 +102,15 @@ public final class AzureTestUtil {
     private static void setupRowQueries(String tableName,
                                         AzureTableRequestFactory azureTableRequestFactoryMock,
                                         AzureTableCloudClient azureTableCloudClientMock,
-                                        Table.Cell<byte[], byte[], byte[]>... cells) {
+                                        Table.Cell<Bytes, Bytes, Bytes>... cells) {
 
         TableQuery<AzureEntity> emptyQueryMock = mock(TableQuery.class);
         when(azureTableRequestFactoryMock.selectAllForRow(anyString(), anyString())).thenReturn(emptyQueryMock);
         when(azureTableRequestFactoryMock.containsValueForRowQuery(anyString(), anyString(), anyString())).thenReturn(emptyQueryMock);
         when(azureTableCloudClientMock.execute(emptyQueryMock)).thenReturn(Collections.<AzureEntity>emptyList());
 
-        Multimap<byte[], Table.Cell<byte[], byte[], byte[]>> rowCellMap = HashMultimap.create();
-        for (Table.Cell<byte[], byte[], byte[]> cell : cells) {
+        Multimap<Bytes, Table.Cell<Bytes, Bytes, Bytes>> rowCellMap = HashMultimap.create();
+        for (Table.Cell<Bytes, Bytes, Bytes> cell : cells) {
             rowCellMap.put(cell.getRowKey(), cell);
 
             TableQuery<AzureEntity> rowValueQueryMock = mock(TableQuery.class);
@@ -124,7 +124,7 @@ public final class AzureTestUtil {
             when(azureTableCloudClientMock.execute(rowValueQueryMock)).thenReturn(Collections.singletonList(ENCODE_CELL.apply(cell)));
         }
 
-        for (Map.Entry<byte[], Collection<Table.Cell<byte[], byte[], byte[]>>> entry : rowCellMap.asMap().entrySet()) {
+        for (Map.Entry<Bytes, Collection<Table.Cell<Bytes, Bytes, Bytes>>> entry : rowCellMap.asMap().entrySet()) {
             // row query
             TableQuery<AzureEntity> rowQueryMock = mock(TableQuery.class);
             when(azureTableRequestFactoryMock.selectAllForRow(tableName, encode(entry.getKey()))).
@@ -137,15 +137,15 @@ public final class AzureTestUtil {
     private static void setupColumnQueries(String tableName,
                                            AzureTableRequestFactory azureTableRequestFactoryMock,
                                            AzureTableCloudClient azureTableCloudClientMock,
-                                           Table.Cell<byte[], byte[], byte[]>... cells) {
+                                           Table.Cell<Bytes, Bytes, Bytes>... cells) {
 
         TableQuery<AzureEntity> emptyQueryMock = mock(TableQuery.class);
         when(azureTableRequestFactoryMock.selectAllForColumn(anyString(), anyString())).thenReturn(emptyQueryMock);
         when(azureTableRequestFactoryMock.containsValueForColumnQuery(anyString(), anyString(), anyString())).thenReturn(emptyQueryMock);
         when(azureTableCloudClientMock.execute(emptyQueryMock)).thenReturn(Collections.<AzureEntity>emptyList());
 
-        Multimap<byte[], Table.Cell<byte[], byte[], byte[]>> columnCellMap = HashMultimap.create();
-        for (Table.Cell<byte[], byte[], byte[]> cell : cells) {
+        Multimap<Bytes, Table.Cell<Bytes, Bytes, Bytes>> columnCellMap = HashMultimap.create();
+        for (Table.Cell<Bytes, Bytes, Bytes> cell : cells) {
             columnCellMap.put(cell.getColumnKey(), cell);
 
             TableQuery<AzureEntity> columnValueQueryMock = mock(TableQuery.class);
@@ -159,7 +159,7 @@ public final class AzureTestUtil {
             when(azureTableCloudClientMock.execute(columnValueQueryMock)).thenReturn(Collections.singletonList(ENCODE_CELL.apply(cell)));
         }
 
-        for (Map.Entry<byte[], Collection<Table.Cell<byte[], byte[], byte[]>>> entry : columnCellMap.asMap().entrySet()) {
+        for (Map.Entry<Bytes, Collection<Table.Cell<Bytes, Bytes, Bytes>>> entry : columnCellMap.asMap().entrySet()) {
             // row query
             TableQuery<AzureEntity> columnQueryMock = mock(TableQuery.class);
             when(azureTableRequestFactoryMock.selectAllForColumn(tableName, encode(entry.getKey()))).

@@ -39,21 +39,21 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized", "SuspiciousMethodCalls"})
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractCollectionViewTest {
-    private static final byte[] ROW_KEY_1 = "rown_name_1".getBytes();
-    private static final byte[] ROW_KEY_2 = "row_name_2".getBytes();
-    private static final byte[] COLUMN_KEY_1 = "column_key_1".getBytes();
-    private static final byte[] COLUMN_KEY_2 = "column_key_2".getBytes();
-    private static final byte[] VALUE_1 = "value1".getBytes();
-    private static final byte[] VALUE_2 = "value3".getBytes();
+    private static final Bytes ROW_KEY_1 = new Bytes("rown_name_1".getBytes());
+    private static final Bytes ROW_KEY_2 = new Bytes("row_name_2".getBytes());
+    private static final Bytes COLUMN_KEY_1 = new Bytes("column_key_1".getBytes());
+    private static final Bytes COLUMN_KEY_2 = new Bytes("column_key_2".getBytes());
+    private static final Bytes VALUE_1 = new Bytes("value1".getBytes());
+    private static final Bytes VALUE_2 = new Bytes("value3".getBytes());
     private static final Long LONG_VALUE_1 = 1L;
     private static final Long LONG_VALUE_2 = 2L;
-    private static final Table.Cell<byte[], byte[], byte[]> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
-    private static final Table.Cell<byte[], byte[], byte[]> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
+    private static final Table.Cell<Bytes, Bytes, Bytes> CELL_1 = Tables.immutableCell(ROW_KEY_1, COLUMN_KEY_1, VALUE_1);
+    private static final Table.Cell<Bytes, Bytes, Bytes> CELL_2 = Tables.immutableCell(ROW_KEY_2, COLUMN_KEY_2, VALUE_2);
     private static final Function<AzureEntity, Long> LONG_EXTRACTOR = new Function<AzureEntity, Long>() {
         @Override
         public Long apply(AzureEntity input) {
-            @SuppressWarnings("MismatchedReadAndWriteOfArray") byte[] decoded = decode(input.getValue());
-            if (Arrays.equals(decoded, VALUE_1)) {
+            @SuppressWarnings("MismatchedReadAndWriteOfArray") Bytes decoded = decode(input.getValue());
+            if (decoded.equals(VALUE_1)) {
                 return LONG_VALUE_1;
             }
 
@@ -174,7 +174,7 @@ public class AbstractCollectionViewTest {
     //----------------------
 
     @SafeVarargs
-    private final void setAzureTableToContain(Table.Cell<byte[], byte[], byte[]>... cells) {
+    private final void setAzureTableToContain(Table.Cell<Bytes, Bytes, Bytes>... cells) {
         when(stringEntityIterableMock.iterator()).thenReturn(
                 Iterables.transform(Arrays.asList(cells), AzureTestUtil.ENCODE_CELL).iterator()
         );

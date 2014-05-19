@@ -25,6 +25,7 @@ import com.microsoft.windowsazure.services.core.storage.StorageException;
 import com.microsoft.windowsazure.services.table.client.CloudTable;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.yammer.collections.azure.BaseAzureTable;
+import com.yammer.collections.azure.Bytes;
 import com.yammer.collections.azure.serialization.json.JsonSerializingTable;
 import com.yammer.collections.metrics.MeteredTable;
 import com.yammer.collections.transforming.TransformingTable;
@@ -156,7 +157,7 @@ public final class AzureTables {
     }
 
     public static class TableBuilder {
-        private final Table<byte[], byte[], byte[]> backingTable;
+        private final Table<Bytes, Bytes, Bytes> backingTable;
         @SuppressWarnings("InstanceVariableMayNotBeInitialized")
         private boolean metrics;
 
@@ -181,12 +182,12 @@ public final class AzureTables {
         }
 
         public <R, C, V> Table<R, C, V> buildUsingCustomSerialization(
-                Function<R, byte[]> rowSerializingFunction,
-                Function<byte[], R> rowDeserializingFunction,
-                Function<C, byte[]> columnSerializingFunction,
-                Function<byte[], C> columnDeserializingFunction,
-                Function<V, byte[]> valueSerializingFunction,
-                Function<byte[], V> valueDeserializingFunction
+                Function<R, Bytes> rowSerializingFunction,
+                Function<Bytes, R> rowDeserializingFunction,
+                Function<C, Bytes> columnSerializingFunction,
+                Function<Bytes, C> columnDeserializingFunction,
+                Function<V, Bytes> valueSerializingFunction,
+                Function<Bytes, V> valueDeserializingFunction
         ) {
             return addMetricsIfChosen(
                     TransformingTable.create(
@@ -198,7 +199,7 @@ public final class AzureTables {
             );
         }
 
-        public Table<byte[], byte[], byte[]> buildWithNoSerialization() {
+        public Table<Bytes, Bytes, Bytes> buildWithNoSerialization() {
             return addMetricsIfChosen(backingTable);
         }
 
