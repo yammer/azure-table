@@ -4,7 +4,7 @@
 
     <groupId>com.yammer.collections.azure</groupId>
     <artifactId>azure-table</artifactId>
-    <version>1.1.5-SNAPSHOT</version>
+    <version>1.1.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Azure Table</name>
