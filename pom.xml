@@ -4,7 +4,7 @@
 
     <groupId>com.yammer.collections.azure</groupId>
     <artifactId>azure-table</artifactId>
-    <version>2.0.0</version>
+    <version>1.1.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Azure Table</name>
@@ -72,7 +72,7 @@
         <connection>scm:git:git://github.com/yammer/azure-table.git</connection>
         <developerConnection>scm:git:git@github.com:yammer/azure-table.git</developerConnection>
         <url>https://github.com/yammer/azure-table/</url>
-        <tag>azure-table-2.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
