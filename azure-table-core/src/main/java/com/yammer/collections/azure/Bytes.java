@@ -24,6 +24,10 @@ import java.util.Arrays;
 public class Bytes {
     private final byte[] bytes;
 
+    public static Bytes of(byte[] bytes) {
+        return new Bytes(bytes);
+    }
+
     public Bytes(byte[] bytes) {
         this.bytes = bytes;
     }
