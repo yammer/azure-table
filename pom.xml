@@ -37,7 +37,7 @@
         <jackson.version>2.2.3</jackson.version>
         <slf4j.simple.version>1.7.5</slf4j.simple.version>
         <argparse4j.version>0.4.1</argparse4j.version>
-        <yammer.collections.version>0.0.5</yammer.collections.version>
+        <yammer.collections.version>0.0.6</yammer.collections.version>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
