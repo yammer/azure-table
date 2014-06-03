@@ -70,7 +70,7 @@ To start using the yammer metrics library integration you simply need to include
       <version>${project.version}</version>
     </dependency>
     
-The key class is `MeteredTable` which is a decorotor around a `Table` instance.
+The key class is `MeteredTable` which is a decorator around a `Table` instance.
 
 This library provides metrics purely around the following operations: *get*, *put* and *remove*.
 

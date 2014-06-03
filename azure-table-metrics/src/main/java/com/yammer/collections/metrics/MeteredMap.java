@@ -15,20 +15,19 @@
  */
 package com.yammer.collections.metrics;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.google.common.collect.ForwardingMap;
-import com.yammer.metrics.core.TimerContext;
 
 import java.util.Map;
 
-import static com.yammer.collections.metrics.Timers.GET_TIMER;
-import static com.yammer.collections.metrics.Timers.PUT_TIMER;
-import static com.yammer.collections.metrics.Timers.REMOVE_TIMER;
-
 class MeteredMap<K, V> extends ForwardingMap<K, V> {
     private final Map<K, V> backingMap;
+    private final MetricRegistry metricRegistry;
 
-    MeteredMap(Map<K, V> backingMap) {
+    MeteredMap(Map<K, V> backingMap, MetricRegistry metricRegistry) {
         this.backingMap = backingMap;
+        this.metricRegistry = metricRegistry;
     }
 
     @Override
@@ -38,7 +37,7 @@ class MeteredMap<K, V> extends ForwardingMap<K, V> {
 
     @Override
     public V remove(Object object) {
-        TimerContext ctx = REMOVE_TIMER.time();
+        Timer.Context ctx = metricRegistry.timer(Timers.REMOVE_TIMER_NAME).time();
         try {
             return backingMap.remove(object);
         } finally {
@@ -48,7 +47,7 @@ class MeteredMap<K, V> extends ForwardingMap<K, V> {
 
     @Override
     public V get(Object key) {
-        TimerContext ctx = GET_TIMER.time();
+        Timer.Context ctx = metricRegistry.timer(Timers.GET_TIMER_NAME).time();
         try {
             return backingMap.get(key);
         } finally {
@@ -58,7 +57,7 @@ class MeteredMap<K, V> extends ForwardingMap<K, V> {
 
     @Override
     public V put(K key, V value) {
-        TimerContext ctx = PUT_TIMER.time();
+        Timer.Context ctx = metricRegistry.timer(Timers.PUT_TIMER_NAME).time();
         try {
             return backingMap.put(key, value);
         } finally {

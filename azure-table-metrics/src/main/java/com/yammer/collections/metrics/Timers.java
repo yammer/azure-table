@@ -15,16 +15,12 @@
  */
 package com.yammer.collections.metrics;
 
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Timer;
-
 class Timers {
-    static final Timer GET_TIMER = createTimerFor("get");
-    static final Timer PUT_TIMER = createTimerFor("put");
-    static final Timer REMOVE_TIMER = createTimerFor("remove");
+    static final String GET_TIMER_NAME = createTimerFor("get");
+    static final String PUT_TIMER_NAME = createTimerFor("put");
+    static final String REMOVE_TIMER_NAME = createTimerFor("remove");
 
-    private static Timer createTimerFor(String name) {
-        return Metrics.newTimer(MeteredTable.class, name);
+    private static String createTimerFor(String name) {
+        return String.format("metered-table-%s", name);
     }
-
 }
