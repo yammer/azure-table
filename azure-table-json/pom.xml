@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.yammer.collections.azure</groupId>
         <artifactId>azure-table</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>3.0.0</version>
     </parent>
 
     <name>Azure Table JSON</name>
