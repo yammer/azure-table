@@ -15,6 +15,7 @@
  */
 package com.yammer.collections.metrics;
 
+import com.codahale.metrics.MetricRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +41,7 @@ public class MeteredMapTest {
 
     @Before
     public void setUp() {
-        meteredMap = new MeteredMap<>(backingMapMock);
+        meteredMap = new MeteredMap<>(backingMapMock, new MetricRegistry());
     }
 
     @Test

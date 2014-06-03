@@ -16,6 +16,7 @@
 package com.yammer.collections.metrics;
 
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Table;
 import org.junit.Before;
@@ -43,12 +44,12 @@ public class MeteredTableTest {
 
     @Before
     public void setUp() {
-        meteredTable = MeteredTable.create(backingTableMock);
+        meteredTable = MeteredTable.create(backingTableMock, new MetricRegistry());
     }
 
     @Test(expected = NullPointerException.class)
     public void backingTable_cannotBeNull() {
-        MeteredTable.create(null);
+        MeteredTable.create(null, new MetricRegistry());
     }
 
     @Test

@@ -15,16 +15,14 @@
  */
 package com.yammer.collections.metrics;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.google.common.collect.ForwardingTable;
 import com.google.common.collect.Table;
-import com.yammer.metrics.core.TimerContext;
 
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.yammer.collections.metrics.Timers.GET_TIMER;
-import static com.yammer.collections.metrics.Timers.PUT_TIMER;
-import static com.yammer.collections.metrics.Timers.REMOVE_TIMER;
 
 /**
  * Provides metrics for the core operations, but not for the collections view operations.
@@ -37,18 +35,20 @@ import static com.yammer.collections.metrics.Timers.REMOVE_TIMER;
 @SuppressWarnings("ClassWithTooManyMethods")
 public class MeteredTable<R, C, V> extends ForwardingTable<R, C, V> {
     private final Table<R, C, V> backingTable;
+    private final MetricRegistry metricRegistry;
 
-    private MeteredTable(Table<R, C, V> backingTable) {
+    private MeteredTable(Table<R, C, V> backingTable, MetricRegistry metricRegistry) {
+        this.metricRegistry = metricRegistry;
         this.backingTable = checkNotNull(backingTable);
     }
 
-    public static <R, C, V> Table<R, C, V> create(Table<R, C, V> backingTable) {
-        return new MeteredTable<>(backingTable);
+    public static <R, C, V> Table<R, C, V> create(Table<R, C, V> backingTable, MetricRegistry metricRegistry) {
+        return new MeteredTable<>(backingTable, metricRegistry);
     }
 
     @Override
     public V get(Object o, Object o2) {
-        TimerContext ctx = GET_TIMER.time();
+        Timer.Context ctx = metricRegistry.timer(Timers.GET_TIMER_NAME).time();
         try {
             return backingTable.get(o, o2);
         } finally {
@@ -58,7 +58,7 @@ public class MeteredTable<R, C, V> extends ForwardingTable<R, C, V> {
 
     @Override
     public V put(R r, C c, V v) {
-        TimerContext ctx = PUT_TIMER.time();
+        Timer.Context ctx = metricRegistry.timer(Timers.PUT_TIMER_NAME).time();
         try {
             return backingTable.put(r, c, v);
         } finally {
@@ -68,7 +68,7 @@ public class MeteredTable<R, C, V> extends ForwardingTable<R, C, V> {
 
     @Override
     public V remove(Object o, Object o2) {
-        TimerContext ctx = REMOVE_TIMER.time();
+        Timer.Context ctx = metricRegistry.timer(Timers.REMOVE_TIMER_NAME).time();
         try {
             return backingTable.remove(o, o2);
         } finally {
@@ -78,12 +78,12 @@ public class MeteredTable<R, C, V> extends ForwardingTable<R, C, V> {
 
     @Override
     public Map<C, V> row(R r) {
-        return new MeteredMap<>(backingTable.row(r));
+        return new MeteredMap<>(backingTable.row(r), metricRegistry);
     }
 
     @Override
     public Map<R, V> column(C c) {
-        return new MeteredMap<>(backingTable.column(c));
+        return new MeteredMap<>(backingTable.column(c), metricRegistry);
     }
 
     @Override

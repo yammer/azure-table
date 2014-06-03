@@ -15,6 +15,7 @@
  */
 package com.yammer.collections.azure.util;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
@@ -159,14 +160,14 @@ public final class AzureTables {
     public static class TableBuilder {
         private final Table<Bytes, Bytes, Bytes> backingTable;
         @SuppressWarnings("InstanceVariableMayNotBeInitialized")
-        private boolean metrics;
+        private Optional<MetricRegistry> metrics = Optional.absent();
 
         private TableBuilder(String name, CloudTableClient tableClient) {
             backingTable = BaseAzureTable.create(name, tableClient);
         }
 
-        public TableBuilder andAddMetrics() {
-            metrics = true;
+        public TableBuilder andAddMetrics(MetricRegistry metrics) {
+            this.metrics = Optional.fromNullable(metrics);
             return this;
         }
 
@@ -204,8 +205,8 @@ public final class AzureTables {
         }
 
         private <R, C, V> Table<R, C, V> addMetricsIfChosen(Table<R, C, V> table) {
-            if (metrics) {
-                return MeteredTable.create(table);
+            if (metrics.isPresent()) {
+                return MeteredTable.create(table, metrics.get());
             }
             return table;
         }
