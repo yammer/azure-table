@@ -91,8 +91,8 @@ Examples:
 1. Construct just the client:
 
 ```
-    AzureTables.clientForAccount(accountName, accountKey).
-               .withLinearRetryPolicy(retryInterval, numberOfAttempts). // optional
+    AzureTables.clientForAccount(accountName, accountKey)
+               .withLinearRetryPolicy(retryInterval, numberOfAttempts) // optional
                .withTimeoutInMillis(timeout) // optional
                .build();
 ```
@@ -101,7 +101,7 @@ Examples:
 
 ```
     AzureTables.clientForAccount(accountName, accountKey)
-               .tableWithName("tableName")
+               .tableWithName(tableName)
                .cloudTable();
 ```
 
@@ -110,15 +110,15 @@ Examples:
 ```
     AzureTables.clientForConfiguration(configuration)
                .createIfDoesNotExist()
-               .andAddMetrics(). // optional
+               .andAddMetrics() // optional
                .buildWithJsonSerialization(rowClass, columnClass, valueClass);
 ```
 
 4. Construct an azure table with custom serialization, without metrics, and creating regardless:
 
 ```
-    AzureTables.clientForAccount((accountName, accountKey)
-               .tableWithName("tableName)
+    AzureTables.clientForAccount(accountName, accountKey)
+               .tableWithName(tableName)
                .create()
                .buildUsingCustomSerialization(<serialization functions>);
 ```
@@ -126,8 +126,9 @@ Examples:
 5. Do something only if the table exists:
 
 ```
-    Optional<AzureTables.clientForAccount((accountName, accountKey)
-               .tableWithName("tableName)
+    AzureTables.clientForAccount(accountName, accountKey)
+               .tableWithName(tableName)
                .create()
+               .ifExists();
 ```
         
