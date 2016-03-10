@@ -1,3 +1,5 @@
+# [DEPRECATED] This repository is no longer maintained or supported! Use at your own risk!
+
 Azure Table [![Build Status](https://travis-ci.org/yammer/azure-table.png)](https://travis-ci.org/yammer/azure-table)
 
 azure-table
